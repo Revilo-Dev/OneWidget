@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The root ID and translucent background are required by Samsung One UI Home blur. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/widget_clock_background">
+    <LinearLayout android:id="@+id/clock_content" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:gravity="center" android:orientation="vertical" android:paddingHorizontal="22dp" android:paddingVertical="14dp">
+        <TextClock android:id="@+id/clock_date_above" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:fontFamily="@font/clock_stripe" android:format12Hour="EEEE, MMMM d" android:format24Hour="EEEE, MMMM d" android:gravity="center" android:textColor="#E6FFFFFF" android:textSize="15sp" android:visibility="gone" />
+        <TextClock android:id="@+id/clock_time" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:fontFamily="@font/clock_stripe" android:format12Hour="h:mm a" android:format24Hour="HH:mm" android:gravity="center" android:textColor="#FFFFFFFF" android:textSize="42sp" android:textStyle="bold" />
+        <TextClock android:id="@+id/clock_date" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:fontFamily="@font/clock_stripe" android:format12Hour="EEEE, MMMM d" android:format24Hour="EEEE, MMMM d" android:gravity="center" android:textColor="#E6FFFFFF" android:textSize="15sp" />
+        <TextClock android:id="@+id/clock_day" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    </LinearLayout>
+</FrameLayout>

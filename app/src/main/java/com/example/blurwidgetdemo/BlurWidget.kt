@@ -57,6 +57,9 @@ class BlurWidget : AppWidgetProvider() {
             }
 
             val views = RemoteViews(context.packageName, layoutResource).apply {
+                // One UI Home looks for this exact view ID and composites its native
+                // wallpaper blur beneath the translucent colour on compatible devices.
+                // Keep the layout root tagged @android:id/background and its alpha 1..254.
                 setInt(android.R.id.background, "setBackgroundColor", tintColor(prefs, appWidgetId))
             }
 

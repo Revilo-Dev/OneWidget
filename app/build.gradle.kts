@@ -23,8 +23,8 @@ android {
         applicationId = "com.example.blurwidgetdemo"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.1.1-clock-ui"
     }
 
     signingConfigs {
@@ -75,4 +75,5 @@ configurations.configureEach {
 dependencies {
     implementation("io.github.tribalfs:oneui-design:0.9.13+oneui8")
     implementation("io.github.oneuiproject:icons:1.1.0")
+    testImplementation("junit:junit:4.13.2")
 }

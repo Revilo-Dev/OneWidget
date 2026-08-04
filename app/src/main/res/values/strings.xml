@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Blur Widget</string>
-    <string name="widget_description">Blank blur widget with adjustable tint and opacity</string>
+    <string name="widget_description">Blank widget with adjustable tint and opacity</string>
     <string name="widget_label">Blur Widget</string>
+    <string name="digital_clock_widget_label">Digital Clock</string>
+    <string name="digital_clock_widget_description">Resizable clock and date with adjustable One UI-style glass</string>
+    <string name="clock_widget_settings">Digital Clock settings</string>
+    <string name="clock_appearance">Appearance</string>
+    <string name="clock_content">Content</string>
+    <string name="clock_time_format">Time format</string>
+    <string name="clock_alignment">Text alignment</string>
+    <string name="clock_show_date">Show date</string>
+    <string name="clock_show_day">Show day of week</string>
+    <string name="clock_system_format">Use system setting</string>
+    <string name="clock_force_12">Force 12-hour</string>
+    <string name="clock_force_24">Force 24-hour</string>
+    <string name="clock_align_start">Start</string>
+    <string name="clock_align_center">Centre</string>
+    <string name="clock_align_end">End</string>
+    <string name="clock_choose_colour">Choose tint colour</string>
+    <string name="clock_opacity">Background opacity</string>
+    <string name="clock_save">Save</string>
+    <string name="clock_cancel">Cancel</string>
     <string name="lockscreen_message_1x1_label">Blur Message 1x1</string>
     <string name="lockscreen_message_2x1_label">Blur Message 2x1</string>
     <string name="lockscreen_message_preview">Glass</string>
@@ -15,6 +34,8 @@
     <string name="onboarding_implement_title">Reuse the approach</string>
     <string name="onboarding_implement_summary">The widget uses a normal ARGB background on @android:id/background, so it is easy to port.</string>
     <string name="add_widget">Add widget</string>
+    <string name="add_digital_clock_widget">Add Digital Clock</string>
+    <string name="home_build_version">Installed build: %1$s (%2$d)</string>
     <string name="add_widget_requested">Choose a spot on your home screen to place it.</string>
     <string name="add_widget_not_supported">This launcher does not support adding widgets from the app.</string>
     <string name="about">About</string>

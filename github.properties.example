@@ -8,4 +8,4 @@
 # github.properties is gitignored — never commit your real token.
 
 ghUsername=your-github-username
-ghAccessToken=ghp_your_read_packages_token
+ghAccessToken=your-read-packages-token

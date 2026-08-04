@@ -11,6 +11,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
 
 class MainActivity : AppCompatActivity() {
@@ -20,8 +21,14 @@ class MainActivity : AppCompatActivity() {
 
         initTips()
         findViewById<TextView>(R.id.add_widget_button).setOnClickListener {
-            requestWidgetPin()
+            requestWidgetPin(BlurWidget::class.java)
         }
+        findViewById<TextView>(R.id.add_clock_widget_button).setOnClickListener {
+            requestWidgetPin(DigitalClockWidget::class.java)
+        }
+        findViewById<TextView>(R.id.home_build_version).text = getString(
+            R.string.home_build_version, packageManager.getPackageInfo(packageName, 0).versionName ?: "unknown", packageManager.getPackageInfo(packageName, 0).longVersionCode
+        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -54,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestWidgetPin() {
+    private fun requestWidgetPin(provider: Class<out android.appwidget.AppWidgetProvider>) {
         val appWidgetManager = getSystemService(AppWidgetManager::class.java)
         val status = findViewById<TextView>(R.id.add_widget_status)
         if (!appWidgetManager.isRequestPinAppWidgetSupported) {
@@ -63,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         appWidgetManager.requestPinAppWidget(
-            ComponentName(this, BlurWidget::class.java),
+            ComponentName(this, provider),
             null,
             null
         )

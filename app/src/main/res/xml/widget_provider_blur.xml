@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Undocumented One UI Home metadata: retain widgetStyle and widgetSize for native blur. -->
 <appwidget-provider
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"

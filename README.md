@@ -33,7 +33,7 @@ between 1–254, and `app:widgetStyle="colorful"` + a real `app:widgetSize`). Th
 [One UI blur integration wiki guide](https://github.com/thatjoshguy67/blur-widget-demo/wiki/One-UI-Blur-Integration)
 covers each one.
 
-## Building
+## Development setup
 
 This is a standard Gradle/Android Studio project (AGP 8.9, Kotlin 2.2, JDK 17,
 `minSdk` 26).
@@ -58,15 +58,27 @@ resolve dependencies:
 
 `github.properties` is gitignored — your token never gets committed.
 
-### Build and install
+### Build and install on a Samsung device
 
 ```bash
 ./gradlew assembleDebug                 # build the debug APK
 ./gradlew installDebug                  # build + install on a connected device
 ```
 
-Then open the app, tap **Add widget**, place it on a Samsung home screen, and use
-the configuration screen to adjust tint and opacity.
+Android Studio should use JDK 17 (Gradle's JDK setting), or use a JDK 17 shell.
+Enable Developer options and USB debugging on the phone, connect it, accept the
+RSA prompt, then run `./gradlew installDebug`. Open the app, tap **Add widget**,
+place it on a Samsung One UI 7.0+ home screen, and use the configuration screen
+to adjust tint and opacity.
+
+To verify native blur, choose a detailed wallpaper, set opacity to Glass or
+Default, and compare the widget surface as you move it over different wallpaper
+areas: One UI Home should blur the wallpaper beneath it. On a non-Samsung device,
+or an unsupported Samsung launcher/version, the widget remains safe and usable as
+a normal semi-transparent tint; it does not render or depend on a software blur.
+
+See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for the compatibility checklist and
+the staged plan for adding future widgets.
 
 ## Continuous integration
 
