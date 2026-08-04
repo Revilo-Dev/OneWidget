@@ -1,6 +1,7 @@
 package com.example.blurwidgetdemo.widgets.clock
 
 import android.appwidget.AppWidgetManager
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.app.WallpaperManager
@@ -25,6 +26,7 @@ class DigitalClockConfigActivity : AppCompatActivity() {
     private var value = BlurWidget.DEFAULT_TINT_VALUE
     private var alpha = BlurWidget.DEFAULT_TINT_ALPHA
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         setResult(RESULT_CANCELED)
@@ -107,6 +109,8 @@ class DigitalClockConfigActivity : AppCompatActivity() {
             when (findViewById<RadioGroup>(R.id.clock_time_format).checkedRadioButtonId) {
                 R.id.format_12 -> ClockTimeFormat.TWELVE_HOUR; R.id.format_24 -> ClockTimeFormat.TWENTY_FOUR_HOUR; else -> ClockTimeFormat.SYSTEM
             },
+            true,
+            false,
             when (findViewById<RadioGroup>(R.id.clock_alignment).checkedRadioButtonId) {
                 R.id.align_start -> ClockTextAlignment.START; R.id.align_end -> ClockTextAlignment.END; else -> ClockTextAlignment.CENTER
             }, ClockTapAction.entries[findViewById<Spinner>(R.id.clock_tap_action).selectedItemPosition], ClockFont.entries[findViewById<Spinner>(R.id.clock_font).selectedItemPosition])

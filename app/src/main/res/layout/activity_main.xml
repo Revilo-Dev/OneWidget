@@ -91,6 +91,16 @@
             android:drawablePadding="10dp"
             android:text="@string/add_digital_clock_widget" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/add_battery_widget_button"
+            style="@style/ButtonStyle.Colored"
+            android:layout_width="296dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:drawableStart="@drawable/ic_home_24"
+            android:drawablePadding="10dp"
+            android:text="@string/add_battery_widget" />
+
         <TextView
             android:id="@+id/add_widget_status"
             android:layout_width="match_parent"

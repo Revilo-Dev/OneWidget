@@ -4,12 +4,12 @@
     android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="@drawable/widget_clock_background">
     <LinearLayout android:id="@+id/clock_content" android:layout_width="match_parent" android:layout_height="match_parent"
-        android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="18dp">
+        android:gravity="center" android:orientation="vertical" android:paddingHorizontal="18dp">
         <TextClock android:id="@+id/clock_date_above" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-        <TextClock android:id="@+id/clock_time" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:fontFamily="@font/samsung_number_default_vf" android:format12Hour="h:mm a" android:format24Hour="HH:mm" android:textColor="#FFFFFFFF" android:textSize="28sp" android:textStyle="bold" />
-        <TextClock android:id="@+id/clock_date" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:layout_marginStart="12dp" android:fontFamily="@font/samsung_number_default_vf" android:format12Hour="MMM d" android:format24Hour="MMM d" android:gravity="end"
+        <TextClock android:id="@+id/clock_time" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:fontFamily="@font/samsung_number_default_bold" android:format12Hour="h:mm a" android:format24Hour="HH:mm" android:textColor="#FFFFFFFF" android:textSize="28sp" />
+        <TextClock android:id="@+id/clock_date" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:fontFamily="@font/samsung_number_default_bold" android:format12Hour="MMM d" android:format24Hour="MMM d" android:gravity="end"
             android:textColor="#E6FFFFFF" android:textSize="14sp" />
         <TextClock android:id="@+id/clock_day" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
     </LinearLayout>

@@ -78,6 +78,23 @@
         </receiver>
 
         <receiver
+            android:name=".widgets.battery.BatteryWidget"
+            android:exported="true"
+            android:label="@string/battery_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_battery" />
+            <meta-data
+                android:name="com.sec.android.appwidget.widgetinfo"
+                android:resource="@xml/widget_supported_cell_size_info" />
+        </receiver>
+
+        <receiver
             android:name=".LockScreenMessageServiceBoxReceiver"
             android:exported="true">
             <intent-filter>

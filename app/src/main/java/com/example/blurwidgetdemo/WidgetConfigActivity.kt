@@ -10,6 +10,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.RenderEffect
 import android.graphics.Shader
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -27,6 +28,16 @@ import dev.oneuiproject.oneui.widget.CardItemView
 import dev.oneuiproject.oneui.widget.SwitchItemView
 import kotlin.math.min
 import kotlin.math.roundToInt
+import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
+import com.example.blurwidgetdemo.widgets.clock.ClockWidgetPreferences
+import com.example.blurwidgetdemo.widgets.clock.ClockTimeFormat
+import com.example.blurwidgetdemo.widgets.clock.ClockTextAlignment
+import com.example.blurwidgetdemo.widgets.clock.ClockTapAction
+import com.example.blurwidgetdemo.widgets.clock.ClockFont
+import com.example.blurwidgetdemo.widgets.clock.ClockWidgetLayout
+import com.example.blurwidgetdemo.widgets.clock.fontResource
+import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
+import androidx.appcompat.app.AlertDialog
 
 private fun Drawable.copyForPreview(): Drawable =
     constantState?.newDrawable()?.mutate() ?: mutate()
@@ -48,6 +59,7 @@ class WidgetConfigActivity : AppCompatActivity() {
     ))
     private var colorPickerDialog: SeslColorPickerDialog? = null
     private var previewWallpaper: Drawable? = null
+    private var clockSettings: com.example.blurwidgetdemo.widgets.clock.ClockWidgetSettings? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +77,7 @@ class WidgetConfigActivity : AppCompatActivity() {
         }
 
         loadSettings()
+        setupClockOptions()
         setupWallpaperPreview()
         setupColourPicker()
         setupPresetControls()
@@ -96,7 +109,57 @@ class WidgetConfigActivity : AppCompatActivity() {
             BlurWidget.DEFAULT_TINT_VALUE,
             BlurWidget.DEFAULT_TINT_ALPHA
         )).distinct().take(MAX_RECENT_COLORS)
+        if (isClockWidget()) clockSettings = ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId)
     }
+
+    private fun providerClassName(): String? = AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId)?.provider?.className
+    private fun isClockWidget(): Boolean = providerClassName() == DigitalClockWidget::class.java.name
+    private fun isBatteryWidget(): Boolean = providerClassName() == BatteryWidget::class.java.name
+
+    private fun setupClockOptions() {
+        if (!isClockWidget()) return
+        findViewById<View>(R.id.clock_options_section).visibility = View.VISIBLE
+        var settings = clockSettings ?: return
+        fun bind() {
+            findViewById<SwitchItemView>(R.id.clock_show_date).isChecked = settings.showDate
+            findViewById<SwitchItemView>(R.id.clock_show_day).isChecked = settings.showDayOfWeek
+            findViewById<SwitchItemView>(R.id.clock_date_above).isChecked = settings.dateAboveTime
+            findViewById<SwitchItemView>(R.id.clock_background).isChecked = settings.backgroundEnabled
+            findViewById<SwitchItemView>(R.id.clock_show_am_pm).apply {
+                visibility = if (settings.timeFormat == ClockTimeFormat.TWELVE_HOUR) View.VISIBLE else View.GONE
+                isChecked = settings.showAmPm
+            }
+            findViewById<SwitchItemView>(R.id.clock_show_seconds).isChecked = settings.showSeconds
+            findViewById<CardItemView>(R.id.clock_time_format).summary = settings.timeFormat.label()
+            findViewById<CardItemView>(R.id.clock_alignment).summary = settings.alignment.label()
+            findViewById<CardItemView>(R.id.clock_tap_action).summary = "Open ${settings.tapAction.label()}"
+            findViewById<CardItemView>(R.id.clock_font).summary = settings.font.label()
+            findViewById<CardItemView>(R.id.clock_text_colour).summary = "#${settings.textColor.toUInt().toString(16).uppercase().padStart(8, '0')}"
+        }
+        bind()
+        findViewById<SwitchItemView>(R.id.clock_show_date).onCheckedChangedListener = { _, checked -> settings = settings.copy(showDate = checked); clockSettings = settings; updatePreview() }
+        findViewById<SwitchItemView>(R.id.clock_show_day).onCheckedChangedListener = { _, checked -> settings = settings.copy(showDayOfWeek = checked); clockSettings = settings; updatePreview() }
+        findViewById<SwitchItemView>(R.id.clock_date_above).onCheckedChangedListener = { _, checked -> settings = settings.copy(dateAboveTime = checked); clockSettings = settings; updatePreview() }
+        findViewById<SwitchItemView>(R.id.clock_background).onCheckedChangedListener = { _, checked -> settings = settings.copy(backgroundEnabled = checked); clockSettings = settings; updatePreview() }
+        findViewById<SwitchItemView>(R.id.clock_show_am_pm).onCheckedChangedListener = { _, checked -> settings = settings.copy(showAmPm = checked); clockSettings = settings; updatePreview() }
+        findViewById<SwitchItemView>(R.id.clock_show_seconds).onCheckedChangedListener = { _, checked -> settings = settings.copy(showSeconds = checked); clockSettings = settings; updatePreview() }
+        fun <T> choose(view: CardItemView, values: Array<T>, label: (T) -> String, update: (T) -> Unit) { view.setOnClickListener { AlertDialog.Builder(this).setItems(values.map(label).toTypedArray()) { _, which -> update(values[which]); bind() }.show() } }
+        choose(findViewById(R.id.clock_time_format), ClockTimeFormat.entries.toTypedArray(), { it.label() }) { settings = settings.copy(timeFormat = it); clockSettings = settings; updatePreview() }
+        choose(findViewById(R.id.clock_alignment), ClockTextAlignment.entries.toTypedArray(), { it.label() }) { settings = settings.copy(alignment = it); clockSettings = settings; updatePreview() }
+        choose(findViewById(R.id.clock_tap_action), ClockTapAction.entries.toTypedArray(), { it.label() }) { settings = settings.copy(tapAction = it); clockSettings = settings }
+        choose(findViewById(R.id.clock_font), ClockFont.entries.toTypedArray(), { it.label() }) { settings = settings.copy(font = it); clockSettings = settings; updatePreview() }
+        findViewById<CardItemView>(R.id.clock_text_colour).setOnClickListener {
+            SeslColorPickerDialog(this, { color ->
+                settings = settings.copy(textColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color)))
+                clockSettings = settings
+                bind()
+                updatePreview()
+            }, settings.textColor, intArrayOf(), false).show()
+        }
+        clockSettings = settings
+    }
+
+    private fun Enum<*>.label(): String = name.lowercase().split('_').joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
 
     private fun setupWallpaperPreview() {
         val wallpaper = wallpaperPreviewDrawable()
@@ -281,11 +344,66 @@ class WidgetConfigActivity : AppCompatActivity() {
             }
         }
         previewWidget.addView(wallpaperLayer, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        val clockSettings = if (isClockWidget()) clockSettings ?: ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId) else null
         previewWidget.addView(
-            View(this).apply { background = roundedDrawable(currentTintColor(), previewRadiusFor(spec)) },
+            View(this).apply { background = roundedDrawable(if (clockSettings?.backgroundEnabled == false) Color.TRANSPARENT else currentTintColor(), previewRadiusFor(spec)) },
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
         )
+        if (isClockWidget()) {
+            val settings = clockSettings!!
+            val clockCategory = ClockWidgetLayout.category(spec.minWidthDp, spec.minHeightDp)
+            val time = TextView(this).apply {
+                text = when {
+                    settings.timeFormat == ClockTimeFormat.TWELVE_HOUR && !settings.showAmPm -> if (settings.showSeconds) "12:45:30" else "12:45"
+                    settings.showSeconds -> "12:45:30 PM"
+                    else -> "12:45 PM"
+                }
+                textSize = when (clockCategory) { ClockWidgetLayout.Category.COMPACT -> 28f; ClockWidgetLayout.Category.MEDIUM -> 42f; ClockWidgetLayout.Category.LARGE -> 52f }
+                setTextColor(settings.textColor)
+                setClockTypeface(settings.font)
+                gravity = android.view.Gravity.CENTER
+            }
+            previewWidget.addView(time, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+            if (settings.showDate && spec.layoutMode != BlurWidget.LAYOUT_MODE_COMPACT_STRIP) {
+                previewWidget.addView(TextView(this).apply {
+                    text = if (settings.showDayOfWeek) "Tuesday, August 4" else "August 4"
+                    textSize = 14f; setTextColor(settings.textColor); setClockTypeface(settings.font)
+                    gravity = android.view.Gravity.CENTER_HORIZONTAL or if (settings.dateAboveTime) android.view.Gravity.TOP else android.view.Gravity.BOTTOM
+                    if (settings.dateAboveTime) setPadding(0, dp(18), 0, 0) else setPadding(0, 0, 0, dp(18))
+                }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+            }
+        } else if (isBatteryWidget()) {
+            previewWidget.addView(TextView(this).apply {
+                text = "85%"
+                textSize = if (spec.layoutMode == BlurWidget.LAYOUT_MODE_COMPACT_STRIP) 25f else 42f
+                setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                gravity = Gravity.CENTER
+            }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        }
+    }
+
+    private fun ClockTextAlignment.previewGravity(): Int = when (this) {
+        ClockTextAlignment.START -> android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
+        ClockTextAlignment.END -> android.view.Gravity.END or android.view.Gravity.CENTER_VERTICAL
+        ClockTextAlignment.CENTER -> android.view.Gravity.CENTER
+    }
+
+    private fun TextView.setClockTypeface(font: ClockFont, bold: Boolean = false) {
+        val resource = font.fontResource()
+        typeface = when {
+            resource == null -> Typeface.create(Typeface.DEFAULT, if (bold) Typeface.BOLD else Typeface.NORMAL)
+            else -> runCatching {
+                val base = resources.getFont(resource)
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && font == ClockFont.SAMSUNG_DEFAULT_BOLD -> Typeface.create(base, 700, false)
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && font == ClockFont.SAMSUNG_DEFAULT_THIN -> Typeface.create(base, 300, false)
+                    bold -> Typeface.create(base, Typeface.BOLD)
+                    else -> base
+                }
+            }.getOrElse { Typeface.create(Typeface.DEFAULT, if (bold) Typeface.BOLD else Typeface.NORMAL) }
+        }
     }
 
     private fun currentTintColor(): Int =
@@ -317,7 +435,25 @@ class WidgetConfigActivity : AppCompatActivity() {
             .putInt("tint_alpha_$appWidgetId", currentAlpha)
             .apply()
 
-        BlurWidget.updateWidget(this, AppWidgetManager.getInstance(this), appWidgetId)
+        if (isClockWidget()) {
+            ClockWidgetPreferences.save(
+                ClockWidgetPreferences.preferences(this),
+                appWidgetId,
+                (clockSettings ?: ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId)).copy(
+                    hue = currentHue, saturation = currentSaturation, value = currentValue, alpha = currentAlpha
+                )
+            )
+        }
+
+        val manager = AppWidgetManager.getInstance(this)
+        val provider = providerClassName()
+        if (provider == DigitalClockWidget::class.java.name) {
+            DigitalClockWidget.updateWidget(this, manager, appWidgetId)
+        } else if (provider == BatteryWidget::class.java.name) {
+            BatteryWidget.updateWidget(this, manager, appWidgetId)
+        } else {
+            BlurWidget.updateWidget(this, manager, appWidgetId)
+        }
 
         val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         setResult(RESULT_OK, resultValue)

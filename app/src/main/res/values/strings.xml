@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Blur Widget</string>
+    <string name="app_name">One Widget</string>
     <string name="widget_description">Blank widget with adjustable tint and opacity</string>
     <string name="widget_label">Blur Widget</string>
     <string name="digital_clock_widget_label">Digital Clock</string>
@@ -35,7 +35,10 @@
     <string name="onboarding_implement_summary">The widget uses a normal ARGB background on @android:id/background, so it is easy to port.</string>
     <string name="add_widget">Add widget</string>
     <string name="add_digital_clock_widget">Add Digital Clock</string>
-    <string name="home_build_version">Installed build: %1$s (%2$d)</string>
+    <string name="add_battery_widget">Add Battery</string>
+    <string name="battery_widget_label">Battery</string>
+    <string name="battery_widget_description">Resizable battery percentage with adjustable One UI-style glass</string>
+    <string name="home_build_version" formatted="true">Installed build: %1$s (%2$d)</string>
     <string name="add_widget_requested">Choose a spot on your home screen to place it.</string>
     <string name="add_widget_not_supported">This launcher does not support adding widgets from the app.</string>
     <string name="about">About</string>

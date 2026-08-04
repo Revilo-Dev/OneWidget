@@ -8,7 +8,7 @@
         <TextClock android:id="@+id/clock_date_above" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:fontFamily="@font/alatsi" android:format12Hour="MMMM d, yyyy" android:format24Hour="MMMM d, yyyy" android:gravity="center" android:textColor="#E6FFFFFF" android:textSize="16sp" android:visibility="gone" />
         <TextClock android:id="@+id/clock_time" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:fontFamily="@font/alatsi" android:format12Hour="h:mm a" android:format24Hour="HH:mm" android:gravity="center" android:textColor="#FFFFFFFF" android:textSize="52sp" android:textStyle="bold" />
+            android:fontFamily="@font/alatsi" android:format12Hour="h:mm a" android:format24Hour="HH:mm" android:gravity="center" android:textColor="#FFFFFFFF" android:textSize="52sp" />
         <TextClock android:id="@+id/clock_day" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:fontFamily="@font/alatsi" android:format12Hour="EEEE" android:format24Hour="EEEE" android:gravity="center" android:textColor="#E6FFFFFF" android:textSize="16sp" />
         <TextClock android:id="@+id/clock_date" android:layout_width="match_parent" android:layout_height="wrap_content"

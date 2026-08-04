@@ -74,6 +74,19 @@ calendar intent resolution varies by launcher and must be confirmed on device.
 The date/day controls are intentionally omitted in compact layouts where space is
 limited; no seconds or background network updates are used.
 
+### Clock fonts and RemoteViews
+
+The configuration preview is a local Activity view, so it can load a `Typeface`
+directly. A home-screen widget is inflated in the launcher process, and
+`RemoteViews` cannot send an arbitrary Typeface object to `TextClock`. The selected
+font is therefore encoded in the full XML layout selected by `ClockLayoutResolver`;
+each font/size variant sets `android:fontFamily` directly on every visible
+`TextClock`. Adding a font requires a bundled, lowercase `res/font` resource, three
+matching compact/medium/large layouts retaining the same IDs and blur root, and an
+entry in the resolver. Validate each font on a physical launcher after resizing and
+reconfiguration. This repository does not document the redistribution licences of
+the bundled fonts, so confirm commercial-use terms before a Play Store release.
+
 ## Recommended next five stages
 
 1. Extract tested shared widget appearance/preferences helpers while preserving the

@@ -10,9 +10,9 @@ object ClockWidgetLayout {
     enum class Category { COMPACT, MEDIUM, LARGE }
 
     fun category(minWidthDp: Int, minHeightDp: Int): Category = when {
-        minWidthDp <= 220 && minHeightDp <= COMPACT_MAX_HEIGHT_DP -> Category.COMPACT
+        // Short strips and narrow squares need the compact, single-line treatment.
+        minHeightDp <= COMPACT_MAX_HEIGHT_DP || minWidthDp < MEDIUM_MIN_WIDTH_DP -> Category.COMPACT
         minWidthDp >= LARGE_MIN_WIDTH_DP || minHeightDp >= LARGE_MIN_HEIGHT_DP -> Category.LARGE
-        minWidthDp >= MEDIUM_MIN_WIDTH_DP -> Category.MEDIUM
-        else -> Category.COMPACT
+        else -> Category.MEDIUM
     }
 }

@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.provider.AlarmClock
 import android.view.Gravity
 import android.view.View
@@ -48,15 +49,25 @@ class DigitalClockWidget : AppWidgetProvider() {
                 options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 40)
             )
             val settings = ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(context), id)
-            val views = RemoteViews(context.packageName, layoutFor(context, category, settings.font)).apply {
+            val layout = ClockLayoutResolver.resolve(category, settings.font)
+            if (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0) {
+                Log.d("DigitalClockWidget", "id=$id font=${settings.font.preferenceValue} size=$category layout=$layout")
+            }
+            val views = RemoteViews(context.packageName, layout).apply {
                 // Preserve this exact root surface: One UI Home uses it for native wallpaper blur.
                 setInt(android.R.id.background, "setBackgroundColor", if (settings.backgroundEnabled) settings.tintColor() else Color.TRANSPARENT)
                 setViewVisibility(R.id.clock_date, if (settings.showDate) View.VISIBLE else View.GONE)
                 setViewVisibility(R.id.clock_date_above, if (settings.showDate && settings.dateAboveTime) View.VISIBLE else View.GONE)
                 setViewVisibility(R.id.clock_date, if (settings.showDate && !settings.dateAboveTime) View.VISIBLE else View.GONE)
                 setViewVisibility(R.id.clock_day, if (settings.showDate && settings.showDayOfWeek && category == ClockWidgetLayout.Category.LARGE) View.VISIBLE else View.GONE)
-                applyTimeFormat(settings.timeFormat)
-                val gravity = settings.alignment.gravity()
+                applyTimeFormat(settings.timeFormat, settings.showAmPm, settings.showSeconds)
+                setTextColor(R.id.clock_time, settings.textColor)
+                setTextColor(R.id.clock_date_above, settings.textColor)
+                setTextColor(R.id.clock_date, settings.textColor)
+                setTextColor(R.id.clock_day, settings.textColor)
+                // A date-free clock must stay at the physical centre, independent of its
+                // saved text-alignment preference and of the responsive layout selected.
+                val gravity = if (!settings.showDate || category == ClockWidgetLayout.Category.COMPACT) Gravity.CENTER else settings.alignment.gravity()
                 setInt(R.id.clock_content, "setGravity", gravity)
                 setInt(R.id.clock_time, "setGravity", gravity)
                 setInt(R.id.clock_date, "setGravity", gravity)
@@ -70,13 +81,17 @@ class DigitalClockWidget : AppWidgetProvider() {
             manager.updateAppWidget(id, views)
         }
 
-        private fun RemoteViews.applyTimeFormat(format: ClockTimeFormat) {
+        private fun RemoteViews.applyTimeFormat(format: ClockTimeFormat, showAmPm: Boolean, showSeconds: Boolean) {
             val format12: CharSequence
             val format24: CharSequence
+            val seconds = if (showSeconds) ":ss" else ""
             when (format) {
-                ClockTimeFormat.SYSTEM -> { format12 = "h:mm a"; format24 = "HH:mm" }
-                ClockTimeFormat.TWELVE_HOUR -> { format12 = "h:mm a"; format24 = "h:mm a" }
-                ClockTimeFormat.TWENTY_FOUR_HOUR -> { format12 = "HH:mm"; format24 = "HH:mm" }
+                ClockTimeFormat.SYSTEM -> { format12 = "h:mm${seconds} a"; format24 = "HH:mm$seconds" }
+                ClockTimeFormat.TWELVE_HOUR -> {
+                    val pattern = if (showAmPm) "h:mm${seconds} a" else "h:mm$seconds"
+                    format12 = pattern; format24 = pattern
+                }
+                ClockTimeFormat.TWENTY_FOUR_HOUR -> { format12 = "HH:mm$seconds"; format24 = "HH:mm$seconds" }
             }
             setCharSequence(R.id.clock_time, "setFormat12Hour", format12)
             setCharSequence(R.id.clock_time, "setFormat24Hour", format24)
@@ -89,7 +104,7 @@ class DigitalClockWidget : AppWidgetProvider() {
         }
 
         private fun clockPendingIntent(context: Context): PendingIntent = pendingActivity(
-            context, Intent(AlarmClock.ACTION_SHOW_ALARMS), Intent(Intent.ACTION_MAIN).addCategory("android.intent.category.APP_CLOCK")
+            context, Intent(AlarmClock.ACTION_SHOW_ALARMS), Intent(AlarmClock.ACTION_SET_ALARM)
         )
 
         private fun calendarPendingIntent(context: Context): PendingIntent = pendingActivity(
@@ -102,14 +117,5 @@ class DigitalClockWidget : AppWidgetProvider() {
             return PendingIntent.getActivity(context, 0, resolved.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
-        private fun layoutFor(context: Context, category: ClockWidgetLayout.Category, font: ClockFont): Int {
-            val size = when (category) { ClockWidgetLayout.Category.COMPACT -> "compact"; ClockWidgetLayout.Category.MEDIUM -> "medium"; ClockWidgetLayout.Category.LARGE -> "large" }
-            val suffix = when (font) {
-                ClockFont.SYSTEM -> return when (category) { ClockWidgetLayout.Category.COMPACT -> R.layout.widget_digital_clock_compact; ClockWidgetLayout.Category.MEDIUM -> R.layout.widget_digital_clock_medium; ClockWidgetLayout.Category.LARGE -> R.layout.widget_digital_clock_large }
-                ClockFont.SAMSUNG_DEFAULT -> "samsung_default"; ClockFont.SAMSUNG_DEFAULT_BOLD -> "samsung_default_bold"; ClockFont.SAMSUNG_DEFAULT_THIN -> "samsung_default_thin"; ClockFont.SAMSUNG_MONO -> "samsung_mono"
-                ClockFont.CLOCK_BOLD_SERIF -> "clock_bold_serif"; ClockFont.CLOCK_STRIPE -> "clock_stripe"; ClockFont.CLOCK_STAMP -> "clock_stamp"; ClockFont.ALATSI -> "alatsi"; ClockFont.CAPRIOLA -> "capriola"; ClockFont.FREDERICKA -> "fredericka"; ClockFont.LATO -> "lato"; ClockFont.STARDOS_STENCIL -> "stardos_stencil"; ClockFont.MODAK -> "modak"
-            }
-            return context.resources.getIdentifier("widget_digital_clock_${size}_$suffix", "layout", context.packageName)
-        }
     }
 }

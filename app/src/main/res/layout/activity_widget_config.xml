@@ -10,11 +10,22 @@
     app:showNavButtonAsBack="true"
     app:title="Widget settings">
 
-    <LinearLayout
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingHorizontal="10dp">
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="96dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp">
 
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
@@ -73,6 +84,38 @@
                 app:title="@string/dark_tint" />
 
         </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+
+        <LinearLayout
+            android:id="@+id/clock_options_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <dev.oneuiproject.oneui.widget.Separator
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clock" />
+
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:colorBackground"
+                android:orientation="vertical">
+
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_date" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show date" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_day" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show day of week" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_date_above" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Date above time" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_background" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show background" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_time_format" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Time format" app:summary="Use system setting" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_am_pm" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" app:title="Show AM/PM" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_seconds" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show seconds" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_alignment" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text alignment" app:summary="Centre" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_tap_action" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Tap action" app:summary="Open Clock" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_font" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Clock font" app:summary="System default" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_text_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text colour" app:summary="#FFFFFFFF" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
 
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
@@ -160,57 +203,51 @@
 
         </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/config_button_bar_bg"
+        android:elevation="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btn_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/config_button_bar_bg"
-            android:elevation="6dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="sans-serif"
+            android:paddingHorizontal="36dp"
+            android:paddingVertical="16dp"
+            android:text="Cancel"
+            android:textColor="?android:textColorPrimary"
+            android:textFontWeight="600"
+            android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:fontFamily="sans-serif"
-                android:paddingHorizontal="36dp"
-                android:paddingVertical="16dp"
-                android:text="Cancel"
-                android:textColor="?android:textColorPrimary"
-                android:textFontWeight="600"
-                android:textSize="16sp" />
+        <View android:layout_width="1dp" android:layout_height="20dp" android:background="@color/oneui_divider" />
 
-            <View
-                android:layout_width="1dp"
-                android:layout_height="20dp"
-                android:background="@color/oneui_divider" />
-
-            <TextView
-                android:id="@+id/btn_save"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:fontFamily="sans-serif"
-                android:paddingHorizontal="36dp"
-                android:paddingVertical="16dp"
-                android:text="Save"
-                android:textColor="?android:textColorPrimary"
-                android:textFontWeight="600"
-                android:textSize="16sp" />
-        </LinearLayout>
-
+        <TextView
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="sans-serif"
+            android:paddingHorizontal="36dp"
+            android:paddingVertical="16dp"
+            android:text="Save"
+            android:textColor="?android:textColorPrimary"
+            android:textFontWeight="600"
+            android:textSize="16sp" />
     </LinearLayout>
+    </FrameLayout>
 
 </dev.oneuiproject.oneui.layout.ToolbarLayout>
