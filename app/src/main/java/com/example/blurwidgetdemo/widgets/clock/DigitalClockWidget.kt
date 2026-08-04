@@ -18,10 +18,10 @@ import com.example.blurwidgetdemo.R
 
 class DigitalClockWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) =
-        ids.forEach { updateWidget(context, manager, it) }
+        ids.forEach { updateWidget(context, manager, it, "PROVIDER_UPDATE") }
 
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) {
-        updateWidget(context, manager, id)
+        updateWidget(context, manager, id, "RESIZE")
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -31,7 +31,7 @@ class DigitalClockWidget : AppWidgetProvider() {
             Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_TIME_CHANGED -> {
                 val manager = AppWidgetManager.getInstance(context)
                 val ids = manager.getAppWidgetIds(ComponentName(context, DigitalClockWidget::class.java))
-                onUpdate(context, manager, ids)
+                ids.forEach { updateWidget(context, manager, it, intent.action ?: "BROADCAST") }
             }
         }
     }
@@ -42,7 +42,7 @@ class DigitalClockWidget : AppWidgetProvider() {
     }
 
     companion object {
-        fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
+        fun updateWidget(context: Context, manager: AppWidgetManager, id: Int, reason: String = "UPDATE") {
             val options = manager.getAppWidgetOptions(id)
             val category = ClockWidgetLayout.category(
                 options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110),
@@ -50,9 +50,9 @@ class DigitalClockWidget : AppWidgetProvider() {
             )
             val settings = ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(context), id)
             val layout = ClockLayoutResolver.resolve(category, settings.font)
-            if (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0) {
-                Log.d("DigitalClockWidget", "id=$id font=${settings.font.preferenceValue} size=$category layout=$layout")
-            }
+            val debug = context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
+            val layoutName = runCatching { context.resources.getResourceEntryName(layout) }.getOrDefault("unknown")
+            if (debug) Log.d("ClockFontDebug", "provider id=$id reason=$reason font=${settings.font.preferenceValue} size=$category layout=$layout/$layoutName path=TextClock")
             val views = RemoteViews(context.packageName, layout).apply {
                 // Preserve this exact root surface: One UI Home uses it for native wallpaper blur.
                 setInt(android.R.id.background, "setBackgroundColor", if (settings.backgroundEnabled) settings.tintColor() else Color.TRANSPARENT)
@@ -65,6 +65,13 @@ class DigitalClockWidget : AppWidgetProvider() {
                 setTextColor(R.id.clock_date_above, settings.textColor)
                 setTextColor(R.id.clock_date, settings.textColor)
                 setTextColor(R.id.clock_day, settings.textColor)
+                if (debug) {
+                    setViewVisibility(R.id.clock_debug_marker, View.VISIBLE)
+                    setTextViewText(R.id.clock_debug_marker, "FONT: ${settings.font.preferenceValue.uppercase()} • $reason")
+                    val markerColor = android.graphics.Color.HSVToColor(255, floatArrayOf((settings.font.ordinal * 41f) % 360f, 0.8f, 1f))
+                    setTextColor(R.id.clock_debug_marker, markerColor)
+                    setTextColor(R.id.clock_time, markerColor)
+                }
                 // A date-free clock must stay at the physical centre, independent of its
                 // saved text-alignment preference and of the responsive layout selected.
                 val gravity = if (!settings.showDate || category == ClockWidgetLayout.Category.COMPACT) Gravity.CENTER else settings.alignment.gravity()
@@ -79,6 +86,7 @@ class DigitalClockWidget : AppWidgetProvider() {
                 setOnClickPendingIntent(R.id.clock_date, tapIntent)
             }
             manager.updateAppWidget(id, views)
+            if (debug) Log.d("ClockFontDebug", "updateAppWidget dispatched id=$id layout=$layoutName visibleTime=${R.id.clock_time}")
         }
 
         private fun RemoteViews.applyTimeFormat(format: ClockTimeFormat, showAmPm: Boolean, showSeconds: Boolean) {

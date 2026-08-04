@@ -13,4 +13,5 @@
             android:fontFamily="@font/samsung_number_default_bold" android:format12Hour="EEEE, MMMM d" android:format24Hour="EEEE, MMMM d" android:gravity="center" android:textColor="#E6FFFFFF" android:textSize="15sp" />
         <TextClock android:id="@+id/clock_day" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
     </LinearLayout>
+    <TextView android:id="@+id/clock_debug_marker" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="6dp" android:textSize="8sp" android:visibility="gone" />
 </FrameLayout>

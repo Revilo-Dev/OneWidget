@@ -14,4 +14,5 @@
         <TextClock android:id="@+id/clock_date" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:fontFamily="@font/clock_stripe" android:format12Hour="MMMM d, yyyy" android:format24Hour="MMMM d, yyyy" android:gravity="center" android:textColor="#E6FFFFFF" android:textSize="16sp" />
     </LinearLayout>
+    <TextView android:id="@+id/clock_debug_marker" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="6dp" android:textSize="8sp" android:visibility="gone" />
 </FrameLayout>

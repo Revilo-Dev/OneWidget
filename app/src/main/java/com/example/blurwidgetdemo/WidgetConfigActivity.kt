@@ -17,6 +17,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
@@ -72,9 +73,11 @@ class WidgetConfigActivity : AppCompatActivity() {
         ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
 
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            fontDebug("configuration received invalid appWidgetId")
             finish()
             return
         }
+        fontDebug("configuration id=$appWidgetId provider=${providerClassName()}")
 
         loadSettings()
         setupClockOptions()
@@ -113,6 +116,9 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun providerClassName(): String? = AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId)?.provider?.className
+    private fun fontDebug(message: String) {
+        if (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0) Log.d("ClockFontDebug", message)
+    }
     private fun isClockWidget(): Boolean = providerClassName() == DigitalClockWidget::class.java.name
     private fun isBatteryWidget(): Boolean = providerClassName() == BatteryWidget::class.java.name
 
@@ -147,7 +153,10 @@ class WidgetConfigActivity : AppCompatActivity() {
         choose(findViewById(R.id.clock_time_format), ClockTimeFormat.entries.toTypedArray(), { it.label() }) { settings = settings.copy(timeFormat = it); clockSettings = settings; updatePreview() }
         choose(findViewById(R.id.clock_alignment), ClockTextAlignment.entries.toTypedArray(), { it.label() }) { settings = settings.copy(alignment = it); clockSettings = settings; updatePreview() }
         choose(findViewById(R.id.clock_tap_action), ClockTapAction.entries.toTypedArray(), { it.label() }) { settings = settings.copy(tapAction = it); clockSettings = settings }
-        choose(findViewById(R.id.clock_font), ClockFont.entries.toTypedArray(), { it.label() }) { settings = settings.copy(font = it); clockSettings = settings; updatePreview() }
+        choose(findViewById(R.id.clock_font), ClockFont.entries.toTypedArray(), { it.label() }) {
+            fontDebug("font selected id=$appWidgetId value=${it.preferenceValue}")
+            settings = settings.copy(font = it); clockSettings = settings; updatePreview()
+        }
         findViewById<CardItemView>(R.id.clock_text_colour).setOnClickListener {
             SeslColorPickerDialog(this, { color ->
                 settings = settings.copy(textColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color)))
@@ -436,6 +445,7 @@ class WidgetConfigActivity : AppCompatActivity() {
             .apply()
 
         if (isClockWidget()) {
+            fontDebug("saving id=$appWidgetId font=${(clockSettings ?: ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId)).font.preferenceValue}")
             ClockWidgetPreferences.save(
                 ClockWidgetPreferences.preferences(this),
                 appWidgetId,
@@ -443,12 +453,13 @@ class WidgetConfigActivity : AppCompatActivity() {
                     hue = currentHue, saturation = currentSaturation, value = currentValue, alpha = currentAlpha
                 )
             )
+            fontDebug("saved id=$appWidgetId font=${ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId).font.preferenceValue}")
         }
 
         val manager = AppWidgetManager.getInstance(this)
         val provider = providerClassName()
         if (provider == DigitalClockWidget::class.java.name) {
-            DigitalClockWidget.updateWidget(this, manager, appWidgetId)
+            DigitalClockWidget.updateWidget(this, manager, appWidgetId, "CONFIG_SAVE")
         } else if (provider == BatteryWidget::class.java.name) {
             BatteryWidget.updateWidget(this, manager, appWidgetId)
         } else {
