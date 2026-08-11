@@ -57,8 +57,12 @@ data class ClockWidgetSettings(
     val showSeconds: Boolean = false,
     val alignment: ClockTextAlignment = ClockTextAlignment.CENTER,
     val tapAction: ClockTapAction = ClockTapAction.CLOCK,
-    val font: ClockFont = ClockFont.SYSTEM,
-    val textColor: Int = Color.WHITE
+    // Clock Stamp is deliberately the default while validating One UI Home's font inflation.
+    val font: ClockFont = ClockFont.CLOCK_STAMP,
+    val textColor: Int = Color.WHITE,
+    /** Percentage applied to every clock label. */
+    val textScalePercent: Int = 100,
+    val showPhoneBattery: Boolean = false
 ) {
     fun tintColor(): Int = BlurWidget.tintColor(hue, saturation, value, alpha)
 }
@@ -82,7 +86,9 @@ object ClockWidgetPreferences {
         alignment = preferences.enumValue(key("alignment", id), ClockTextAlignment.CENTER),
         tapAction = preferences.enumValue(key("tap_action", id), ClockTapAction.CLOCK),
         font = ClockFont.fromPreference(preferences.getString(key("font", id), null)),
-        textColor = preferences.getInt(key("text_color", id), Color.WHITE)
+        textColor = preferences.getInt(key("text_color", id), Color.WHITE),
+        textScalePercent = preferences.getInt(key("text_scale", id), 100).coerceIn(50, 150),
+        showPhoneBattery = preferences.getBoolean(key("show_phone_battery", id), false)
     )
 
     fun save(preferences: SharedPreferences, id: Int, settings: ClockWidgetSettings) {
@@ -93,12 +99,14 @@ object ClockWidgetPreferences {
             .putBoolean(key("date_above", id), settings.dateAboveTime).putBoolean(key("background_enabled", id), settings.backgroundEnabled)
             .putString(key("time_format", id), settings.timeFormat.name).putBoolean(key("show_am_pm", id), settings.showAmPm).putBoolean(key("show_seconds", id), settings.showSeconds).putString(key("alignment", id), settings.alignment.name)
             .putString(key("tap_action", id), settings.tapAction.name).putString(key("font", id), settings.font.preferenceValue).putInt(key("text_color", id), settings.textColor)
+            .putInt(key("text_scale", id), settings.textScalePercent.coerceIn(50, 150))
+            .putBoolean(key("show_phone_battery", id), settings.showPhoneBattery)
             .apply()
     }
 
     fun delete(preferences: SharedPreferences, id: Int) {
         preferences.edit().apply {
-            listOf("tint_hue", "tint_saturation", "tint_value", "tint_alpha", "show_date", "show_day", "date_above", "background_enabled", "time_format", "show_am_pm", "show_seconds", "alignment", "tap_action", "font", "text_color")
+            listOf("tint_hue", "tint_saturation", "tint_value", "tint_alpha", "show_date", "show_day", "date_above", "background_enabled", "time_format", "show_am_pm", "show_seconds", "alignment", "tap_action", "font", "text_color", "text_scale", "show_phone_battery")
                 .forEach { remove(key(it, id)) }
         }.apply()
     }

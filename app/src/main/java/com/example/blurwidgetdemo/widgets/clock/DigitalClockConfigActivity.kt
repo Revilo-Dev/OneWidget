@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ArrayAdapter
 import android.widget.RadioGroup
+import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.Switch
 import android.widget.TextView
@@ -52,7 +53,18 @@ class DigitalClockConfigActivity : AppCompatActivity() {
         findViewById<Switch>(R.id.clock_show_date).isChecked = settings.showDate
         findViewById<Switch>(R.id.clock_show_day).isChecked = settings.showDayOfWeek
         findViewById<Switch>(R.id.clock_date_above).isChecked = settings.dateAboveTime
+        findViewById<Switch>(R.id.clock_show_phone_battery).isChecked = settings.showPhoneBattery
         findViewById<Switch>(R.id.clock_background_enabled).isChecked = settings.backgroundEnabled
+        findViewById<SeekBar>(R.id.clock_text_scale).progress = settings.textScalePercent - 50
+        findViewById<TextView>(R.id.clock_text_scale_label).text = "Text size: ${settings.textScalePercent}%"
+        findViewById<SeekBar>(R.id.clock_text_scale).setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                findViewById<TextView>(R.id.clock_text_scale_label).text = "Text size: ${progress + 50}%"
+                updatePreview()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar) = Unit
+        })
         bindSpinner(R.id.clock_tap_action, listOf("Open Clock", "Open Calendar"), settings.tapAction.ordinal)
         bindSpinner(R.id.clock_font, ClockFont.entries.map { it.displayName() }, settings.font.ordinal)
         findViewById<RadioGroup>(R.id.clock_time_format).check(when (settings.timeFormat) {
@@ -98,6 +110,7 @@ class DigitalClockConfigActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.clock_preview_time).gravity = when (findViewById<RadioGroup>(R.id.clock_alignment).checkedRadioButtonId) {
             R.id.align_start -> android.view.Gravity.START; R.id.align_end -> android.view.Gravity.END; else -> android.view.Gravity.CENTER_HORIZONTAL
         }
+        findViewById<TextView>(R.id.clock_preview_time).textSize = 38f * (findViewById<SeekBar>(R.id.clock_text_scale).progress + 50) / 100f
     }
 
     private fun save() {
@@ -113,7 +126,9 @@ class DigitalClockConfigActivity : AppCompatActivity() {
             false,
             when (findViewById<RadioGroup>(R.id.clock_alignment).checkedRadioButtonId) {
                 R.id.align_start -> ClockTextAlignment.START; R.id.align_end -> ClockTextAlignment.END; else -> ClockTextAlignment.CENTER
-            }, ClockTapAction.entries[findViewById<Spinner>(R.id.clock_tap_action).selectedItemPosition], ClockFont.entries[findViewById<Spinner>(R.id.clock_font).selectedItemPosition])
+            }, ClockTapAction.entries[findViewById<Spinner>(R.id.clock_tap_action).selectedItemPosition], ClockFont.entries[findViewById<Spinner>(R.id.clock_font).selectedItemPosition],
+            textScalePercent = findViewById<SeekBar>(R.id.clock_text_scale).progress + 50,
+            showPhoneBattery = findViewById<Switch>(R.id.clock_show_phone_battery).isChecked)
         ClockWidgetPreferences.save(ClockWidgetPreferences.preferences(this), widgetId, settings)
         DigitalClockWidget.updateWidget(this, AppWidgetManager.getInstance(this), widgetId)
         setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)); finish()

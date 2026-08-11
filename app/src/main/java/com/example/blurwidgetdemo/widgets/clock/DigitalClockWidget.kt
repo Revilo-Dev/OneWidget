@@ -3,12 +3,13 @@ package com.example.blurwidgetdemo.widgets.clock
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Context
+import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.BatteryManager
 import android.util.Log
 import android.provider.AlarmClock
 import android.view.Gravity
@@ -65,20 +66,32 @@ class DigitalClockWidget : AppWidgetProvider() {
                 setTextColor(R.id.clock_date_above, settings.textColor)
                 setTextColor(R.id.clock_date, settings.textColor)
                 setTextColor(R.id.clock_day, settings.textColor)
+                setTextColor(R.id.clock_battery_percent, settings.textColor)
+                setViewVisibility(R.id.clock_battery, if (settings.showPhoneBattery) View.VISIBLE else View.GONE)
+                if (settings.showPhoneBattery) {
+                    val percentage = context.getSystemService(BatteryManager::class.java)
+                        ?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+                        ?.takeIf { it in 0..100 } ?: 0
+                    setTextViewText(R.id.clock_battery_percent, "$percentage%")
+                }
+                val scale = settings.textScalePercent / 100f
+                setTextViewTextSize(R.id.clock_time, android.util.TypedValue.COMPLEX_UNIT_SP, baseTimeTextSize(category) * scale)
+                setTextViewTextSize(R.id.clock_date_above, android.util.TypedValue.COMPLEX_UNIT_SP, baseDateTextSize(category) * scale)
+                setTextViewTextSize(R.id.clock_date, android.util.TypedValue.COMPLEX_UNIT_SP, baseDateTextSize(category) * scale)
+                setTextViewTextSize(R.id.clock_day, android.util.TypedValue.COMPLEX_UNIT_SP, baseDateTextSize(category) * scale)
+                setTextViewTextSize(R.id.clock_battery_percent, android.util.TypedValue.COMPLEX_UNIT_SP, 14f * scale)
                 if (debug) {
                     setViewVisibility(R.id.clock_debug_marker, View.VISIBLE)
-                    setTextViewText(R.id.clock_debug_marker, "FONT: ${settings.font.preferenceValue.uppercase()} • $reason")
-                    val markerColor = android.graphics.Color.HSVToColor(255, floatArrayOf((settings.font.ordinal * 41f) % 360f, 0.8f, 1f))
-                    setTextColor(R.id.clock_debug_marker, markerColor)
-                    setTextColor(R.id.clock_time, markerColor)
+                    setTextViewText(R.id.clock_debug_marker, "FONT=${settings.font.preferenceValue.uppercase()} LAYOUT=$layoutName")
+                    setTextColor(R.id.clock_debug_marker, settings.textColor)
                 }
-                // A date-free clock must stay at the physical centre, independent of its
-                // saved text-alignment preference and of the responsive layout selected.
-                val gravity = if (!settings.showDate || category == ClockWidgetLayout.Category.COMPACT) Gravity.CENTER else settings.alignment.gravity()
-                setInt(R.id.clock_content, "setGravity", gravity)
-                setInt(R.id.clock_time, "setGravity", gravity)
-                setInt(R.id.clock_date, "setGravity", gravity)
-                setInt(R.id.clock_day, "setGravity", gravity)
+                // Alignment is horizontal only; content stays vertically centred at every size.
+                val horizontalGravity = if (!settings.showDate || category == ClockWidgetLayout.Category.COMPACT) Gravity.CENTER_HORIZONTAL else settings.alignment.gravity()
+                setInt(R.id.clock_content, "setGravity", Gravity.CENTER_VERTICAL or horizontalGravity)
+                setInt(R.id.clock_time, "setGravity", horizontalGravity)
+                setInt(R.id.clock_date_above, "setGravity", horizontalGravity)
+                setInt(R.id.clock_date, "setGravity", horizontalGravity)
+                setInt(R.id.clock_day, "setGravity", horizontalGravity)
                 val tapIntent = if (settings.tapAction == ClockTapAction.CLOCK) clockPendingIntent(context) else calendarPendingIntent(context)
                 setOnClickPendingIntent(android.R.id.background, tapIntent)
                 setOnClickPendingIntent(R.id.clock_content, tapIntent)
@@ -111,9 +124,24 @@ class DigitalClockWidget : AppWidgetProvider() {
             ClockTextAlignment.END -> Gravity.END
         }
 
-        private fun clockPendingIntent(context: Context): PendingIntent = pendingActivity(
-            context, Intent(AlarmClock.ACTION_SHOW_ALARMS), Intent(AlarmClock.ACTION_SET_ALARM)
-        )
+        private fun baseTimeTextSize(category: ClockWidgetLayout.Category) = when (category) {
+            ClockWidgetLayout.Category.COMPACT -> 28f
+            ClockWidgetLayout.Category.MEDIUM -> 42f
+            ClockWidgetLayout.Category.LARGE -> 52f
+        }
+
+        private fun baseDateTextSize(category: ClockWidgetLayout.Category) = when (category) {
+            ClockWidgetLayout.Category.COMPACT -> 14f
+            ClockWidgetLayout.Category.MEDIUM -> 15f
+            ClockWidgetLayout.Category.LARGE -> 16f
+        }
+
+        private fun clockPendingIntent(context: Context): PendingIntent {
+            val samsungClock = Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .setComponent(ComponentName(SAMSUNG_CLOCK_PACKAGE, SAMSUNG_CLOCK_ACTIVITY))
+            return pendingActivity(context, samsungClock, Intent(AlarmClock.ACTION_SHOW_ALARMS))
+        }
 
         private fun calendarPendingIntent(context: Context): PendingIntent = pendingActivity(
             context,
@@ -124,6 +152,9 @@ class DigitalClockWidget : AppWidgetProvider() {
             val resolved = if (preferred.resolveActivity(context.packageManager) != null) preferred else fallback
             return PendingIntent.getActivity(context, 0, resolved.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
+
+        private const val SAMSUNG_CLOCK_PACKAGE = "com.sec.android.app.clockpackage"
+        private const val SAMSUNG_CLOCK_ACTIVITY = "com.sec.android.app.clockpackage.ClockPackage"
 
     }
 }

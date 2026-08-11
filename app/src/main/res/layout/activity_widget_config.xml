@@ -106,6 +106,7 @@
                 <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_date" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show date" app:showTopDivider="false" />
                 <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_day" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show day of week" />
                 <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_date_above" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Date above time" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_phone_battery" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show phone battery" />
                 <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_background" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show background" />
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_time_format" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Time format" app:summary="Use system setting" />
                 <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_am_pm" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" app:title="Show AM/PM" />
@@ -113,6 +114,8 @@
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_alignment" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text alignment" app:summary="Centre" />
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_tap_action" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Tap action" app:summary="Open Clock" />
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_font" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Clock font" app:summary="System default" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_text_scale" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text size" app:summary="100%" />
+                <androidx.appcompat.widget.SeslSeekBar android:id="@+id/clock_text_scale_slider" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="18dp" android:max="100" android:progress="50" />
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_text_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text colour" app:summary="#FFFFFFFF" />
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
         </LinearLayout>

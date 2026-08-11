@@ -39,6 +39,7 @@ import com.example.blurwidgetdemo.widgets.clock.ClockWidgetLayout
 import com.example.blurwidgetdemo.widgets.clock.fontResource
 import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SeslSeekBar
 
 private fun Drawable.copyForPreview(): Drawable =
     constantState?.newDrawable()?.mutate() ?: mutate()
@@ -130,6 +131,7 @@ class WidgetConfigActivity : AppCompatActivity() {
             findViewById<SwitchItemView>(R.id.clock_show_date).isChecked = settings.showDate
             findViewById<SwitchItemView>(R.id.clock_show_day).isChecked = settings.showDayOfWeek
             findViewById<SwitchItemView>(R.id.clock_date_above).isChecked = settings.dateAboveTime
+            findViewById<SwitchItemView>(R.id.clock_show_phone_battery).isChecked = settings.showPhoneBattery
             findViewById<SwitchItemView>(R.id.clock_background).isChecked = settings.backgroundEnabled
             findViewById<SwitchItemView>(R.id.clock_show_am_pm).apply {
                 visibility = if (settings.timeFormat == ClockTimeFormat.TWELVE_HOUR) View.VISIBLE else View.GONE
@@ -140,15 +142,28 @@ class WidgetConfigActivity : AppCompatActivity() {
             findViewById<CardItemView>(R.id.clock_alignment).summary = settings.alignment.label()
             findViewById<CardItemView>(R.id.clock_tap_action).summary = "Open ${settings.tapAction.label()}"
             findViewById<CardItemView>(R.id.clock_font).summary = settings.font.label()
+            findViewById<CardItemView>(R.id.clock_text_scale).summary = "${settings.textScalePercent}%"
+            findViewById<SeslSeekBar>(R.id.clock_text_scale_slider).progress = settings.textScalePercent - 50
             findViewById<CardItemView>(R.id.clock_text_colour).summary = "#${settings.textColor.toUInt().toString(16).uppercase().padStart(8, '0')}"
         }
         bind()
         findViewById<SwitchItemView>(R.id.clock_show_date).onCheckedChangedListener = { _, checked -> settings = settings.copy(showDate = checked); clockSettings = settings; updatePreview() }
         findViewById<SwitchItemView>(R.id.clock_show_day).onCheckedChangedListener = { _, checked -> settings = settings.copy(showDayOfWeek = checked); clockSettings = settings; updatePreview() }
         findViewById<SwitchItemView>(R.id.clock_date_above).onCheckedChangedListener = { _, checked -> settings = settings.copy(dateAboveTime = checked); clockSettings = settings; updatePreview() }
+        findViewById<SwitchItemView>(R.id.clock_show_phone_battery).onCheckedChangedListener = { _, checked -> settings = settings.copy(showPhoneBattery = checked); clockSettings = settings; updatePreview() }
         findViewById<SwitchItemView>(R.id.clock_background).onCheckedChangedListener = { _, checked -> settings = settings.copy(backgroundEnabled = checked); clockSettings = settings; updatePreview() }
         findViewById<SwitchItemView>(R.id.clock_show_am_pm).onCheckedChangedListener = { _, checked -> settings = settings.copy(showAmPm = checked); clockSettings = settings; updatePreview() }
         findViewById<SwitchItemView>(R.id.clock_show_seconds).onCheckedChangedListener = { _, checked -> settings = settings.copy(showSeconds = checked); clockSettings = settings; updatePreview() }
+        findViewById<SeslSeekBar>(R.id.clock_text_scale_slider).setOnSeekBarChangeListener(object : SeslSeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeslSeekBar, progress: Int, fromUser: Boolean) {
+                settings = settings.copy(textScalePercent = progress + 50)
+                clockSettings = settings
+                findViewById<CardItemView>(R.id.clock_text_scale).summary = "${progress + 50}%"
+                updatePreview()
+            }
+            override fun onStartTrackingTouch(seekBar: SeslSeekBar) = Unit
+            override fun onStopTrackingTouch(seekBar: SeslSeekBar) = Unit
+        })
         fun <T> choose(view: CardItemView, values: Array<T>, label: (T) -> String, update: (T) -> Unit) { view.setOnClickListener { AlertDialog.Builder(this).setItems(values.map(label).toTypedArray()) { _, which -> update(values[which]); bind() }.show() } }
         choose(findViewById(R.id.clock_time_format), ClockTimeFormat.entries.toTypedArray(), { it.label() }) { settings = settings.copy(timeFormat = it); clockSettings = settings; updatePreview() }
         choose(findViewById(R.id.clock_alignment), ClockTextAlignment.entries.toTypedArray(), { it.label() }) { settings = settings.copy(alignment = it); clockSettings = settings; updatePreview() }
@@ -368,7 +383,7 @@ class WidgetConfigActivity : AppCompatActivity() {
                     settings.showSeconds -> "12:45:30 PM"
                     else -> "12:45 PM"
                 }
-                textSize = when (clockCategory) { ClockWidgetLayout.Category.COMPACT -> 28f; ClockWidgetLayout.Category.MEDIUM -> 42f; ClockWidgetLayout.Category.LARGE -> 52f }
+                textSize = when (clockCategory) { ClockWidgetLayout.Category.COMPACT -> 28f; ClockWidgetLayout.Category.MEDIUM -> 42f; ClockWidgetLayout.Category.LARGE -> 52f } * settings.textScalePercent / 100f
                 setTextColor(settings.textColor)
                 setClockTypeface(settings.font)
                 gravity = android.view.Gravity.CENTER
@@ -380,6 +395,15 @@ class WidgetConfigActivity : AppCompatActivity() {
                     textSize = 14f; setTextColor(settings.textColor); setClockTypeface(settings.font)
                     gravity = android.view.Gravity.CENTER_HORIZONTAL or if (settings.dateAboveTime) android.view.Gravity.TOP else android.view.Gravity.BOTTOM
                     if (settings.dateAboveTime) setPadding(0, dp(18), 0, 0) else setPadding(0, 0, 0, dp(18))
+                }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+            }
+            if (settings.showPhoneBattery) {
+                previewWidget.addView(TextView(this).apply {
+                    text = "▱ 85%"
+                    textSize = 14f * settings.textScalePercent / 100f
+                    setTextColor(settings.textColor)
+                    gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+                    setPadding(0, 0, 0, dp(12))
                 }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
             }
         } else if (isBatteryWidget()) {

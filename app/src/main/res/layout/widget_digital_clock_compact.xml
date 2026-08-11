@@ -12,6 +12,10 @@
             android:format12Hour="MMM d" android:format24Hour="MMM d" android:gravity="end"
             android:textColor="#E6FFFFFF" android:textSize="14sp" />
         <TextClock android:id="@+id/clock_day" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <LinearLayout android:id="@+id/clock_battery" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone">
+        <ImageView android:id="@+id/clock_battery_icon" android:layout_width="18dp" android:layout_height="18dp" android:contentDescription="Phone battery" android:src="@drawable/ic_widget_battery" />
+        <TextView android:id="@+id/clock_battery_percent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:textColor="#FFFFFFFF" android:textSize="14sp" />
+    </LinearLayout>
     </LinearLayout>
     <TextView android:id="@+id/clock_debug_marker" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="6dp" android:textSize="8sp" android:visibility="gone" />
 </FrameLayout>
