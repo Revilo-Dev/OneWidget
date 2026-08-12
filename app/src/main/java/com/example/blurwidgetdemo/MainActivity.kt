@@ -1,6 +1,8 @@
 package com.example.blurwidgetdemo
 
 import android.appwidget.AppWidgetManager
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
@@ -13,9 +15,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
 import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
+import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
+import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
+import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
+import com.example.blurwidgetdemo.widgets.storage.StorageWidget
+import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
 
 class MainActivity : AppCompatActivity() {
+    private var pendingWidget: Class<out android.appwidget.AppWidgetProvider>? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,9 +37,14 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.add_battery_widget_button).setOnClickListener {
             requestWidgetPin(BatteryWidget::class.java)
         }
-        findViewById<TextView>(R.id.home_build_version).text = getString(
-            R.string.home_build_version, packageManager.getPackageInfo(packageName, 0).versionName ?: "unknown", packageManager.getPackageInfo(packageName, 0).versionCode
-        )
+        findViewById<TextView>(R.id.add_weather_widget_button).setOnClickListener { requestWeatherWidgetPin() }
+        findViewById<TextView>(R.id.add_calendar_widget_button).setOnClickListener { requestCalendarWidgetPin() }
+        findViewById<TextView>(R.id.add_calendar_display_widget_button).setOnClickListener { requestWidgetPin(CalendarDisplayWidget::class.java) }
+        findViewById<TextView>(R.id.add_storage_widget_button).setOnClickListener { requestWidgetPin(StorageWidget::class.java) }
+        findViewById<TextView>(R.id.add_hydration_widget_button).setOnClickListener { requestWidgetPin(HydrationWidget::class.java) }
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        findViewById<TextView>(R.id.home_build_version).text =
+            "${getString(R.string.home_build_version)}: ${packageInfo.versionName ?: "unknown"} (${packageInfo.versionCode})"
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -62,5 +75,36 @@ class MainActivity : AppCompatActivity() {
             null
         )
         status.text = getString(R.string.add_widget_requested)
+    }
+
+    private fun requestCalendarWidgetPin() {
+        if (checkSelfPermission(Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+            requestWidgetPin(CalendarWidget::class.java)
+        } else {
+            pendingWidget = CalendarWidget::class.java
+            requestPermissions(arrayOf(Manifest.permission.READ_CALENDAR), CALENDAR_PERMISSION_REQUEST)
+        }
+    }
+
+    private fun requestWeatherWidgetPin() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            requestWidgetPin(WeatherWidget::class.java)
+        } else {
+            pendingWidget = WeatherWidget::class.java
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), WEATHER_PERMISSION_REQUEST)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if ((requestCode == CALENDAR_PERMISSION_REQUEST || requestCode == WEATHER_PERMISSION_REQUEST) && grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+            pendingWidget?.let(::requestWidgetPin)
+        }
+        pendingWidget = null
+    }
+
+    private companion object {
+        const val CALENDAR_PERMISSION_REQUEST = 41
+        const val WEATHER_PERMISSION_REQUEST = 42
     }
 }

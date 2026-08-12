@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <queries>
+        <package android:name="com.sec.android.daemonapp" />
+        <package android:name="com.samsung.android.weather" />
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.APP_WEATHER" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="false"
@@ -72,9 +84,6 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_provider_digital_clock" />
-            <meta-data
-                android:name="com.sec.android.appwidget.widgetinfo"
-                android:resource="@xml/widget_supported_cell_size_info" />
         </receiver>
 
         <receiver
@@ -92,6 +101,50 @@
             <meta-data
                 android:name="com.sec.android.appwidget.widgetinfo"
                 android:resource="@xml/widget_supported_cell_size_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.weather.WeatherWidget"
+            android:exported="true"
+            android:label="@string/weather_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.blurwidgetdemo.action.OPEN_WEATHER" />
+                <action android:name="com.example.blurwidgetdemo.action.REFRESH_WEATHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_weather" />
+            <meta-data
+                android:name="com.sec.android.appwidget.widgetinfo"
+                android:resource="@xml/widget_supported_cell_size_info" />
+        </receiver>
+
+        <receiver android:name=".widgets.calendar.CalendarWidget" android:exported="true" android:label="@string/calendar_widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_calendar" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
+        </receiver>
+
+        <receiver android:name=".widgets.calendar.CalendarDisplayWidget" android:exported="true" android:label="@string/calendar_display_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_calendar_display" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
+        </receiver>
+
+        <receiver android:name=".widgets.storage.StorageWidget" android:exported="true" android:label="@string/storage_widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_storage" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
+        </receiver>
+
+        <receiver android:name=".widgets.hydration.HydrationWidget" android:exported="true" android:label="@string/hydration_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.blurwidgetdemo.action.ADD_WATER" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_hydration" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
         </receiver>
 
         <receiver

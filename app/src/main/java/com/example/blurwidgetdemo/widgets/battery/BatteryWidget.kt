@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.widgets.WidgetAppearance
 
 class BatteryWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) =
@@ -43,6 +44,11 @@ class BatteryWidget : AppWidgetProvider() {
                 setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
                 setTextViewText(R.id.battery_percentage, level?.let { "$it%" } ?: "—")
                 setTextViewText(R.id.battery_status, batteryStatus(context, level))
+                setTextColor(R.id.battery_percentage, WidgetAppearance.textColor(prefs, id))
+                setTextColor(R.id.battery_status, WidgetAppearance.textColor(prefs, id))
+                setInt(R.id.battery_percentage, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
+                setInt(R.id.battery_status, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
+                setFloat(R.id.battery_percentage, "setTextSize", (if (compact) 30f else 46f) * WidgetAppearance.textScale(prefs, id) / 100f)
                 setViewVisibility(R.id.battery_status, if (compact) View.GONE else View.VISIBLE)
             }.also { manager.updateAppWidget(id, it) }
         }

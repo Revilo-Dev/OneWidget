@@ -38,6 +38,12 @@ import com.example.blurwidgetdemo.widgets.clock.ClockFont
 import com.example.blurwidgetdemo.widgets.clock.ClockWidgetLayout
 import com.example.blurwidgetdemo.widgets.clock.fontResource
 import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
+import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
+import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
+import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
+import com.example.blurwidgetdemo.widgets.storage.StorageWidget
+import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SeslSeekBar
 
@@ -62,6 +68,16 @@ class WidgetConfigActivity : AppCompatActivity() {
     private var colorPickerDialog: SeslColorPickerDialog? = null
     private var previewWallpaper: Drawable? = null
     private var clockSettings: com.example.blurwidgetdemo.widgets.clock.ClockWidgetSettings? = null
+    private var currentTextScale = 100
+    private var currentTextColor = Color.WHITE
+    private var currentTextAlignment = WidgetAppearance.Alignment.CENTRE
+    private var storageCompactMetric = StorageWidget.CompactMetric.STORAGE
+    private var storageColors = mutableMapOf(
+        StorageWidget.CompactMetric.STORAGE to 0xFF08B0CE.toInt(),
+        StorageWidget.CompactMetric.DATA to 0xFF5BD686.toInt(),
+        StorageWidget.CompactMetric.MEMORY to 0xFF1D79ED.toInt()
+    )
+    private var calendarAccentColor = 0xFF08B0CE.toInt()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +98,9 @@ class WidgetConfigActivity : AppCompatActivity() {
 
         loadSettings()
         setupClockOptions()
+        setupUniversalTextOptions()
+        setupStorageOptions()
+        setupCalendarOptions()
         setupWallpaperPreview()
         setupColourPicker()
         setupPresetControls()
@@ -114,6 +133,16 @@ class WidgetConfigActivity : AppCompatActivity() {
             BlurWidget.DEFAULT_TINT_ALPHA
         )).distinct().take(MAX_RECENT_COLORS)
         if (isClockWidget()) clockSettings = ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId)
+        currentTextScale = if (isClockWidget()) clockSettings!!.textScalePercent else WidgetAppearance.textScale(prefs, appWidgetId)
+        currentTextColor = if (isClockWidget()) clockSettings!!.textColor else WidgetAppearance.textColor(prefs, appWidgetId)
+        currentTextAlignment = if (isClockWidget()) when (clockSettings!!.alignment) {
+            ClockTextAlignment.START -> WidgetAppearance.Alignment.START
+            ClockTextAlignment.CENTER -> WidgetAppearance.Alignment.CENTRE
+            ClockTextAlignment.END -> WidgetAppearance.Alignment.END
+        } else WidgetAppearance.alignment(prefs, appWidgetId)
+        storageCompactMetric = StorageWidget.CompactMetric.from(prefs.getString("storage_compact_metric_$appWidgetId", null))
+        StorageWidget.CompactMetric.entries.forEach { storageColors[it] = StorageWidget.barColor(this, appWidgetId, it) }
+        if (isCalendarDisplayWidget()) calendarAccentColor = CalendarDisplayWidget.accentColor(this, appWidgetId)
     }
 
     private fun providerClassName(): String? = AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId)?.provider?.className
@@ -122,10 +151,99 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
     private fun isClockWidget(): Boolean = providerClassName() == DigitalClockWidget::class.java.name
     private fun isBatteryWidget(): Boolean = providerClassName() == BatteryWidget::class.java.name
+    private fun isWeatherWidget(): Boolean = providerClassName() == WeatherWidget::class.java.name
+    private fun isCalendarWidget(): Boolean = providerClassName() == CalendarWidget::class.java.name
+    private fun isCalendarDisplayWidget(): Boolean = providerClassName() == CalendarDisplayWidget::class.java.name
+    private fun isStorageWidget(): Boolean = providerClassName() == StorageWidget::class.java.name
+    private fun isHydrationWidget(): Boolean = providerClassName() == HydrationWidget::class.java.name
+
+    private fun setupUniversalTextOptions() {
+        findViewById<CardItemView>(R.id.universal_text_scale).summary = "${currentTextScale}%"
+        findViewById<SeslSeekBar>(R.id.universal_text_scale_slider).progress = currentTextScale - 50
+        findViewById<CardItemView>(R.id.universal_text_colour).summary = "#${currentTextColor.toUInt().toString(16).uppercase().padStart(8, '0')}"
+        findViewById<CardItemView>(R.id.universal_text_alignment).summary = currentTextAlignment.label
+        findViewById<SeslSeekBar>(R.id.universal_text_scale_slider).setOnSeekBarChangeListener(object : SeslSeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeslSeekBar, progress: Int, fromUser: Boolean) {
+                currentTextScale = progress + 50
+                if (isClockWidget()) clockSettings = clockSettings?.copy(textScalePercent = currentTextScale)
+                findViewById<CardItemView>(R.id.universal_text_scale).summary = "${currentTextScale}%"
+                updatePreview()
+            }
+            override fun onStartTrackingTouch(seekBar: SeslSeekBar) = Unit
+            override fun onStopTrackingTouch(seekBar: SeslSeekBar) = Unit
+        })
+        findViewById<CardItemView>(R.id.universal_text_colour).setOnClickListener {
+            SeslColorPickerDialog(this, { color ->
+                currentTextColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color))
+                if (isClockWidget()) clockSettings = clockSettings?.copy(textColor = currentTextColor)
+                findViewById<CardItemView>(R.id.universal_text_colour).summary = "#${currentTextColor.toUInt().toString(16).uppercase().padStart(8, '0')}"
+                updatePreview()
+            }, currentTextColor, intArrayOf(currentTextColor), true).show()
+        }
+        findViewById<CardItemView>(R.id.universal_text_alignment).setOnClickListener {
+            AlertDialog.Builder(this).setItems(WidgetAppearance.Alignment.entries.map { it.label }.toTypedArray()) { _, which ->
+                currentTextAlignment = WidgetAppearance.Alignment.entries[which]
+                if (isClockWidget()) clockSettings = clockSettings?.copy(alignment = when (currentTextAlignment) {
+                    WidgetAppearance.Alignment.START -> ClockTextAlignment.START
+                    WidgetAppearance.Alignment.CENTRE -> ClockTextAlignment.CENTER
+                    WidgetAppearance.Alignment.END -> ClockTextAlignment.END
+                })
+                findViewById<CardItemView>(R.id.universal_text_alignment).summary = currentTextAlignment.label
+                updatePreview()
+            }.show()
+        }
+    }
+
+    private fun setupStorageOptions() {
+        if (!isStorageWidget()) return
+        findViewById<View>(R.id.storage_options_section).visibility = View.VISIBLE
+        val item = findViewById<CardItemView>(R.id.storage_compact_metric)
+        item.summary = storageCompactMetric.label
+        item.setOnClickListener {
+            AlertDialog.Builder(this).setItems(StorageWidget.CompactMetric.entries.map { it.label }.toTypedArray()) { _, which ->
+                storageCompactMetric = StorageWidget.CompactMetric.entries[which]
+                item.summary = storageCompactMetric.label
+                updatePreview()
+            }.show()
+        }
+        listOf(
+            StorageWidget.CompactMetric.STORAGE to R.id.storage_storage_colour,
+            StorageWidget.CompactMetric.DATA to R.id.storage_data_colour,
+            StorageWidget.CompactMetric.MEMORY to R.id.storage_memory_colour
+        ).forEach { (metric, viewId) ->
+            val colorItem = findViewById<CardItemView>(viewId)
+            fun refresh() { colorItem.summary = "#${storageColors.getValue(metric).toUInt().toString(16).uppercase().takeLast(6)}" }
+            refresh()
+            colorItem.setOnClickListener {
+                SeslColorPickerDialog(this, { color ->
+                    storageColors[metric] = Color.rgb(Color.red(color), Color.green(color), Color.blue(color))
+                    refresh(); updatePreview()
+                }, storageColors.getValue(metric), intArrayOf(storageColors.getValue(metric)), true).show()
+            }
+        }
+    }
+
+    private fun setupCalendarOptions() {
+        if (!isCalendarDisplayWidget()) return
+        findViewById<View>(R.id.calendar_options_section).visibility = View.VISIBLE
+        val item = findViewById<CardItemView>(R.id.calendar_accent_colour)
+        fun refresh() { item.summary = "#${calendarAccentColor.toUInt().toString(16).uppercase().takeLast(6)}" }
+        refresh()
+        item.setOnClickListener {
+            SeslColorPickerDialog(this, { color ->
+                calendarAccentColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color))
+                refresh(); updatePreview()
+            }, calendarAccentColor, intArrayOf(calendarAccentColor), true).show()
+        }
+    }
 
     private fun setupClockOptions() {
         if (!isClockWidget()) return
         findViewById<View>(R.id.clock_options_section).visibility = View.VISIBLE
+        // Text controls are shared with every widget in the universal Text section.
+        findViewById<View>(R.id.clock_text_scale).visibility = View.GONE
+        findViewById<View>(R.id.clock_text_scale_slider).visibility = View.GONE
+        findViewById<View>(R.id.clock_text_colour).visibility = View.GONE
         var settings = clockSettings ?: return
         fun bind() {
             findViewById<SwitchItemView>(R.id.clock_show_date).isChecked = settings.showDate
@@ -414,6 +532,27 @@ class WidgetConfigActivity : AppCompatActivity() {
                 setTextColor(Color.WHITE)
                 gravity = Gravity.CENTER
             }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        } else if (isWeatherWidget()) {
+            previewWidget.addView(TextView(this).apply {
+                text = "Weather\nSamsung Weather"
+                textSize = 24f
+                setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                gravity = Gravity.CENTER
+            }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        } else if (isCalendarWidget() || isCalendarDisplayWidget() || isStorageWidget() || isHydrationWidget()) {
+            previewWidget.addView(TextView(this).apply {
+                text = when {
+                    isCalendarWidget() -> "Next event\nTeam catch-up • 10:00 AM"
+                    isCalendarDisplayWidget() -> "August 2026\nS 10   M 11   T 12   W 13   T 14   F 15   S 16"
+                    isStorageWidget() -> "Storage 62%\n78.3 GB of 128 GB used"
+                    else -> "4 / 8 glasses\nTap to add a glass"
+                }
+                textSize = 23f * currentTextScale / 100f
+                setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+                setTextColor(currentTextColor)
+                gravity = Gravity.CENTER
+            }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         }
     }
 
@@ -466,6 +605,12 @@ class WidgetConfigActivity : AppCompatActivity() {
             .putFloat("tint_saturation_$appWidgetId", currentSaturation)
             .putFloat("tint_value_$appWidgetId", currentValue)
             .putInt("tint_alpha_$appWidgetId", currentAlpha)
+            .putInt("text_scale_$appWidgetId", currentTextScale)
+            .putInt("text_color_$appWidgetId", currentTextColor)
+            .putString("text_alignment_$appWidgetId", currentTextAlignment.name)
+            .putString("storage_compact_metric_$appWidgetId", storageCompactMetric.name)
+            .apply { StorageWidget.CompactMetric.entries.forEach { putInt("storage_bar_${it.name.lowercase()}_$appWidgetId", storageColors.getValue(it)) } }
+            .putInt("calendar_accent_$appWidgetId", calendarAccentColor)
             .apply()
 
         if (isClockWidget()) {
@@ -474,7 +619,8 @@ class WidgetConfigActivity : AppCompatActivity() {
                 ClockWidgetPreferences.preferences(this),
                 appWidgetId,
                 (clockSettings ?: ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId)).copy(
-                    hue = currentHue, saturation = currentSaturation, value = currentValue, alpha = currentAlpha
+                    hue = currentHue, saturation = currentSaturation, value = currentValue, alpha = currentAlpha,
+                    textScalePercent = currentTextScale, textColor = currentTextColor
                 )
             )
             fontDebug("saved id=$appWidgetId font=${ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId).font.preferenceValue}")
@@ -486,6 +632,16 @@ class WidgetConfigActivity : AppCompatActivity() {
             DigitalClockWidget.updateWidget(this, manager, appWidgetId, "CONFIG_SAVE")
         } else if (provider == BatteryWidget::class.java.name) {
             BatteryWidget.updateWidget(this, manager, appWidgetId)
+        } else if (provider == WeatherWidget::class.java.name) {
+            WeatherWidget.updateWidget(this, manager, appWidgetId)
+        } else if (provider == CalendarWidget::class.java.name) {
+            CalendarWidget.updateWidget(this, manager, appWidgetId)
+        } else if (provider == CalendarDisplayWidget::class.java.name) {
+            CalendarDisplayWidget.updateWidget(this, manager, appWidgetId)
+        } else if (provider == StorageWidget::class.java.name) {
+            StorageWidget.updateWidget(this, manager, appWidgetId)
+        } else if (provider == HydrationWidget::class.java.name) {
+            HydrationWidget.updateWidget(this, manager, appWidgetId)
         } else {
             BlurWidget.updateWidget(this, manager, appWidgetId)
         }

@@ -72,6 +72,17 @@
         android:orientation="vertical"
         app:layout_location="footer">
 
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/add_widget_button"
             style="@style/ButtonStyle.Colored"
@@ -100,6 +111,24 @@
             android:drawableStart="@drawable/ic_home_24"
             android:drawablePadding="10dp"
             android:text="@string/add_battery_widget" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/add_weather_widget_button"
+            style="@style/ButtonStyle.Colored"
+            android:layout_width="296dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:drawableStart="@drawable/ic_home_24"
+            android:drawablePadding="10dp"
+            android:text="@string/add_weather_widget" />
+
+        <androidx.appcompat.widget.AppCompatButton android:id="@+id/add_calendar_widget_button" style="@style/ButtonStyle.Colored" android:layout_width="296dp" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawableStart="@drawable/ic_home_24" android:drawablePadding="10dp" android:text="@string/add_calendar_widget" />
+        <androidx.appcompat.widget.AppCompatButton android:id="@+id/add_calendar_display_widget_button" style="@style/ButtonStyle.Colored" android:layout_width="296dp" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawableStart="@drawable/ic_home_24" android:drawablePadding="10dp" android:text="@string/add_calendar_display_widget" />
+        <androidx.appcompat.widget.AppCompatButton android:id="@+id/add_storage_widget_button" style="@style/ButtonStyle.Colored" android:layout_width="296dp" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawableStart="@drawable/ic_home_24" android:drawablePadding="10dp" android:text="@string/add_storage_widget" />
+        <androidx.appcompat.widget.AppCompatButton android:id="@+id/add_hydration_widget_button" style="@style/ButtonStyle.Colored" android:layout_width="296dp" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawableStart="@drawable/ic_home_24" android:drawablePadding="10dp" android:text="@string/add_hydration_widget" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <TextView
             android:id="@+id/add_widget_status"

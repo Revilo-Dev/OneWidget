@@ -86,6 +86,45 @@
         </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
 
         <LinearLayout
+            android:id="@+id/universal_text_options_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <dev.oneuiproject.oneui.widget.Separator
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Text" />
+
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:colorBackground"
+                android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/universal_text_scale" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text size" app:summary="100%" app:showTopDivider="false" />
+                <androidx.appcompat.widget.SeslSeekBar android:id="@+id/universal_text_scale_slider" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="18dp" android:max="100" android:progress="50" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/universal_text_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text colour" app:summary="#FFFFFFFF" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/universal_text_alignment" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text alignment" app:summary="Centre" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/storage_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Storage" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_compact_metric" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="1-row progress bar" app:summary="Storage" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_storage_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Storage colour" app:summary="#08B0CE" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_data_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Data usage colour" app:summary="#5BD686" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_memory_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Memory colour" app:summary="#1D79ED" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/calendar_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Calendar" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/calendar_accent_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Today colour" app:summary="#08B0CE" app:showTopDivider="false" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/clock_options_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
