@@ -80,11 +80,7 @@ class DigitalClockWidget : AppWidgetProvider() {
                 setTextViewTextSize(R.id.clock_date, android.util.TypedValue.COMPLEX_UNIT_SP, baseDateTextSize(category) * scale)
                 setTextViewTextSize(R.id.clock_day, android.util.TypedValue.COMPLEX_UNIT_SP, baseDateTextSize(category) * scale)
                 setTextViewTextSize(R.id.clock_battery_percent, android.util.TypedValue.COMPLEX_UNIT_SP, 14f * scale)
-                if (debug) {
-                    setViewVisibility(R.id.clock_debug_marker, View.VISIBLE)
-                    setTextViewText(R.id.clock_debug_marker, "FONT=${settings.font.preferenceValue.uppercase()} LAYOUT=$layoutName")
-                    setTextColor(R.id.clock_debug_marker, settings.textColor)
-                }
+                setViewVisibility(R.id.clock_debug_marker, View.GONE)
                 // Alignment is horizontal only; content stays vertically centred at every size.
                 val horizontalGravity = if (!settings.showDate || category == ClockWidgetLayout.Category.COMPACT) Gravity.CENTER_HORIZONTAL else settings.alignment.gravity()
                 setInt(R.id.clock_content, "setGravity", Gravity.CENTER_VERTICAL or horizontalGravity)

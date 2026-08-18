@@ -114,6 +114,9 @@
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_compact_metric" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="1-row progress bar" app:summary="Storage" app:showTopDivider="false" />
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_storage_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Storage colour" app:summary="#08B0CE" />
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_data_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Data usage colour" app:summary="#5BD686" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/storage_hide_data" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Hide data usage" app:summaryOn="Show Manage in its place" app:summaryOff="Show data usage" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/storage_show_titles" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show titles" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_detail_mode" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Bar detail" app:summary="Percentage and amount" />
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/storage_memory_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Memory colour" app:summary="#1D79ED" />
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
         </LinearLayout>
@@ -121,6 +124,29 @@
             <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Calendar" />
             <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/calendar_accent_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Today colour" app:summary="#08B0CE" app:showTopDivider="false" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/toggle_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Toggle" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/toggle_accent_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Enabled colour" app:summary="#387AFF" app:showTopDivider="false" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/battery_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Battery" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/battery_compact_device" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="1-row device" app:summary="Phone" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/battery_low_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Low battery colour" app:summary="#F44336" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/battery_power_saving_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Power saving colour" app:summary="#FF9800" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/battery_normal_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Normal colour" app:summary="#4CAF50" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/battery_charging_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Charging colour" app:summary="#009688" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/weather_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Weather" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/weather_temperature_unit" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Temperature unit" app:summary="Celsius" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/weather_show_location" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show location" />
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
         </LinearLayout>
 

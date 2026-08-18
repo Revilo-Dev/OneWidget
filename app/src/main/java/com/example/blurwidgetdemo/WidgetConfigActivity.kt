@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -72,12 +73,20 @@ class WidgetConfigActivity : AppCompatActivity() {
     private var currentTextColor = Color.WHITE
     private var currentTextAlignment = WidgetAppearance.Alignment.CENTRE
     private var storageCompactMetric = StorageWidget.CompactMetric.STORAGE
+    private var storageHideData = false
+    private var storageShowTitles = true
+    private var storageDetailMode = StorageWidget.DetailMode.BOTH
+    private var toggleAccentColor = 0xFF387AFF.toInt()
+    private var batteryCompactDevice = "phone"
+    private var batteryColors = mutableMapOf("low" to 0xFFF44336.toInt(), "power_saving" to 0xFFFF9800.toInt(), "normal" to 0xFF4CAF50.toInt(), "charging" to 0xFF009688.toInt())
     private var storageColors = mutableMapOf(
         StorageWidget.CompactMetric.STORAGE to 0xFF08B0CE.toInt(),
         StorageWidget.CompactMetric.DATA to 0xFF5BD686.toInt(),
         StorageWidget.CompactMetric.MEMORY to 0xFF1D79ED.toInt()
     )
     private var calendarAccentColor = 0xFF08B0CE.toInt()
+    private var weatherUnit = "C"
+    private var weatherShowLocation = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,7 +109,10 @@ class WidgetConfigActivity : AppCompatActivity() {
         setupClockOptions()
         setupUniversalTextOptions()
         setupStorageOptions()
+        setupToggleOptions()
+        setupBatteryOptions()
         setupCalendarOptions()
+        setupWeatherOptions()
         setupWallpaperPreview()
         setupColourPicker()
         setupPresetControls()
@@ -141,8 +153,16 @@ class WidgetConfigActivity : AppCompatActivity() {
             ClockTextAlignment.END -> WidgetAppearance.Alignment.END
         } else WidgetAppearance.alignment(prefs, appWidgetId)
         storageCompactMetric = StorageWidget.CompactMetric.from(prefs.getString("storage_compact_metric_$appWidgetId", null))
+        storageHideData = prefs.getBoolean("storage_hide_data_$appWidgetId", false)
+        storageShowTitles = prefs.getBoolean("storage_show_titles_$appWidgetId", true)
+        storageDetailMode = StorageWidget.DetailMode.from(prefs.getString("storage_detail_mode_$appWidgetId", null))
+        toggleAccentColor = prefs.getInt("toggle_accent_$appWidgetId", 0xFF387AFF.toInt())
+        batteryCompactDevice = prefs.getString("battery_compact_device_$appWidgetId", "phone") ?: "phone"
+        batteryColors.keys.forEach { batteryColors[it] = BatteryWidget.colour(this, appWidgetId, it) }
         StorageWidget.CompactMetric.entries.forEach { storageColors[it] = StorageWidget.barColor(this, appWidgetId, it) }
         if (isCalendarDisplayWidget()) calendarAccentColor = CalendarDisplayWidget.accentColor(this, appWidgetId)
+        weatherUnit = prefs.getString("weather_unit_$appWidgetId", "C") ?: "C"
+        weatherShowLocation = prefs.getBoolean("weather_show_location_$appWidgetId", true)
     }
 
     private fun providerClassName(): String? = AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId)?.provider?.className
@@ -156,6 +176,7 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun isCalendarDisplayWidget(): Boolean = providerClassName() == CalendarDisplayWidget::class.java.name
     private fun isStorageWidget(): Boolean = providerClassName() == StorageWidget::class.java.name
     private fun isHydrationWidget(): Boolean = providerClassName() == HydrationWidget::class.java.name
+    private fun isToggleWidget(): Boolean = providerClassName()?.substringAfterLast('.') in setOf("DataToggleWidget", "DarkModeToggleWidget", "WifiToggleWidget", "DoNotDisturbToggleWidget", "BluetoothToggleWidget", "LocationToggleWidget", "HotspotToggleWidget", "CameraToggleWidget", "TorchToggleWidget")
 
     private fun setupUniversalTextOptions() {
         findViewById<CardItemView>(R.id.universal_text_scale).summary = "${currentTextScale}%"
@@ -197,6 +218,15 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun setupStorageOptions() {
         if (!isStorageWidget()) return
         findViewById<View>(R.id.storage_options_section).visibility = View.VISIBLE
+        findViewById<SwitchItemView>(R.id.storage_hide_data).apply {
+            isChecked = storageHideData
+            onCheckedChangedListener = { _, checked -> storageHideData = checked; updatePreview() }
+        }
+        findViewById<SwitchItemView>(R.id.storage_show_titles).apply { isChecked = storageShowTitles; onCheckedChangedListener = { _, checked -> storageShowTitles = checked; updatePreview() } }
+        findViewById<CardItemView>(R.id.storage_detail_mode).apply {
+            summary = storageDetailMode.label
+            setOnClickListener { AlertDialog.Builder(this@WidgetConfigActivity).setItems(StorageWidget.DetailMode.entries.map { it.label }.toTypedArray()) { _, which -> storageDetailMode = StorageWidget.DetailMode.entries[which]; summary = storageDetailMode.label; updatePreview() }.show() }
+        }
         val item = findViewById<CardItemView>(R.id.storage_compact_metric)
         item.summary = storageCompactMetric.label
         item.setOnClickListener {
@@ -223,7 +253,48 @@ class WidgetConfigActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupToggleOptions() {
+        if (!isToggleWidget()) return
+        if (providerClassName()?.endsWith("TorchToggleWidget") == true && checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 103)
+        findViewById<View>(R.id.toggle_options_section).visibility = View.VISIBLE
+        val item = findViewById<CardItemView>(R.id.toggle_accent_colour)
+        fun refresh() { item.summary = "#${toggleAccentColor.toUInt().toString(16).uppercase().takeLast(6)}" }
+        refresh()
+        item.setOnClickListener {
+            SeslColorPickerDialog(this, { color ->
+                toggleAccentColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color))
+                refresh(); updatePreview()
+            }, toggleAccentColor, intArrayOf(toggleAccentColor), true).show()
+        }
+    }
+
+    private fun setupBatteryOptions() {
+        if (!isBatteryWidget()) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT), 102)
+        }
+        findViewById<View>(R.id.battery_options_section).visibility = View.VISIBLE
+        val deviceItem = findViewById<CardItemView>(R.id.battery_compact_device)
+        fun devices() = BatteryWidget.availableDevices(this)
+        fun refreshDevice() { deviceItem.summary = devices().firstOrNull { it.key == batteryCompactDevice }?.label ?: "Phone" }
+        refreshDevice()
+        deviceItem.setOnClickListener {
+            val options = devices()
+            AlertDialog.Builder(this).setItems(options.map { it.label }.toTypedArray()) { _, which ->
+                batteryCompactDevice = options[which].key; refreshDevice(); updatePreview()
+            }.show()
+        }
+        listOf("low" to R.id.battery_low_colour, "power_saving" to R.id.battery_power_saving_colour, "normal" to R.id.battery_normal_colour, "charging" to R.id.battery_charging_colour).forEach { (state, viewId) ->
+            val item = findViewById<CardItemView>(viewId)
+            fun refresh() { item.summary = "#${batteryColors.getValue(state).toUInt().toString(16).uppercase().takeLast(6)}" }
+            refresh()
+            item.setOnClickListener { SeslColorPickerDialog(this, { color -> batteryColors[state] = Color.rgb(Color.red(color), Color.green(color), Color.blue(color)); refresh(); updatePreview() }, batteryColors.getValue(state), intArrayOf(batteryColors.getValue(state)), true).show() }
+        }
+    }
+
     private fun setupCalendarOptions() {
+        if (!isCalendarWidget() && !isCalendarDisplayWidget()) return
+        requestPermissionIfNeeded(android.Manifest.permission.READ_CALENDAR, 101)
         if (!isCalendarDisplayWidget()) return
         findViewById<View>(R.id.calendar_options_section).visibility = View.VISIBLE
         val item = findViewById<CardItemView>(R.id.calendar_accent_colour)
@@ -235,6 +306,28 @@ class WidgetConfigActivity : AppCompatActivity() {
                 refresh(); updatePreview()
             }, calendarAccentColor, intArrayOf(calendarAccentColor), true).show()
         }
+    }
+
+    private fun setupWeatherOptions() {
+        if (!isWeatherWidget()) return
+        requestPermissionIfNeeded(android.Manifest.permission.ACCESS_COARSE_LOCATION, 102)
+        findViewById<View>(R.id.weather_options_section).visibility = View.VISIBLE
+        val unit = findViewById<CardItemView>(R.id.weather_temperature_unit)
+        fun bindUnit() { unit.summary = if (weatherUnit == "F") "Fahrenheit" else "Celsius" }
+        bindUnit()
+        unit.setOnClickListener {
+            AlertDialog.Builder(this).setItems(arrayOf("Celsius (°C)", "Fahrenheit (°F)")) { _, which ->
+                weatherUnit = if (which == 0) "C" else "F"; bindUnit(); updatePreview()
+            }.show()
+        }
+        findViewById<SwitchItemView>(R.id.weather_show_location).apply {
+            isChecked = weatherShowLocation
+            onCheckedChangedListener = { _, checked -> weatherShowLocation = checked; updatePreview() }
+        }
+    }
+
+    private fun requestPermissionIfNeeded(permission: String, requestCode: Int) {
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) requestPermissions(arrayOf(permission), requestCode)
     }
 
     private fun setupClockOptions() {
@@ -532,6 +625,22 @@ class WidgetConfigActivity : AppCompatActivity() {
                 setTextColor(Color.WHITE)
                 gravity = Gravity.CENTER
             }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        } else if (isToggleWidget()) {
+            previewWidget.addView(ImageView(this).apply {
+                val provider = providerClassName().orEmpty()
+                setImageResource(when {
+                    provider.endsWith("WifiToggleWidget") -> R.drawable.wifi_2
+                    provider.endsWith("DarkModeToggleWidget") -> R.drawable.dark
+                    provider.endsWith("DoNotDisturbToggleWidget") -> R.drawable.do_not_disturb
+                    provider.endsWith("BluetoothToggleWidget") -> R.drawable.devices
+                    provider.endsWith("LocationToggleWidget") -> R.drawable.location
+                    provider.endsWith("CameraToggleWidget") -> R.drawable.image
+                    provider.endsWith("TorchToggleWidget") -> R.drawable.flashlight
+                    else -> R.drawable.network_storage
+                })
+                background = roundedDrawable(toggleAccentColor, 100f)
+                setPadding(dp(18), dp(18), dp(18), dp(18))
+            }, FrameLayout.LayoutParams(dp(72), dp(72), Gravity.CENTER))
         } else if (isWeatherWidget()) {
             previewWidget.addView(TextView(this).apply {
                 text = "Weather\nSamsung Weather"
@@ -609,8 +718,16 @@ class WidgetConfigActivity : AppCompatActivity() {
             .putInt("text_color_$appWidgetId", currentTextColor)
             .putString("text_alignment_$appWidgetId", currentTextAlignment.name)
             .putString("storage_compact_metric_$appWidgetId", storageCompactMetric.name)
+            .putBoolean("storage_hide_data_$appWidgetId", storageHideData)
+            .putBoolean("storage_show_titles_$appWidgetId", storageShowTitles)
+            .putString("storage_detail_mode_$appWidgetId", storageDetailMode.name)
+            .putInt("toggle_accent_$appWidgetId", toggleAccentColor)
+            .putString("battery_compact_device_$appWidgetId", batteryCompactDevice)
+            .apply { batteryColors.forEach { (state, color) -> putInt("battery_colour_${state}_$appWidgetId", color) } }
             .apply { StorageWidget.CompactMetric.entries.forEach { putInt("storage_bar_${it.name.lowercase()}_$appWidgetId", storageColors.getValue(it)) } }
             .putInt("calendar_accent_$appWidgetId", calendarAccentColor)
+            .putString("weather_unit_$appWidgetId", weatherUnit)
+            .putBoolean("weather_show_location_$appWidgetId", weatherShowLocation)
             .apply()
 
         if (isClockWidget()) {
@@ -642,6 +759,10 @@ class WidgetConfigActivity : AppCompatActivity() {
             StorageWidget.updateWidget(this, manager, appWidgetId)
         } else if (provider == HydrationWidget::class.java.name) {
             HydrationWidget.updateWidget(this, manager, appWidgetId)
+        } else if (isToggleWidget() && provider != null) {
+            sendBroadcast(Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                .setComponent(android.content.ComponentName(this, provider))
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(appWidgetId)))
         } else {
             BlurWidget.updateWidget(this, manager, appWidgetId)
         }

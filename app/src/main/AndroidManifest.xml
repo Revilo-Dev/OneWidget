@@ -4,7 +4,11 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <queries>
         <package android:name="com.sec.android.daemonapp" />
@@ -12,6 +16,10 @@
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.APP_WEATHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
         </intent>
     </queries>
 
@@ -51,6 +59,9 @@
         <activity
             android:name=".AboutActivity"
             android:exported="false" />
+        <activity android:name=".widgets.extra.OpenAppWidgetConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
+        <activity android:name=".widgets.extra.TextWidgetConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
+        <activity android:name=".widgets.extra.StepCounterConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
 
         <activity android:name="androidx.picker.eyeDropper.SeslEyeDropperActivity" />
 
@@ -94,6 +105,8 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -146,6 +159,22 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_hydration" />
             <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
         </receiver>
+
+        <receiver android:name=".widgets.extra.GoogleSearchWidget" android:exported="true" android:label="@string/google_search_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_action" /></receiver>
+        <receiver android:name=".widgets.extra.OpenAppWidget" android:exported="true" android:label="@string/open_app_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_open_app" /></receiver>
+        <receiver android:name=".widgets.extra.DataToggleWidget" android:exported="true" android:label="@string/data_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.DarkModeToggleWidget" android:exported="true" android:label="@string/dark_mode_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.WifiToggleWidget" android:exported="true" android:label="@string/wifi_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.DoNotDisturbToggleWidget" android:exported="true" android:label="@string/do_not_disturb_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.BluetoothToggleWidget" android:exported="true" android:label="@string/bluetooth_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.LocationToggleWidget" android:exported="true" android:label="@string/location_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.HotspotToggleWidget" android:exported="true" android:label="@string/hotspot_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.CameraToggleWidget" android:exported="true" android:label="@string/camera_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.TorchToggleWidget" android:exported="true" android:label="@string/torch_toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /></receiver>
+        <receiver android:name=".widgets.extra.StepCounterWidget" android:exported="true" android:label="@string/step_counter_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_steps" /></receiver>
+        <receiver android:name=".widgets.extra.TextWidget" android:exported="true" android:label="@string/text_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_text" /></receiver>
+        <receiver android:name=".widgets.extra.AlarmWidget" android:exported="true" android:label="@string/alarm_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_action" /></receiver>
+        <receiver android:name=".widgets.extra.MediaPlayerWidget" android:exported="true" android:label="@string/media_player_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_action" /></receiver>
 
         <receiver
             android:name=".LockScreenMessageServiceBoxReceiver"

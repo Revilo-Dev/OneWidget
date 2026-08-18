@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">One Widget</string>
     <string name="widget_description">Blank widget with adjustable tint and opacity</string>
-    <string name="widget_label">Blur Widget</string>
+    <string name="widget_label">Glass</string>
     <string name="digital_clock_widget_label">Digital Clock</string>
     <string name="digital_clock_widget_description">Resizable clock and date with adjustable One UI-style glass</string>
     <string name="clock_widget_settings">Digital Clock settings</string>
@@ -48,6 +48,21 @@
     <string name="add_calendar_display_widget">Add Calendar Display</string>
     <string name="add_storage_widget">Add Storage</string>
     <string name="add_hydration_widget">Add Hydration</string>
+    <string name="google_search_widget_label">Google Search</string>
+    <string name="open_app_widget_label">Open app</string>
+    <string name="data_toggle_widget_label">Mobile data</string>
+    <string name="dark_mode_toggle_widget_label">Dark mode</string>
+    <string name="wifi_toggle_widget_label">Wi-Fi</string>
+    <string name="do_not_disturb_toggle_widget_label">Do not disturb</string>
+    <string name="bluetooth_toggle_widget_label">Bluetooth</string>
+    <string name="location_toggle_widget_label">Location</string>
+    <string name="hotspot_toggle_widget_label">Mobile hotspot</string>
+    <string name="camera_toggle_widget_label">Camera</string>
+    <string name="torch_toggle_widget_label">Torch</string>
+    <string name="step_counter_widget_label">Step counter</string>
+    <string name="text_widget_label">Text</string>
+    <string name="alarm_widget_label">Alarm</string>
+    <string name="media_player_widget_label">Media player</string>
     <string name="calendar_widget_label">Next event</string>
     <string name="calendar_widget_description">Your next calendar event in adjustable One UI-style glass</string>
     <string name="calendar_display_label">Calendar display</string>

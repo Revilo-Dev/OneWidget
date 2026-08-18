@@ -42,7 +42,9 @@ class CalendarDisplayWidget : AppWidgetProvider() {
                     setTextColor(viewId, if (active) Color.WHITE else if (weekend) 0xFFFD4B47.toInt() else color)
                     if (active) {
                         setInt(viewId, "setBackgroundResource", R.drawable.calendar_today)
-                        setColorStateList(viewId, "setBackgroundTintList", ColorStateList.valueOf(accent))
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                            setColorStateList(viewId, "setBackgroundTintList", ColorStateList.valueOf(accent))
+                        }
                     } else setInt(viewId, "setBackgroundResource", android.R.color.transparent)
                     week.add(Calendar.DAY_OF_YEAR, 1)
                 }
