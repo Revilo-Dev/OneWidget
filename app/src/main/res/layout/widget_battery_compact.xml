@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/widget_clock_background">
-    <ProgressBar android:id="@+id/battery_compact_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="match_parent" android:max="100" android:progressDrawable="@drawable/widget_progress_track" />
+    android:background="@drawable/widget_clock_background" android:foreground="@drawable/widget_border">
+    <ImageView android:id="@+id/battery_compact_bar" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:contentDescription="@null" />
     <ImageView android:id="@+id/battery_icon" android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center_vertical" android:layout_marginStart="16dp" android:contentDescription="@null" />
     <TextView android:id="@+id/battery_percentage" android:layout_width="match_parent" android:layout_height="match_parent" android:text="85%"
         android:gravity="center" android:textColor="#FFFFFFFF" android:textSize="30sp" android:textStyle="bold" />

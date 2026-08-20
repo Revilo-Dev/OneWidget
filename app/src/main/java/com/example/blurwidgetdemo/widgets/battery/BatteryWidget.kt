@@ -3,12 +3,13 @@ package com.example.blurwidgetdemo.widgets.battery
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -18,19 +19,26 @@ import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
 import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
 
 class BatteryWidget : AppWidgetProvider() {
-    override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
+    override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
+        ids.forEach { updateWidget(context, manager, it) }
+        scheduleRefresh(context)
+    }
+    override fun onEnabled(context: Context) = scheduleRefresh(context)
+    override fun onDisabled(context: Context) = context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context))
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == Intent.ACTION_BATTERY_CHANGED || intent.action == Intent.ACTION_POWER_CONNECTED || intent.action == Intent.ACTION_POWER_DISCONNECTED || intent.action == android.bluetooth.BluetoothDevice.ACTION_ACL_CONNECTED || intent.action == android.bluetooth.BluetoothDevice.ACTION_ACL_DISCONNECTED) {
+        if (intent.action == ACTION_REFRESH || intent.action == Intent.ACTION_BATTERY_CHANGED || intent.action == Intent.ACTION_POWER_CONNECTED || intent.action == Intent.ACTION_POWER_DISCONNECTED || intent.action == android.bluetooth.BluetoothDevice.ACTION_ACL_CONNECTED || intent.action == android.bluetooth.BluetoothDevice.ACTION_ACL_DISCONNECTED) {
             val manager = AppWidgetManager.getInstance(context)
             onUpdate(context, manager, manager.getAppWidgetIds(ComponentName(context, BatteryWidget::class.java)))
         }
     }
 
     companion object {
+        private const val ACTION_REFRESH = "com.example.blurwidgetdemo.action.REFRESH_BATTERY_WIDGET"
         data class Device(val key: String, val label: String, val level: Int?, val icon: Int, val charging: Boolean = false)
         private const val PHONE = "phone"
         private const val RED = 0xFFF44336.toInt()
@@ -52,16 +60,17 @@ class BatteryWidget : AppWidgetProvider() {
             if (compact) {
                 val selected = devices.firstOrNull { it.key == prefs.getString("battery_compact_device_$id", PHONE) } ?: devices.first()
                 RemoteViews(context.packageName, R.layout.widget_battery_compact).apply {
+                    WidgetAppearance.applyBorder(this, prefs)
                     setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
                     setTextViewText(R.id.battery_percentage, selected.level?.let { "$it%" } ?: "—")
                     setImageViewResource(R.id.battery_icon, iconFor(selected))
-                    setProgressBar(R.id.battery_compact_bar, 100, selected.level ?: 0, false)
-                    setProgressTint(R.id.battery_compact_bar, colour(context, id, stateFor(context, selected)))
+                    setImageViewBitmap(R.id.battery_compact_bar, WidgetProgressBarRenderer.render(selected.level ?: 0, colour(context, id, stateFor(context, selected)), WidgetAppearance.gradientsEnabled(prefs)))
                     setTextColor(R.id.battery_percentage, WidgetAppearance.textColor(prefs, id))
                     setInt(R.id.battery_percentage, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
                     setFloat(R.id.battery_percentage, "setTextSize", 30f * WidgetAppearance.textScale(prefs, id) / 100f)
                 }.also { manager.updateAppWidget(id, it) }
             } else RemoteViews(context.packageName, R.layout.widget_battery_large).apply {
+                WidgetAppearance.applyBorder(this, prefs)
                 setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
                 val rows = arrayOf(R.id.battery_row_1, R.id.battery_row_2, R.id.battery_row_3, R.id.battery_row_4)
                 val labels = arrayOf(R.id.battery_label_1, R.id.battery_label_2, R.id.battery_label_3, R.id.battery_label_4)
@@ -75,11 +84,16 @@ class BatteryWidget : AppWidgetProvider() {
                         setTextColor(labels[index], WidgetAppearance.textColor(prefs, id))
                         setFloat(labels[index], "setTextSize", 15f * WidgetAppearance.textScale(prefs, id) / 100f)
                         setImageViewResource(icons[index], iconFor(device))
-                        setProgressBar(bars[index], 100, device.level ?: 0, false)
-                        setProgressTint(bars[index], colour(context, id, stateFor(context, device)))
+                        setImageViewBitmap(bars[index], WidgetProgressBarRenderer.render(device.level ?: 0, colour(context, id, stateFor(context, device)), WidgetAppearance.gradientsEnabled(prefs)))
                     }
                 }
             }.also { manager.updateAppWidget(id, it) }
+        }
+
+        private fun refreshIntent(context: Context) = PendingIntent.getBroadcast(context, 7001,
+            Intent(context, BatteryWidget::class.java).setAction(ACTION_REFRESH), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        private fun scheduleRefresh(context: Context) {
+            context.getSystemService(AlarmManager::class.java).setAndAllowWhileIdle(AlarmManager.RTC, System.currentTimeMillis() + 15_000L, refreshIntent(context))
         }
 
         private fun phoneDevice(context: Context): Device {
@@ -101,12 +115,6 @@ class BatteryWidget : AppWidgetProvider() {
             (device.javaClass.methods.firstOrNull { it.name == "getBatteryLevel" && it.parameterCount == 0 }
                 ?.invoke(device) as? Number)?.toInt()?.takeIf { it in 0..100 }
         }.getOrNull()
-
-        private fun RemoteViews.setProgressTint(viewId: Int, colour: Int) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setColorStateList(viewId, "setProgressTintList", ColorStateList.valueOf(colour))
-            }
-        }
 
         private fun deviceIcon(name: String?): Int = when {
             name.orEmpty().contains("bud", true) -> R.drawable.buds

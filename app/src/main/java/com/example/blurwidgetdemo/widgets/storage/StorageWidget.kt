@@ -3,9 +3,10 @@ package com.example.blurwidgetdemo.widgets.storage
 import android.app.ActivityManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.TrafficStats
 import android.os.StatFs
@@ -14,6 +15,7 @@ import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
 import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
 import java.util.Locale
 
 class StorageWidget : AppWidgetProvider() {
@@ -29,9 +31,22 @@ class StorageWidget : AppWidgetProvider() {
         }
     }
 
-    override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
+    override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
+        ids.forEach { updateWidget(context, manager, it) }
+        scheduleRefresh(context)
+    }
+    override fun onEnabled(context: Context) = scheduleRefresh(context)
+    override fun onDisabled(context: Context) = context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context))
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == ACTION_REFRESH) {
+            val manager = AppWidgetManager.getInstance(context)
+            onUpdate(context, manager, manager.getAppWidgetIds(android.content.ComponentName(context, StorageWidget::class.java)))
+        }
+    }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = updateWidget(context, manager, id)
     companion object {
+        private const val ACTION_REFRESH = "com.example.blurwidgetdemo.action.REFRESH_STORAGE_WIDGET"
         private const val DEFAULT_STORAGE_COLOR = 0xFF08B0CE.toInt()
         private const val DEFAULT_MEMORY_COLOR = 0xFF1D79ED.toInt()
         private const val DEFAULT_DATA_COLOR = 0xFF5BD686.toInt()
@@ -48,25 +63,23 @@ class StorageWidget : AppWidgetProvider() {
                 val metric = compactMetric(context, id)
                 val selected = when (metric) { CompactMetric.STORAGE -> stats.storage; CompactMetric.DATA -> stats.data; CompactMetric.MEMORY -> stats.memory }
                 RemoteViews(context.packageName, R.layout.widget_storage_compact).apply {
+                    WidgetAppearance.applyBorder(this, prefs)
                     setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
                     setTextViewText(R.id.widget_primary, detail(metric.label, selected, showTitles, detailMode))
                     setTextColor(R.id.widget_primary, color)
                     setInt(R.id.widget_primary, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
                     setFloat(R.id.widget_primary, "setTextSize", 20f * WidgetAppearance.textScale(prefs, id) / 100f)
-                    setProgressBar(R.id.compact_progress, 100, selected.percent, false)
-                    setColorStateList(R.id.compact_progress, "setProgressTintList", ColorStateList.valueOf(barColor(context, id, metric)))
+                    setImageViewBitmap(R.id.compact_progress, WidgetProgressBarRenderer.render(selected.percent, barColor(context, id, metric), WidgetAppearance.gradientsEnabled(prefs)))
                 }.also { manager.updateAppWidget(id, it) }
             } else RemoteViews(context.packageName, R.layout.widget_storage_large).apply {
+                WidgetAppearance.applyBorder(this, prefs)
                 setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
                 setTextViewText(R.id.storage_label, detail("Storage", stats.storage, showTitles, detailMode))
                 setTextViewText(R.id.data_label, detail("Data usage", stats.data, showTitles, detailMode))
                 setTextViewText(R.id.memory_label, detail("Memory", stats.memory, showTitles, detailMode))
-                setProgressBar(R.id.storage_bar, 100, stats.storage.percent, false)
-                setProgressBar(R.id.data_bar, 100, stats.data.percent, false)
-                setProgressBar(R.id.memory_bar, 100, stats.memory.percent, false)
-                setColorStateList(R.id.storage_bar, "setProgressTintList", ColorStateList.valueOf(barColor(context, id, CompactMetric.STORAGE)))
-                setColorStateList(R.id.data_bar, "setProgressTintList", ColorStateList.valueOf(barColor(context, id, CompactMetric.DATA)))
-                setColorStateList(R.id.memory_bar, "setProgressTintList", ColorStateList.valueOf(barColor(context, id, CompactMetric.MEMORY)))
+                setImageViewBitmap(R.id.storage_bar, WidgetProgressBarRenderer.render(stats.storage.percent, barColor(context, id, CompactMetric.STORAGE), WidgetAppearance.gradientsEnabled(prefs)))
+                setImageViewBitmap(R.id.data_bar, WidgetProgressBarRenderer.render(stats.data.percent, barColor(context, id, CompactMetric.DATA), WidgetAppearance.gradientsEnabled(prefs)))
+                setImageViewBitmap(R.id.memory_bar, WidgetProgressBarRenderer.render(stats.memory.percent, barColor(context, id, CompactMetric.MEMORY), WidgetAppearance.gradientsEnabled(prefs)))
                 intArrayOf(R.id.storage_label, R.id.data_label, R.id.memory_label).forEach {
                     setTextColor(it, color); setInt(it, "setGravity", android.view.Gravity.CENTER)
                 }
@@ -79,6 +92,11 @@ class StorageWidget : AppWidgetProvider() {
                 setOnClickPendingIntent(R.id.manage_storage, android.app.PendingIntent.getActivity(context, id,
                     Intent(android.provider.Settings.ACTION_INTERNAL_STORAGE_SETTINGS), android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE))
             }.also { manager.updateAppWidget(id, it) }
+        }
+        private fun refreshIntent(context: Context) = PendingIntent.getBroadcast(context, 7002,
+            Intent(context, StorageWidget::class.java).setAction(ACTION_REFRESH), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        private fun scheduleRefresh(context: Context) {
+            context.getSystemService(AlarmManager::class.java).setAndAllowWhileIdle(AlarmManager.RTC, System.currentTimeMillis() + 15_000L, refreshIntent(context))
         }
         private data class Metric(val percent: Int, val label: String)
         private data class Stats(val storage: Metric, val data: Metric, val memory: Metric)

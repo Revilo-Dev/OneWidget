@@ -3,7 +3,7 @@
     android:initialLayout="@layout/widget_battery_large" android:previewLayout="@layout/widget_battery_large"
     android:minWidth="110dp" android:minHeight="40dp" android:minResizeWidth="110dp" android:minResizeHeight="40dp"
     android:maxResizeWidth="1000dp" android:maxResizeHeight="1000dp" android:resizeMode="horizontal|vertical"
-    android:targetCellWidth="2" android:targetCellHeight="1" android:updatePeriodMillis="1800000"
+    android:targetCellWidth="2" android:targetCellHeight="1" android:updatePeriodMillis="900000"
     android:description="@string/battery_widget_description" android:widgetCategory="home_screen"
     android:configure="com.example.blurwidgetdemo.WidgetConfigActivity" android:widgetFeatures="reconfigurable"
     app:previewLayoutSmall="@layout/widget_battery_compact" app:previewLayoutWideSmall="@layout/widget_battery_compact"
