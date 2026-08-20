@@ -176,7 +176,7 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun isCalendarDisplayWidget(): Boolean = providerClassName() == CalendarDisplayWidget::class.java.name
     private fun isStorageWidget(): Boolean = providerClassName() == StorageWidget::class.java.name
     private fun isHydrationWidget(): Boolean = providerClassName() == HydrationWidget::class.java.name
-    private fun isToggleWidget(): Boolean = providerClassName()?.substringAfterLast('.') in setOf("DataToggleWidget", "DarkModeToggleWidget", "WifiToggleWidget", "DoNotDisturbToggleWidget", "BluetoothToggleWidget", "LocationToggleWidget", "HotspotToggleWidget", "CameraToggleWidget", "TorchToggleWidget")
+    private fun isToggleWidget(): Boolean = providerClassName()?.substringAfterLast('.')?.removePrefix("Compact") in setOf("DataToggleWidget", "DarkModeToggleWidget", "WifiToggleWidget", "DoNotDisturbToggleWidget", "BluetoothToggleWidget", "LocationToggleWidget", "HotspotToggleWidget", "CameraToggleWidget", "TorchToggleWidget")
 
     private fun setupUniversalTextOptions() {
         findViewById<CardItemView>(R.id.universal_text_scale).summary = "${currentTextScale}%"
