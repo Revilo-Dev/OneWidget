@@ -26,7 +26,7 @@ object WidgetProgressBarRenderer {
             val base = colour or 0xFF000000.toInt()
             if (!animated) {
                 paint.color = base
-                canvas.drawRoundRect(0f, 0f, fillWidth, HEIGHT.toFloat(), radius, radius, paint)
+                drawFill(canvas, fillWidth, radius, paint)
                 return bitmap
             }
             val phase = ((now / 1_000L) % 12L).toFloat() / 12f
@@ -40,10 +40,7 @@ object WidgetProgressBarRenderer {
                 floatArrayOf(0f, .34f, .5f, .66f, 1f),
                 Shader.TileMode.MIRROR
             )
-            canvas.save()
-            canvas.clipRect(0f, 0f, fillWidth, HEIGHT.toFloat())
-            canvas.drawRoundRect(0f, 0f, fillWidth, HEIGHT.toFloat(), radius, radius, paint)
-            canvas.restore()
+            drawFill(canvas, fillWidth, radius, paint)
             paint.shader = null
         }
         return bitmap
@@ -54,4 +51,10 @@ object WidgetProgressBarRenderer {
         (Color.green(from) + (Color.green(to) - Color.green(from)) * amount).roundToInt(),
         (Color.blue(from) + (Color.blue(to) - Color.blue(from)) * amount).roundToInt()
     )
+
+    /** Uses a half-width cap for short fills so both ends stay completely circular. */
+    private fun drawFill(canvas: Canvas, fillWidth: Float, radius: Float, paint: Paint) {
+        val fillRadius = minOf(radius, fillWidth / 2f)
+        canvas.drawRoundRect(0f, 0f, fillWidth, HEIGHT.toFloat(), fillRadius, fillRadius, paint)
+    }
 }

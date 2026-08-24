@@ -45,6 +45,8 @@ import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
 import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
 import com.example.blurwidgetdemo.widgets.storage.StorageWidget
 import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
+import com.example.blurwidgetdemo.widgets.extra.ToggleKind
+import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SeslSeekBar
 
@@ -77,6 +79,7 @@ class WidgetConfigActivity : AppCompatActivity() {
     private var storageShowTitles = true
     private var storageDetailMode = StorageWidget.DetailMode.BOTH
     private var toggleAccentColor = 0xFF387AFF.toInt()
+    private var toggleKind = ToggleKind.WIFI
     private var batteryCompactDevice = "phone"
     private var batteryColors = mutableMapOf("low" to 0xFFF44336.toInt(), "power_saving" to 0xFFFF9800.toInt(), "normal" to 0xFF4CAF50.toInt(), "charging" to 0xFF009688.toInt())
     private var storageColors = mutableMapOf(
@@ -147,16 +150,20 @@ class WidgetConfigActivity : AppCompatActivity() {
         if (isClockWidget()) clockSettings = ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId)
         currentTextScale = if (isClockWidget()) clockSettings!!.textScalePercent else WidgetAppearance.textScale(prefs, appWidgetId)
         currentTextColor = if (isClockWidget()) clockSettings!!.textColor else WidgetAppearance.textColor(prefs, appWidgetId)
-        currentTextAlignment = if (isClockWidget()) when (clockSettings!!.alignment) {
+        currentTextAlignment = if (isWeatherWidget() && !prefs.contains("text_alignment_$appWidgetId")) WidgetAppearance.Alignment.START else if (isClockWidget()) when (clockSettings!!.alignment) {
             ClockTextAlignment.START -> WidgetAppearance.Alignment.START
             ClockTextAlignment.CENTER -> WidgetAppearance.Alignment.CENTRE
             ClockTextAlignment.END -> WidgetAppearance.Alignment.END
         } else WidgetAppearance.alignment(prefs, appWidgetId)
+        if (isGoogleSearchWidget() && currentTextAlignment == WidgetAppearance.Alignment.END) {
+            currentTextAlignment = WidgetAppearance.Alignment.CENTRE
+        }
         storageCompactMetric = StorageWidget.CompactMetric.from(prefs.getString("storage_compact_metric_$appWidgetId", null))
         storageHideData = prefs.getBoolean("storage_hide_data_$appWidgetId", false)
         storageShowTitles = prefs.getBoolean("storage_show_titles_$appWidgetId", true)
         storageDetailMode = StorageWidget.DetailMode.from(prefs.getString("storage_detail_mode_$appWidgetId", null))
         toggleAccentColor = prefs.getInt("toggle_accent_$appWidgetId", 0xFF387AFF.toInt())
+        toggleKind = ToggleKind.from(prefs.getString("toggle_kind_$appWidgetId", null))
         batteryCompactDevice = prefs.getString("battery_compact_device_$appWidgetId", "phone") ?: "phone"
         batteryColors.keys.forEach { batteryColors[it] = BatteryWidget.colour(this, appWidgetId, it) }
         StorageWidget.CompactMetric.entries.forEach { storageColors[it] = StorageWidget.barColor(this, appWidgetId, it) }
@@ -176,7 +183,8 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun isCalendarDisplayWidget(): Boolean = providerClassName() == CalendarDisplayWidget::class.java.name
     private fun isStorageWidget(): Boolean = providerClassName() == StorageWidget::class.java.name
     private fun isHydrationWidget(): Boolean = providerClassName() == HydrationWidget::class.java.name
-    private fun isToggleWidget(): Boolean = providerClassName()?.substringAfterLast('.')?.removePrefix("Compact") in setOf("DataToggleWidget", "DarkModeToggleWidget", "WifiToggleWidget", "DoNotDisturbToggleWidget", "BluetoothToggleWidget", "LocationToggleWidget", "HotspotToggleWidget", "CameraToggleWidget", "TorchToggleWidget")
+    private fun isGoogleSearchWidget(): Boolean = providerClassName()?.endsWith("GoogleSearchWidget") == true
+    private fun isToggleWidget(): Boolean = providerClassName() == ToggleWidget::class.java.name
 
     private fun setupUniversalTextOptions() {
         findViewById<CardItemView>(R.id.universal_text_scale).summary = "${currentTextScale}%"
@@ -202,8 +210,13 @@ class WidgetConfigActivity : AppCompatActivity() {
             }, currentTextColor, intArrayOf(currentTextColor), true).show()
         }
         findViewById<CardItemView>(R.id.universal_text_alignment).setOnClickListener {
-            AlertDialog.Builder(this).setItems(WidgetAppearance.Alignment.entries.map { it.label }.toTypedArray()) { _, which ->
-                currentTextAlignment = WidgetAppearance.Alignment.entries[which]
+            val alignmentOptions = if (isGoogleSearchWidget() || isWeatherWidget()) {
+                listOf(WidgetAppearance.Alignment.CENTRE, WidgetAppearance.Alignment.START)
+            } else {
+                WidgetAppearance.Alignment.entries.toList()
+            }
+            AlertDialog.Builder(this).setItems(alignmentOptions.map { it.label }.toTypedArray()) { _, which ->
+                currentTextAlignment = alignmentOptions[which]
                 if (isClockWidget()) clockSettings = clockSettings?.copy(alignment = when (currentTextAlignment) {
                     WidgetAppearance.Alignment.START -> ClockTextAlignment.START
                     WidgetAppearance.Alignment.CENTRE -> ClockTextAlignment.CENTER
@@ -255,8 +268,11 @@ class WidgetConfigActivity : AppCompatActivity() {
 
     private fun setupToggleOptions() {
         if (!isToggleWidget()) return
-        if (providerClassName()?.endsWith("TorchToggleWidget") == true && checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 103)
         findViewById<View>(R.id.toggle_options_section).visibility = View.VISIBLE
+        findViewById<CardItemView>(R.id.toggle_type).apply {
+            summary = toggleKind.label
+            setOnClickListener { AlertDialog.Builder(this@WidgetConfigActivity).setItems(ToggleKind.entries.map { it.label }.toTypedArray()) { _, which -> toggleKind = ToggleKind.entries[which]; summary = toggleKind.label; updatePreview() }.show() }
+        }
         val item = findViewById<CardItemView>(R.id.toggle_accent_colour)
         fun refresh() { item.summary = "#${toggleAccentColor.toUInt().toString(16).uppercase().takeLast(6)}" }
         refresh()
@@ -627,17 +643,7 @@ class WidgetConfigActivity : AppCompatActivity() {
             }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         } else if (isToggleWidget()) {
             previewWidget.addView(ImageView(this).apply {
-                val provider = providerClassName().orEmpty()
-                setImageResource(when {
-                    provider.endsWith("WifiToggleWidget") -> R.drawable.wifi_2
-                    provider.endsWith("DarkModeToggleWidget") -> R.drawable.dark
-                    provider.endsWith("DoNotDisturbToggleWidget") -> R.drawable.do_not_disturb
-                    provider.endsWith("BluetoothToggleWidget") -> R.drawable.devices
-                    provider.endsWith("LocationToggleWidget") -> R.drawable.location
-                    provider.endsWith("CameraToggleWidget") -> R.drawable.image
-                    provider.endsWith("TorchToggleWidget") -> R.drawable.flashlight
-                    else -> R.drawable.network_storage
-                })
+                setImageResource(toggleKind.icon)
                 background = roundedDrawable(toggleAccentColor, 100f)
                 setPadding(dp(18), dp(18), dp(18), dp(18))
             }, FrameLayout.LayoutParams(dp(72), dp(72), Gravity.CENTER))
@@ -722,6 +728,7 @@ class WidgetConfigActivity : AppCompatActivity() {
             .putBoolean("storage_show_titles_$appWidgetId", storageShowTitles)
             .putString("storage_detail_mode_$appWidgetId", storageDetailMode.name)
             .putInt("toggle_accent_$appWidgetId", toggleAccentColor)
+            .putString("toggle_kind_$appWidgetId", toggleKind.name)
             .putString("battery_compact_device_$appWidgetId", batteryCompactDevice)
             .apply { batteryColors.forEach { (state, color) -> putInt("battery_colour_${state}_$appWidgetId", color) } }
             .apply { StorageWidget.CompactMetric.entries.forEach { putInt("storage_bar_${it.name.lowercase()}_$appWidgetId", storageColors.getValue(it)) } }

@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.Intent
 import android.graphics.Bitmap
 import android.view.View
@@ -17,6 +18,8 @@ abstract class NamedActionWidget : AppWidgetProvider() {
     abstract val icon: Int
     abstract fun action(context: Context, id: Int): Intent
     protected open fun displayText(context: Context, id: Int) = title
+    protected open fun textColor(prefs: SharedPreferences, id: Int) = WidgetAppearance.textColor(prefs, id)
+    protected open fun startLabelPadding(context: Context) = 0
     protected open fun iconBitmap(context: Context, id: Int): Bitmap? = null
     protected open val layoutResource = R.layout.widget_action
 
@@ -30,7 +33,10 @@ abstract class NamedActionWidget : AppWidgetProvider() {
             iconBitmap(context, id)?.let { setImageViewBitmap(R.id.action_icon, it) } ?: setImageViewResource(R.id.action_icon, icon)
             setTextViewText(R.id.action_label, displayText(context, id))
             setViewVisibility(R.id.action_label, if (iconOnly) View.GONE else View.VISIBLE)
-            setTextColor(R.id.action_label, WidgetAppearance.textColor(prefs, id))
+            setTextColor(R.id.action_label, textColor(prefs, id))
+            setInt(R.id.action_label, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
+            val padding = if (WidgetAppearance.alignment(prefs, id) == WidgetAppearance.Alignment.START) startLabelPadding(context) else 0
+            setViewPadding(R.id.action_label, padding, 0, 0, 0)
             setOnClickPendingIntent(android.R.id.background, PendingIntent.getActivity(context, id, action(context, id).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
         }.also { manager.updateAppWidget(id, it) }
     }

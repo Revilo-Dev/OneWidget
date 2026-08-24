@@ -49,6 +49,7 @@
     <string name="add_storage_widget">Add Storage</string>
     <string name="add_hydration_widget">Add Hydration</string>
     <string name="google_search_widget_label">Google Search</string>
+    <string name="toggle_widget_label">Toggle</string>
     <string name="open_app_widget_label">Open app</string>
     <string name="data_toggle_widget_label">Mobile data</string>
     <string name="dark_mode_toggle_widget_label">Dark mode</string>

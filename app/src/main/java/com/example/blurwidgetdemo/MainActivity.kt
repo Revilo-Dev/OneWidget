@@ -26,15 +26,7 @@ import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
 import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
 import com.example.blurwidgetdemo.widgets.storage.StorageWidget
 import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
-import com.example.blurwidgetdemo.widgets.extra.DataToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.DarkModeToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.WifiToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.DoNotDisturbToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.BluetoothToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.LocationToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.HotspotToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.CameraToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.TorchToggleWidget
+import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
 import com.example.blurwidgetdemo.widgets.extra.GoogleSearchWidget
 import com.example.blurwidgetdemo.widgets.extra.OpenAppWidget
 import com.example.blurwidgetdemo.widgets.extra.TextWidget
@@ -118,12 +110,7 @@ class MainActivity : AppCompatActivity() {
             WidgetEntry("Alarm", "Next alarm", R.drawable.time, AlarmWidget::class.java), WidgetEntry("Media player", "Now playing", R.drawable.music_alt, MediaPlayerWidget::class.java),
             WidgetEntry("Google Search", "Search", R.drawable.google, GoogleSearchWidget::class.java), WidgetEntry("Open app", "Choose an app", R.drawable.phone, OpenAppWidget::class.java)
         ))
-        addCatalogueSection(container, "Toggle widgets", listOf(
-            WidgetEntry("Mobile data", "", R.drawable.network_storage, DataToggleWidget::class.java), WidgetEntry("Dark mode", "", R.drawable.dark, DarkModeToggleWidget::class.java),
-            WidgetEntry("Wi-Fi", "", R.drawable.wifi_2, WifiToggleWidget::class.java), WidgetEntry("Do not disturb", "", R.drawable.do_not_disturb, DoNotDisturbToggleWidget::class.java),
-            WidgetEntry("Bluetooth", "", R.drawable.devices, BluetoothToggleWidget::class.java), WidgetEntry("Location", "", R.drawable.location, LocationToggleWidget::class.java),
-            WidgetEntry("Hotspot", "", R.drawable.wifi_2, HotspotToggleWidget::class.java), WidgetEntry("Camera", "", R.drawable.image, CameraToggleWidget::class.java), WidgetEntry("Torch", "", R.drawable.flashlight, TorchToggleWidget::class.java)
-        ))
+        addCatalogueSection(container, "Toggle widgets", listOf(WidgetEntry("Toggle", "Choose an action", R.drawable.wifi_2, ToggleWidget::class.java)))
     }
 
     private fun addCatalogueSection(container: LinearLayout, title: String, entries: List<WidgetEntry>) {

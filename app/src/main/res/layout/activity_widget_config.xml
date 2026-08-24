@@ -129,7 +129,8 @@
         <LinearLayout android:id="@+id/toggle_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
             <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Toggle" />
             <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
-                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/toggle_accent_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Enabled colour" app:summary="#387AFF" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/toggle_type" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Toggle action" app:summary="Wi-Fi" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/toggle_accent_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Enabled colour" app:summary="#387AFF" />
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
         </LinearLayout>
         <LinearLayout android:id="@+id/battery_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">

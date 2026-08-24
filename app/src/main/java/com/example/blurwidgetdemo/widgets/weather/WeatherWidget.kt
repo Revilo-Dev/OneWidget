@@ -10,6 +10,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
+import android.view.Gravity
 import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
@@ -53,7 +54,11 @@ class WeatherWidget : AppWidgetProvider() {
                 setImageViewResource(R.id.weather_icon, iconFor(weatherCode))
                 val color = WidgetAppearance.textColor(prefs, id)
                 intArrayOf(R.id.weather_temperature, R.id.weather_condition, R.id.weather_location).forEach { setTextColor(it, color) }
-                setFloat(R.id.weather_temperature, "setTextSize", 26f * WidgetAppearance.textScale(prefs, id) / 100f)
+                val centred = WidgetAppearance.alignment(prefs, id) == WidgetAppearance.Alignment.CENTRE
+                val textScale = WidgetAppearance.textScale(prefs, id) / 100f
+                setFloat(R.id.weather_temperature, "setTextSize", (if (centred) 32f else 26f) * textScale)
+                val gravity = if (centred) Gravity.CENTER else Gravity.START or Gravity.CENTER_VERTICAL
+                intArrayOf(R.id.weather_temperature, R.id.weather_condition, R.id.weather_location).forEach { setInt(it, "setGravity", gravity) }
             }.also { manager.updateAppWidget(id, it) }
         }
 
