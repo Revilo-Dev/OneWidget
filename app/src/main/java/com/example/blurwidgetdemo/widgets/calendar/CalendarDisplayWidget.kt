@@ -31,7 +31,7 @@ class CalendarDisplayWidget : AppWidgetProvider() {
             val color = WidgetAppearance.textColor(prefs, id)
             val accent = accentColor(context, id)
             RemoteViews(context.packageName, R.layout.widget_calendar_display).apply {
-                setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
+                BlurWidget.applySurfaceTint(this, prefs, id)
                 setOnClickPendingIntent(android.R.id.background, PendingIntent.getActivity(context, id, Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_CALENDAR), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                 setTextViewText(R.id.month_title, "${DateFormatSymbols().months[today.get(Calendar.MONTH)]} ${today.get(Calendar.YEAR)}")
                 setTextColor(R.id.month_title, color); setInt(R.id.month_title, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)

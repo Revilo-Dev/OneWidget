@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -13,6 +14,8 @@
     <queries>
         <package android:name="com.sec.android.daemonapp" />
         <package android:name="com.samsung.android.weather" />
+        <package android:name="com.sec.android.app.sbrowser" />
+        <package android:name="com.google.android.youtube" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.APP_WEATHER" />
@@ -63,6 +66,10 @@
         <activity android:name=".widgets.extra.OpenAppWidgetConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
         <activity android:name=".widgets.extra.TextWidgetConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
         <activity android:name=".widgets.extra.StepCounterConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
+        <activity android:name=".widgets.extra.AlarmWidgetConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
+        <activity android:name=".widgets.extra.CounterConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
+        <activity android:name=".widgets.hydration.HydrationConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
+        <service android:name=".widgets.extra.MediaNotificationListener" android:exported="true" android:label="@string/media_player_widget_label" android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"><intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter></service>
 
         <activity android:name="androidx.picker.eyeDropper.SeslEyeDropperActivity" />
 
@@ -114,7 +121,7 @@
                 android:resource="@xml/widget_provider_battery" />
             <meta-data
                 android:name="com.sec.android.appwidget.widgetinfo"
-                android:resource="@xml/widget_supported_cell_size_info" />
+                android:resource="@xml/widget_supported_cell_size_adaptive_info" />
         </receiver>
 
         <receiver
@@ -131,43 +138,48 @@
                 android:resource="@xml/widget_provider_weather" />
             <meta-data
                 android:name="com.sec.android.appwidget.widgetinfo"
-                android:resource="@xml/widget_supported_cell_size_info" />
+                android:resource="@xml/widget_supported_cell_size_adaptive_info" />
         </receiver>
 
         <receiver android:name=".widgets.calendar.CalendarWidget" android:exported="true" android:label="@string/calendar_widget_label">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_calendar" />
-            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_adaptive_info" />
         </receiver>
 
         <receiver android:name=".widgets.calendar.CalendarDisplayWidget" android:exported="true" android:label="@string/calendar_display_label">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_calendar_display" />
-            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_adaptive_info" />
         </receiver>
 
         <receiver android:name=".widgets.storage.StorageWidget" android:exported="true" android:label="@string/storage_widget_label">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_storage" />
-            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_adaptive_info" />
         </receiver>
 
         <receiver android:name=".widgets.hydration.HydrationWidget" android:exported="true" android:label="@string/hydration_widget_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.example.blurwidgetdemo.action.ADD_WATER" />
+                <action android:name="com.example.blurwidgetdemo.action.REMOVE_WATER" />
+                <action android:name="com.example.blurwidgetdemo.action.RESET_HYDRATION" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_hydration" />
-            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_adaptive_info" />
         </receiver>
 
         <receiver android:name=".widgets.extra.GoogleSearchWidget" android:exported="true" android:label="@string/google_search_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_google_search" /></receiver>
+        <receiver android:name=".widgets.extra.SamsungBrowserSearchWidget" android:exported="true" android:label="@string/samsung_browser_search_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_google_search" /></receiver>
+        <receiver android:name=".widgets.extra.YouTubeSearchWidget" android:exported="true" android:label="@string/youtube_search_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_google_search" /></receiver>
         <receiver android:name=".widgets.extra.OpenAppWidget" android:exported="true" android:label="@string/open_app_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_open_app" /></receiver>
-        <receiver android:name=".widgets.extra.ToggleWidget" android:exported="true" android:label="@string/toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /><meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" /></receiver>
-        <receiver android:name=".widgets.extra.StepCounterWidget" android:exported="true" android:label="@string/step_counter_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_steps" /><meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" /></receiver>
+        <receiver android:name=".widgets.extra.ToggleWidget" android:exported="true" android:label="@string/toggle_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_toggle" /><meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_row_info" /></receiver>
+        <receiver android:name=".widgets.extra.StepCounterWidget" android:exported="true" android:label="@string/step_counter_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_steps" /><meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_row_info" /></receiver>
         <receiver android:name=".widgets.extra.TextWidget" android:exported="true" android:label="@string/text_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_text" /></receiver>
-        <receiver android:name=".widgets.extra.AlarmWidget" android:exported="true" android:label="@string/alarm_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_action" /><meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_info" /></receiver>
-        <receiver android:name=".widgets.extra.MediaPlayerWidget" android:exported="true" android:label="@string/media_player_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_action" /></receiver>
+        <receiver android:name=".widgets.extra.CounterWidget" android:exported="true" android:label="@string/counter_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /><action android:name="com.example.blurwidgetdemo.action.ADD_COUNTER" /><action android:name="com.example.blurwidgetdemo.action.REMOVE_COUNTER" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_counter" /><meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_counter_info" /></receiver>
+        <receiver android:name=".widgets.extra.AlarmWidget" android:exported="true" android:label="@string/alarm_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /><action android:name="com.example.blurwidgetdemo.action.TOGGLE_ALARM" /><action android:name="com.example.blurwidgetdemo.action.SNOOZE_ALARM" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_alarm" /><meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_alarm_info" /></receiver>
+        <receiver android:name=".widgets.extra.MediaPlayerWidget" android:exported="true" android:label="@string/media_player_widget_label"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /><action android:name="com.example.blurwidgetdemo.action.MEDIA_PREVIOUS" /><action android:name="com.example.blurwidgetdemo.action.MEDIA_TOGGLE" /><action android:name="com.example.blurwidgetdemo.action.MEDIA_NEXT" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_media" /></receiver>
 
         <receiver
             android:name=".LockScreenMessageServiceBoxReceiver"

@@ -64,22 +64,22 @@ class StorageWidget : AppWidgetProvider() {
                 val selected = when (metric) { CompactMetric.STORAGE -> stats.storage; CompactMetric.DATA -> stats.data; CompactMetric.MEMORY -> stats.memory }
                 RemoteViews(context.packageName, R.layout.widget_storage_compact).apply {
                     WidgetAppearance.applyBorder(this, prefs)
-                    setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
+                    BlurWidget.applySurfaceTint(this, prefs, id)
                     setTextViewText(R.id.widget_primary, detail(metric.label, selected, showTitles, detailMode))
                     setTextColor(R.id.widget_primary, color)
                     setInt(R.id.widget_primary, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
                     setFloat(R.id.widget_primary, "setTextSize", 20f * WidgetAppearance.textScale(prefs, id) / 100f)
-                    setImageViewBitmap(R.id.compact_progress, WidgetProgressBarRenderer.render(selected.percent, barColor(context, id, metric), WidgetAppearance.gradientsEnabled(prefs)))
+                    setImageViewBitmap(R.id.compact_progress, progressBitmap(selected.percent, barColor(context, id, metric), prefs))
                 }.also { manager.updateAppWidget(id, it) }
             } else RemoteViews(context.packageName, R.layout.widget_storage_large).apply {
                 WidgetAppearance.applyBorder(this, prefs)
-                setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
+                BlurWidget.applySurfaceTint(this, prefs, id)
                 setTextViewText(R.id.storage_label, detail("Storage", stats.storage, showTitles, detailMode))
                 setTextViewText(R.id.data_label, detail("Data usage", stats.data, showTitles, detailMode))
                 setTextViewText(R.id.memory_label, detail("Memory", stats.memory, showTitles, detailMode))
-                setImageViewBitmap(R.id.storage_bar, WidgetProgressBarRenderer.render(stats.storage.percent, barColor(context, id, CompactMetric.STORAGE), WidgetAppearance.gradientsEnabled(prefs)))
-                setImageViewBitmap(R.id.data_bar, WidgetProgressBarRenderer.render(stats.data.percent, barColor(context, id, CompactMetric.DATA), WidgetAppearance.gradientsEnabled(prefs)))
-                setImageViewBitmap(R.id.memory_bar, WidgetProgressBarRenderer.render(stats.memory.percent, barColor(context, id, CompactMetric.MEMORY), WidgetAppearance.gradientsEnabled(prefs)))
+                setImageViewBitmap(R.id.storage_bar, progressBitmap(stats.storage.percent, barColor(context, id, CompactMetric.STORAGE), prefs))
+                setImageViewBitmap(R.id.data_bar, progressBitmap(stats.data.percent, barColor(context, id, CompactMetric.DATA), prefs))
+                setImageViewBitmap(R.id.memory_bar, progressBitmap(stats.memory.percent, barColor(context, id, CompactMetric.MEMORY), prefs))
                 intArrayOf(R.id.storage_label, R.id.data_label, R.id.memory_label).forEach {
                     setTextColor(it, color); setInt(it, "setGravity", android.view.Gravity.CENTER)
                 }
@@ -109,6 +109,16 @@ class StorageWidget : AppWidgetProvider() {
             return Stats(metric(diskUsed, diskTotal), metric(dataBytes, dataPlan), metric(memoryUsed, memory.totalMem))
         }
         private fun format(bytes: Long) = String.format(Locale.getDefault(), "%.0fGB", bytes.toDouble() / GB)
+        private fun progressBitmap(percent: Int, tint: Int, prefs: android.content.SharedPreferences) =
+            if (WidgetAppearance.gradientsEnabled(prefs)) {
+                WidgetProgressBarRenderer.render(percent, intArrayOf(
+                    WidgetProgressBarRenderer.darker(tint, .20f),
+                    tint,
+                    WidgetProgressBarRenderer.lighter(tint, .20f)
+                ))
+            } else {
+                WidgetProgressBarRenderer.render(percent, tint, false)
+            }
         private fun detail(title: String, metric: Metric, showTitle: Boolean, mode: DetailMode): String = listOfNotNull(
             title.takeIf { showTitle },
             when (mode) { DetailMode.BOTH -> "${metric.percent}% • ${metric.label}"; DetailMode.PERCENT -> "${metric.percent}%"; DetailMode.AMOUNT -> metric.label }

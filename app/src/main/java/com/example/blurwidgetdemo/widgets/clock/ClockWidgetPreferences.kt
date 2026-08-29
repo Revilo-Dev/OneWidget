@@ -71,11 +71,13 @@ object ClockWidgetPreferences {
     private const val NAME = BlurWidget.WIDGET_PREFS
     private fun key(name: String, id: Int) = "${name}_$id"
 
-    fun load(preferences: SharedPreferences, id: Int): ClockWidgetSettings = ClockWidgetSettings(
-        hue = preferences.getFloat(key("tint_hue", id), BlurWidget.DEFAULT_TINT_HUE),
-        saturation = preferences.getFloat(key("tint_saturation", id), BlurWidget.DEFAULT_TINT_SATURATION),
-        value = preferences.getFloat(key("tint_value", id), BlurWidget.DEFAULT_TINT_VALUE),
-        alpha = preferences.getInt(key("tint_alpha", id), BlurWidget.DEFAULT_TINT_ALPHA).coerceIn(1, 254),
+    fun load(preferences: SharedPreferences, id: Int): ClockWidgetSettings {
+        val defaults = BlurWidget.defaultTint(preferences)
+        return ClockWidgetSettings(
+        hue = preferences.getFloat(key("tint_hue", id), defaults.hue),
+        saturation = preferences.getFloat(key("tint_saturation", id), defaults.saturation),
+        value = preferences.getFloat(key("tint_value", id), defaults.value),
+        alpha = preferences.getInt(key("tint_alpha", id), defaults.alpha).coerceIn(1, 254),
         showDate = preferences.getBoolean(key("show_date", id), true),
         showDayOfWeek = preferences.getBoolean(key("show_day", id), true),
         dateAboveTime = preferences.getBoolean(key("date_above", id), false),
@@ -90,6 +92,7 @@ object ClockWidgetPreferences {
         textScalePercent = preferences.getInt(key("text_scale", id), 100).coerceIn(50, 150),
         showPhoneBattery = preferences.getBoolean(key("show_phone_battery", id), false)
     )
+    }
 
     fun save(preferences: SharedPreferences, id: Int, settings: ClockWidgetSettings) {
         preferences.edit()

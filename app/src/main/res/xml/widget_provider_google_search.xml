@@ -2,9 +2,9 @@
 <!-- Search stays one launcher row high but can be widened horizontally. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:initialLayout="@layout/widget_google_search" android:previewLayout="@layout/widget_google_search"
-    android:minWidth="110dp" android:minHeight="40dp" android:minResizeWidth="110dp" android:minResizeHeight="40dp"
-    android:maxResizeWidth="1000dp" android:maxResizeHeight="40dp" android:resizeMode="horizontal"
-    android:targetCellWidth="2" android:targetCellHeight="1" android:widgetCategory="home_screen"
+    android:minWidth="72dp" android:minHeight="76dp" android:minResizeWidth="72dp" android:minResizeHeight="76dp"
+    android:maxResizeWidth="1000dp" android:maxResizeHeight="76dp" android:resizeMode="horizontal"
+    android:targetCellWidth="1" android:targetCellHeight="1" android:widgetCategory="home_screen"
     android:configure="com.example.blurwidgetdemo.WidgetConfigActivity" android:widgetFeatures="reconfigurable"
     app:previewLayoutSmall="@layout/widget_google_search" app:previewLayoutWideSmall="@layout/widget_google_search"
     app:widgetStyle="colorful" app:widgetSize="small|wideSmall" />

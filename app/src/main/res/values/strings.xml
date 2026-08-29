@@ -33,6 +33,13 @@
     <string name="onboarding_opacity_summary">Test transparent glass through stronger solid stages with the built-in presets.</string>
     <string name="onboarding_implement_title">Reuse the approach</string>
     <string name="onboarding_implement_summary">The widget uses a normal ARGB background on @android:id/background, so it is easy to port.</string>
+    <string name="expand_widget_category">Expand widget category</string>
+    <string name="collapse_widget_category">Collapse widget category</string>
+    <string name="widget_preview">Widget preview</string>
+    <string name="place_widget_preview">Place %1$s, %2$s on Home screen</string>
+    <string name="place_widget_title">Add to Home screen?</string>
+    <string name="place_widget_message">Add the %1$s widget in %2$s size to your Home screen.</string>
+    <string name="place_widget_action">Add</string>
     <string name="add_widget">Add widget</string>
     <string name="add_digital_clock_widget">Add Digital Clock</string>
     <string name="add_battery_widget">Add Battery</string>
@@ -49,6 +56,8 @@
     <string name="add_storage_widget">Add Storage</string>
     <string name="add_hydration_widget">Add Hydration</string>
     <string name="google_search_widget_label">Google Search</string>
+    <string name="samsung_browser_search_widget_label">Samsung Browser search</string>
+    <string name="youtube_search_widget_label">YouTube search</string>
     <string name="toggle_widget_label">Toggle</string>
     <string name="open_app_widget_label">Open app</string>
     <string name="data_toggle_widget_label">Mobile data</string>
@@ -62,6 +71,7 @@
     <string name="torch_toggle_widget_label">Torch</string>
     <string name="step_counter_widget_label">Step counter</string>
     <string name="text_widget_label">Text</string>
+    <string name="counter_widget_label">Counter</string>
     <string name="alarm_widget_label">Alarm</string>
     <string name="media_player_widget_label">Media player</string>
     <string name="calendar_widget_label">Next event</string>

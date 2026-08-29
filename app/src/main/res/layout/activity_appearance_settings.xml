@@ -1,8 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dev.oneuiproject.oneui.layout.ToolbarLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" app:title="Widget appearance">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" app:layout_location="main_content">
-        <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Global effects" />
-        <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/global_borders" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Widget borders" app:summary="Thin translucent outlines around widgets" />
-        <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/global_gradients" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Flowing progress gradients" app:summary="Animate charge, storage, and memory bars" />
-    </LinearLayout>
+<dev.oneuiproject.oneui.layout.ToolbarLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:title="Widget appearance">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_location="main_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingBottom="32dp">
+
+            <dev.oneuiproject.oneui.widget.Separator
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Default widget appearance" />
+
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:colorBackground"
+                android:orientation="vertical">
+
+                <dev.oneuiproject.oneui.widget.CardItemView
+                    android:id="@+id/default_widget_tint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:drawableEnd="@drawable/accent_dot"
+                    app:showTopDivider="false"
+                    app:title="Default tint"
+                    app:userUpdatableSummary="true" />
+
+                <dev.oneuiproject.oneui.widget.CardItemView
+                    android:id="@+id/default_widget_blur"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:showTopDivider="true"
+                    app:title="Default blur" />
+
+                <androidx.appcompat.widget.SeslSeekBar
+                    android:id="@+id/default_widget_blur_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="-8dp"
+                    android:layout_marginEnd="18dp"
+                    android:layout_marginBottom="12dp" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+
+            <dev.oneuiproject.oneui.widget.Separator
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Global effects" />
+
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:colorBackground"
+                android:orientation="vertical">
+
+                <dev.oneuiproject.oneui.widget.SwitchItemView
+                    android:id="@+id/global_borders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:showTopDivider="false"
+                    app:summary="Thin translucent outlines around widgets"
+                    app:title="Widget borders" />
+
+                <dev.oneuiproject.oneui.widget.SwitchItemView
+                    android:id="@+id/global_gradients"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:showTopDivider="true"
+                    app:summary="Animate charge, storage, and memory bars"
+                    app:title="Flowing progress gradients" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </dev.oneuiproject.oneui.layout.ToolbarLayout>

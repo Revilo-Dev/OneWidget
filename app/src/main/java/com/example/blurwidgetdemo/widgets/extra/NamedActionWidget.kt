@@ -22,16 +22,20 @@ abstract class NamedActionWidget : AppWidgetProvider() {
     protected open fun startLabelPadding(context: Context) = 0
     protected open fun iconBitmap(context: Context, id: Int): Bitmap? = null
     protected open val layoutResource = R.layout.widget_action
+    protected open fun layoutResource(context: Context, manager: AppWidgetManager, id: Int) = layoutResource
+    protected open fun applyContent(views: RemoteViews, context: Context, id: Int) {
+        iconBitmap(context, id)?.let { views.setImageViewBitmap(R.id.action_icon, it) } ?: views.setImageViewResource(R.id.action_icon, icon)
+        views.setTextViewText(R.id.action_label, displayText(context, id))
+    }
 
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { render(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = render(context, manager, id)
     private fun render(context: Context, manager: AppWidgetManager, id: Int) {
         val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
         val iconOnly = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 80) <= 100 && manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
-        RemoteViews(context.packageName, layoutResource).apply {
-            setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
-            iconBitmap(context, id)?.let { setImageViewBitmap(R.id.action_icon, it) } ?: setImageViewResource(R.id.action_icon, icon)
-            setTextViewText(R.id.action_label, displayText(context, id))
+        RemoteViews(context.packageName, layoutResource(context, manager, id)).apply {
+            BlurWidget.applySurfaceTint(this, prefs, id)
+            applyContent(this, context, id)
             setViewVisibility(R.id.action_label, if (iconOnly) View.GONE else View.VISIBLE)
             setTextColor(R.id.action_label, textColor(prefs, id))
             setInt(R.id.action_label, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)

@@ -131,15 +131,16 @@ class WidgetConfigActivity : AppCompatActivity() {
 
     private fun loadSettings() {
         val prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
-        currentHue = prefs.getFloat("tint_hue_$appWidgetId", BlurWidget.DEFAULT_TINT_HUE)
-        currentSaturation = prefs.getFloat("tint_saturation_$appWidgetId", BlurWidget.DEFAULT_TINT_SATURATION)
-        currentValue = prefs.getFloat("tint_value_$appWidgetId", BlurWidget.DEFAULT_TINT_VALUE)
+        val defaults = BlurWidget.defaultTint(prefs)
+        currentHue = prefs.getFloat("tint_hue_$appWidgetId", defaults.hue)
+        currentSaturation = prefs.getFloat("tint_saturation_$appWidgetId", defaults.saturation)
+        currentValue = prefs.getFloat("tint_value_$appWidgetId", defaults.value)
         currentAlpha = if (prefs.contains("tint_alpha_$appWidgetId")) {
-            prefs.getInt("tint_alpha_$appWidgetId", BlurWidget.DEFAULT_TINT_ALPHA)
-        } else {
+            prefs.getInt("tint_alpha_$appWidgetId", defaults.alpha)
+        } else if (prefs.contains("level_$appWidgetId")) {
             val oldLevel = prefs.getInt("level_$appWidgetId", 1).coerceIn(0, BlurWidget.PRESET_ALPHAS.lastIndex)
             BlurWidget.PRESET_ALPHAS[oldLevel]
-        }.coerceIn(MIN_BLUR_ALPHA, MAX_BLUR_ALPHA)
+        } else defaults.alpha.coerceIn(MIN_BLUR_ALPHA, MAX_BLUR_ALPHA)
         useDarkTint = currentSaturation < NEUTRAL_SATURATION_THRESHOLD && currentValue < DARK_VALUE_THRESHOLD
         recentColors = listOf(currentTintColor(), BlurWidget.tintColor(
             BlurWidget.DEFAULT_TINT_HUE,
@@ -155,7 +156,7 @@ class WidgetConfigActivity : AppCompatActivity() {
             ClockTextAlignment.CENTER -> WidgetAppearance.Alignment.CENTRE
             ClockTextAlignment.END -> WidgetAppearance.Alignment.END
         } else WidgetAppearance.alignment(prefs, appWidgetId)
-        if (isGoogleSearchWidget() && currentTextAlignment == WidgetAppearance.Alignment.END) {
+        if (isSearchWidget() && currentTextAlignment == WidgetAppearance.Alignment.END) {
             currentTextAlignment = WidgetAppearance.Alignment.CENTRE
         }
         storageCompactMetric = StorageWidget.CompactMetric.from(prefs.getString("storage_compact_metric_$appWidgetId", null))
@@ -163,7 +164,9 @@ class WidgetConfigActivity : AppCompatActivity() {
         storageShowTitles = prefs.getBoolean("storage_show_titles_$appWidgetId", true)
         storageDetailMode = StorageWidget.DetailMode.from(prefs.getString("storage_detail_mode_$appWidgetId", null))
         toggleAccentColor = prefs.getInt("toggle_accent_$appWidgetId", 0xFF387AFF.toInt())
-        toggleKind = ToggleKind.from(prefs.getString("toggle_kind_$appWidgetId", null))
+        val initialToggleKind = AppWidgetManager.getInstance(this).getAppWidgetOptions(appWidgetId)
+            .getString(ToggleWidget.OPTION_TOGGLE_KIND)
+        toggleKind = ToggleKind.from(prefs.getString("toggle_kind_$appWidgetId", initialToggleKind))
         batteryCompactDevice = prefs.getString("battery_compact_device_$appWidgetId", "phone") ?: "phone"
         batteryColors.keys.forEach { batteryColors[it] = BatteryWidget.colour(this, appWidgetId, it) }
         StorageWidget.CompactMetric.entries.forEach { storageColors[it] = StorageWidget.barColor(this, appWidgetId, it) }
@@ -183,7 +186,9 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun isCalendarDisplayWidget(): Boolean = providerClassName() == CalendarDisplayWidget::class.java.name
     private fun isStorageWidget(): Boolean = providerClassName() == StorageWidget::class.java.name
     private fun isHydrationWidget(): Boolean = providerClassName() == HydrationWidget::class.java.name
-    private fun isGoogleSearchWidget(): Boolean = providerClassName()?.endsWith("GoogleSearchWidget") == true
+    private fun isSearchWidget(): Boolean = providerClassName()?.let {
+        it.endsWith("GoogleSearchWidget") || it.endsWith("SamsungBrowserSearchWidget") || it.endsWith("YouTubeSearchWidget")
+    } == true
     private fun isToggleWidget(): Boolean = providerClassName() == ToggleWidget::class.java.name
 
     private fun setupUniversalTextOptions() {
@@ -210,7 +215,7 @@ class WidgetConfigActivity : AppCompatActivity() {
             }, currentTextColor, intArrayOf(currentTextColor), true).show()
         }
         findViewById<CardItemView>(R.id.universal_text_alignment).setOnClickListener {
-            val alignmentOptions = if (isGoogleSearchWidget() || isWeatherWidget()) {
+            val alignmentOptions = if (isSearchWidget() || isWeatherWidget()) {
                 listOf(WidgetAppearance.Alignment.CENTRE, WidgetAppearance.Alignment.START)
             } else {
                 WidgetAppearance.Alignment.entries.toList()
@@ -326,7 +331,10 @@ class WidgetConfigActivity : AppCompatActivity() {
 
     private fun setupWeatherOptions() {
         if (!isWeatherWidget()) return
-        requestPermissionIfNeeded(android.Manifest.permission.ACCESS_COARSE_LOCATION, 102)
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), 102)
+        }
         findViewById<View>(R.id.weather_options_section).visibility = View.VISIBLE
         val unit = findViewById<CardItemView>(R.id.weather_temperature_unit)
         fun bindUnit() { unit.summary = if (weatherUnit == "F") "Fahrenheit" else "Celsius" }
@@ -766,7 +774,7 @@ class WidgetConfigActivity : AppCompatActivity() {
             StorageWidget.updateWidget(this, manager, appWidgetId)
         } else if (provider == HydrationWidget::class.java.name) {
             HydrationWidget.updateWidget(this, manager, appWidgetId)
-        } else if (isToggleWidget() && provider != null) {
+        } else if (provider != null) {
             sendBroadcast(Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
                 .setComponent(android.content.ComponentName(this, provider))
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(appWidgetId)))

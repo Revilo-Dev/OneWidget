@@ -24,7 +24,7 @@ class CalendarWidget : AppWidgetProvider() {
             val item = nextEvent(context)
             val compact = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
             val views = RemoteViews(context.packageName, if (compact) R.layout.widget_calendar_compact else R.layout.widget_calendar_large).apply {
-                setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
+                BlurWidget.applySurfaceTint(this, prefs, id)
                 setTextViewText(R.id.widget_primary, item.first)
                 setTextViewText(R.id.widget_secondary, item.second)
                 setViewVisibility(R.id.widget_secondary, if (compact) View.GONE else View.VISIBLE)
@@ -54,6 +54,8 @@ class CalendarWidget : AppWidgetProvider() {
             } ?: ("Calendar unavailable" to "Tap to open Calendar")
         } catch (_: SecurityException) {
             "Calendar permission needed" to "Tap to open Calendar"
+        } catch (_: Exception) {
+            "No upcoming events" to "Tap to open Calendar"
         }
 
         private fun calendarIntent(context: Context): PendingIntent = PendingIntent.getActivity(context, 100,

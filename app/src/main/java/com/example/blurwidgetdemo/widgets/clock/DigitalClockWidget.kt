@@ -15,6 +15,7 @@ import android.provider.AlarmClock
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
+import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
 
 class DigitalClockWidget : AppWidgetProvider() {
@@ -56,7 +57,7 @@ class DigitalClockWidget : AppWidgetProvider() {
             if (debug) Log.d("ClockFontDebug", "provider id=$id reason=$reason font=${settings.font.preferenceValue} size=$category layout=$layout/$layoutName path=TextClock")
             val views = RemoteViews(context.packageName, layout).apply {
                 // Preserve this exact root surface: One UI Home uses it for native wallpaper blur.
-                setInt(android.R.id.background, "setBackgroundColor", if (settings.backgroundEnabled) settings.tintColor() else Color.TRANSPARENT)
+                BlurWidget.applySurfaceColor(this, if (settings.backgroundEnabled) settings.tintColor() else Color.TRANSPARENT)
                 setViewVisibility(R.id.clock_date, if (settings.showDate) View.VISIBLE else View.GONE)
                 setViewVisibility(R.id.clock_date_above, if (settings.showDate && settings.dateAboveTime) View.VISIBLE else View.GONE)
                 setViewVisibility(R.id.clock_date, if (settings.showDate && !settings.dateAboveTime) View.VISIBLE else View.GONE)

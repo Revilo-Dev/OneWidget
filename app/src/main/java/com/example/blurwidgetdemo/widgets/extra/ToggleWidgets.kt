@@ -38,10 +38,10 @@ class ToggleWidget : AppWidgetProvider() {
         val options = manager.getAppWidgetOptions(id)
         val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 40)
         val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 40)
-        val kind = ToggleKind.from(prefs.getString("toggle_kind_$id", null))
+        val kind = ToggleKind.from(prefs.getString("toggle_kind_$id", options.getString(OPTION_TOGGLE_KIND)))
         val layout = if (width <= 100 && height <= 100) R.layout.widget_toggle_square else R.layout.widget_toggle
         RemoteViews(context.packageName, layout).apply {
-            setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
+            BlurWidget.applySurfaceTint(this, prefs, id)
             setViewVisibility(R.id.toggle_circle, if (isEnabled(context, id, kind)) View.VISIBLE else View.GONE)
             val accent = prefs.getInt("toggle_accent_$id", 0xFF387AFF.toInt())
             setImageViewBitmap(R.id.toggle_circle, if (width <= 100 && height <= 100) ToggleOverlayRenderer.renderCircle(width, height, accent) else ToggleOverlayRenderer.renderFill(width, height, accent))
@@ -71,5 +71,8 @@ class ToggleWidget : AppWidgetProvider() {
         ToggleKind.TORCH -> context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         ToggleKind.DATA -> context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
-    companion object { const val ACTION_TOGGLE = "com.example.blurwidgetdemo.action.TOGGLE" }
+    companion object {
+        const val ACTION_TOGGLE = "com.example.blurwidgetdemo.action.TOGGLE"
+        const val OPTION_TOGGLE_KIND = "com.example.blurwidgetdemo.option.TOGGLE_KIND"
+    }
 }

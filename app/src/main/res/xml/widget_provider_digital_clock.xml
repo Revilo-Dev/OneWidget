@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Samsung One UI Home reads widgetStyle and widgetSize for native blur integration. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:initialLayout="@layout/widget_digital_clock_medium_clock_stamp"
+    android:initialLayout="@layout/widget_digital_clock_compact_clock_stamp"
     android:previewLayout="@layout/widget_digital_clock_medium_clock_stamp"
-    android:minWidth="110dp" android:minHeight="40dp"
-    android:minResizeWidth="110dp" android:minResizeHeight="40dp"
-    android:resizeMode="horizontal|vertical" android:targetCellWidth="3" android:targetCellHeight="2"
+    android:minWidth="72dp" android:minHeight="76dp"
+    android:minResizeWidth="72dp" android:minResizeHeight="76dp"
+    android:resizeMode="horizontal|vertical" android:targetCellWidth="1" android:targetCellHeight="1"
     android:description="@string/digital_clock_widget_description" android:widgetCategory="home_screen"
     android:configure="com.example.blurwidgetdemo.WidgetConfigActivity"
     android:widgetFeatures="reconfigurable"

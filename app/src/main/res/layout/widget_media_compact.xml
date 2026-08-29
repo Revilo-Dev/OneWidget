@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_clock_background">
+    <ImageView android:id="@+id/media_art" android:layout_width="match_parent" android:layout_height="match_parent" android:alpha="1.0" android:scaleType="centerCrop" android:contentDescription="@null" />
+    <ImageView android:id="@+id/media_idle_icon" android:layout_width="28dp" android:layout_height="28dp" android:layout_gravity="center" android:contentDescription="No media playing" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="14dp">
+        <TextView android:id="@+id/media_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="#FFFFFFFF" android:textSize="16sp" android:textStyle="bold" />
+        <ImageView android:id="@+id/media_previous" android:layout_width="34dp" android:layout_height="34dp" android:contentDescription="Previous" android:padding="6dp" />
+        <ImageView android:id="@+id/media_play_pause" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginHorizontal="4dp" android:background="@drawable/widget_round_button" android:contentDescription="Play or pause" android:padding="8dp" />
+        <ImageView android:id="@+id/media_next" android:layout_width="34dp" android:layout_height="34dp" android:contentDescription="Next" android:padding="6dp" />
+    </LinearLayout>
+    <TextView android:id="@+id/media_artist" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <ImageView android:id="@+id/media_progress" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <TextView android:id="@+id/media_time" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+</FrameLayout>

@@ -4,4 +4,4 @@
     android:id="@android:id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#66FFFFFF" />
+    android:background="@drawable/widget_clock_background" />

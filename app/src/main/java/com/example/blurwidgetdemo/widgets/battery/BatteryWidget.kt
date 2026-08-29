@@ -6,6 +6,8 @@ import android.appwidget.AppWidgetProvider
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -45,6 +47,10 @@ class BatteryWidget : AppWidgetProvider() {
         private const val ORANGE = 0xFFFF9800.toInt()
         private const val GREEN = 0xFF4CAF50.toInt()
         private const val TEAL = 0xFF009688.toInt()
+        private val GRADIENT_CHARGING = intArrayOf(0xFF9BDCA9.toInt(), 0xFF31CE8A.toInt(), 0xFF2F989F.toInt())
+        private val GRADIENT_SUPER_FAST = intArrayOf(0xFF633EB9.toInt(), 0xFF6A8BFA.toInt(), 0xFF3ACD8C.toInt())
+        private val GRADIENT_NORMAL = intArrayOf(0xFF3BCE8E.toInt(), 0xFF87FA6A.toInt(), 0xFF3ACD8C.toInt())
+        private val GRADIENT_LOW = intArrayOf(0xFFFF856D.toInt(), 0xFFFFA352.toInt(), 0xFFFF836D.toInt())
 
         fun availableDevices(context: Context): List<Device> = listOf(phoneDevice(context)) + bluetoothDevices(context)
         fun colour(context: Context, id: Int, state: String): Int {
@@ -61,17 +67,17 @@ class BatteryWidget : AppWidgetProvider() {
                 val selected = devices.firstOrNull { it.key == prefs.getString("battery_compact_device_$id", PHONE) } ?: devices.first()
                 RemoteViews(context.packageName, R.layout.widget_battery_compact).apply {
                     WidgetAppearance.applyBorder(this, prefs)
-                    setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
+                    BlurWidget.applySurfaceTint(this, prefs, id)
                     setTextViewText(R.id.battery_percentage, selected.level?.let { "$it%" } ?: "—")
                     setImageViewResource(R.id.battery_icon, iconFor(selected))
-                    setImageViewBitmap(R.id.battery_compact_bar, WidgetProgressBarRenderer.render(selected.level ?: 0, colour(context, id, stateFor(context, selected)), WidgetAppearance.gradientsEnabled(prefs)))
+                    setImageViewBitmap(R.id.battery_compact_bar, progressBitmap(context, id, selected, prefs))
                     setTextColor(R.id.battery_percentage, WidgetAppearance.textColor(prefs, id))
                     setInt(R.id.battery_percentage, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
                     setFloat(R.id.battery_percentage, "setTextSize", 30f * WidgetAppearance.textScale(prefs, id) / 100f)
                 }.also { manager.updateAppWidget(id, it) }
             } else RemoteViews(context.packageName, R.layout.widget_battery_large).apply {
                 WidgetAppearance.applyBorder(this, prefs)
-                setInt(android.R.id.background, "setBackgroundColor", BlurWidget.tintColor(prefs, id))
+                BlurWidget.applySurfaceTint(this, prefs, id)
                 val rows = arrayOf(R.id.battery_row_1, R.id.battery_row_2, R.id.battery_row_3, R.id.battery_row_4)
                 val labels = arrayOf(R.id.battery_label_1, R.id.battery_label_2, R.id.battery_label_3, R.id.battery_label_4)
                 val bars = arrayOf(R.id.battery_bar_1, R.id.battery_bar_2, R.id.battery_bar_3, R.id.battery_bar_4)
@@ -84,7 +90,7 @@ class BatteryWidget : AppWidgetProvider() {
                         setTextColor(labels[index], WidgetAppearance.textColor(prefs, id))
                         setFloat(labels[index], "setTextSize", 15f * WidgetAppearance.textScale(prefs, id) / 100f)
                         setImageViewResource(icons[index], iconFor(device))
-                        setImageViewBitmap(bars[index], WidgetProgressBarRenderer.render(device.level ?: 0, colour(context, id, stateFor(context, device)), WidgetAppearance.gradientsEnabled(prefs)))
+                        setImageViewBitmap(bars[index], progressBitmap(context, id, device, prefs))
                     }
                 }
             }.also { manager.updateAppWidget(id, it) }
@@ -106,10 +112,26 @@ class BatteryWidget : AppWidgetProvider() {
         private fun bluetoothDevices(context: Context): List<Device> {
             if (Build.VERSION.SDK_INT >= 31 && context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) return emptyList()
             val pairedDevices: Set<android.bluetooth.BluetoothDevice> = BluetoothAdapter.getDefaultAdapter()?.bondedDevices ?: emptySet()
+            val connectedAddresses = connectedBluetoothAddresses(context)
             return pairedDevices.mapNotNull { device ->
+                if (device.address !in connectedAddresses) return@mapNotNull null
                 bluetoothBatteryLevel(device)?.let { level -> Device("bt:${device.address}", device.name ?: "Bluetooth device", level, deviceIcon(device.name)) }
             }.take(3)
         }
+
+        /** Android publishes battery levels only for some profiles; show those only while connected. */
+        @SuppressLint("MissingPermission")
+        private fun connectedBluetoothAddresses(context: Context): Set<String> = runCatching {
+            val manager = context.getSystemService(BluetoothManager::class.java)
+            listOf(
+                BluetoothProfile.A2DP,
+                BluetoothProfile.HEADSET,
+                BluetoothProfile.GATT,
+                if (Build.VERSION.SDK_INT >= 26) BluetoothProfile.HEARING_AID else null,
+                if (Build.VERSION.SDK_INT >= 33) BluetoothProfile.LE_AUDIO else null
+            ).filterNotNull().flatMap { profile -> manager.getConnectedDevices(profile) }
+                .mapTo(mutableSetOf()) { it.address }
+        }.getOrDefault(emptySet())
 
         private fun bluetoothBatteryLevel(device: android.bluetooth.BluetoothDevice): Int? = runCatching {
             (device.javaClass.methods.firstOrNull { it.name == "getBatteryLevel" && it.parameterCount == 0 }
@@ -124,10 +146,25 @@ class BatteryWidget : AppWidgetProvider() {
         }
         private fun iconFor(device: Device): Int = if (device.charging) if ((device.level ?: 0) >= 85) R.drawable.superfast_charging else R.drawable.charging else device.icon
         private fun stateFor(context: Context, device: Device): String = when {
+            device.charging && (device.level ?: 0) >= 85 -> "super_fast_charging"
             device.charging -> "charging"
             context.getSystemService(PowerManager::class.java).isPowerSaveMode -> "power_saving"
             (device.level ?: 100) <= 15 -> "low"
             else -> "normal"
+        }
+
+        private fun progressBitmap(context: Context, id: Int, device: Device, prefs: android.content.SharedPreferences): android.graphics.Bitmap {
+            val state = stateFor(context, device)
+            return if (WidgetAppearance.gradientsEnabled(prefs)) {
+                WidgetProgressBarRenderer.render(device.level ?: 0, when (state) {
+                    "charging" -> GRADIENT_CHARGING
+                    "super_fast_charging" -> GRADIENT_SUPER_FAST
+                    "low" -> GRADIENT_LOW
+                    else -> GRADIENT_NORMAL
+                })
+            } else {
+                WidgetProgressBarRenderer.render(device.level ?: 0, colour(context, id, state), false)
+            }
         }
     }
 }

@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_clock_background" android:gravity="center" android:orientation="vertical" android:padding="12dp">
-    <TextView android:id="@+id/widget_primary" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:textColor="#FFFFFFFF" android:textSize="23sp" android:textStyle="bold" />
-    <TextView android:id="@+id/widget_secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:gravity="center" android:textColor="#E6FFFFFF" android:textSize="14sp" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_clock_background"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="18dp">
+    <ImageView android:id="@+id/hydration_icon" android:layout_width="48dp" android:layout_height="48dp" android:contentDescription="@null" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
+        <TextView android:id="@+id/hydration_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFFFF" android:textSize="32sp" android:textStyle="bold" />
+        <TextView android:id="@+id/hydration_goal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#E6FFFFFF" android:textSize="14sp" />
+    </LinearLayout>
+    <ImageView android:id="@+id/hydration_minus" android:layout_width="42dp" android:layout_height="42dp" android:background="@drawable/widget_round_button" android:contentDescription="Remove a glass" android:padding="9dp" />
+    <ImageView android:id="@+id/hydration_plus" android:layout_width="42dp" android:layout_height="42dp" android:layout_marginStart="10dp" android:background="@drawable/widget_round_button" android:contentDescription="Add a glass" android:padding="8dp" />
 </LinearLayout>

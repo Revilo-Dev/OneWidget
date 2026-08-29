@@ -2,8 +2,6 @@ package com.example.blurwidgetdemo.widgets
 
 import android.content.SharedPreferences
 import android.graphics.Color
-import android.content.res.ColorStateList
-import android.os.Build
 import android.view.Gravity
 import android.widget.RemoteViews
 
@@ -22,9 +20,9 @@ object WidgetAppearance {
     fun alignment(prefs: SharedPreferences, id: Int) = Alignment.fromPreference(prefs.getString("text_alignment_$id", null))
     fun bordersEnabled(prefs: SharedPreferences) = prefs.getBoolean(GLOBAL_BORDERS, true)
     fun gradientsEnabled(prefs: SharedPreferences) = prefs.getBoolean(GLOBAL_GRADIENTS, true)
-    fun applyBorder(views: RemoteViews, prefs: SharedPreferences) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            views.setColorStateList(android.R.id.background, "setForegroundTintList", ColorStateList.valueOf(if (bordersEnabled(prefs)) Color.WHITE else Color.TRANSPARENT))
-        }
-    }
+    /**
+     * Widget roots already use the shared rounded glass surface. Do not paint a second foreground
+     * outline over it: that foreground is rectangular on several launchers and clips the corners.
+     */
+    fun applyBorder(views: RemoteViews, prefs: SharedPreferences) = Unit
 }
