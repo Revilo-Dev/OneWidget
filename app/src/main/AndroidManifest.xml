@@ -63,6 +63,9 @@
             android:name=".AboutActivity"
             android:exported="false" />
         <activity android:name=".AppearanceSettingsActivity" android:exported="false" />
+        <activity
+            android:name=".studio.WidgetStudioActivity"
+            android:exported="false" />
         <activity android:name=".widgets.extra.OpenAppWidgetConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
         <activity android:name=".widgets.extra.TextWidgetConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
         <activity android:name=".widgets.extra.StepCounterConfigActivity" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>

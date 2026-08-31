@@ -1,0 +1,3 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/music_idle">
+    <target android:name="note_group" android:animation="@animator/media_idle_bob" />
+</animated-vector>

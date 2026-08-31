@@ -83,6 +83,35 @@
                     app:summary="Animate charge, storage, and memory bars"
                     app:title="Flowing progress gradients" />
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+
+            <dev.oneuiproject.oneui.widget.Separator
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/developer_tools" />
+
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:colorBackground"
+                android:orientation="vertical">
+
+                <dev.oneuiproject.oneui.widget.SwitchItemView
+                    android:id="@+id/developer_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:showTopDivider="false"
+                    app:summary="@string/developer_mode_summary"
+                    app:title="@string/developer_mode" />
+
+                <dev.oneuiproject.oneui.widget.CardItemView
+                    android:id="@+id/widget_studio_entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:showTopDivider="true"
+                    app:summary="@string/widget_studio_summary"
+                    app:title="@string/widget_studio" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </dev.oneuiproject.oneui.layout.ToolbarLayout>

@@ -3,11 +3,23 @@ package com.example.blurwidgetdemo
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
+import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
+import android.view.View
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SeslSeekBar
 import androidx.picker3.app.SeslColorPickerDialog
+import com.example.blurwidgetdemo.studio.WidgetStudioActivity
+import com.example.blurwidgetdemo.studio.developer.DeveloperAccessCode
+import com.example.blurwidgetdemo.studio.developer.DeveloperModeRepository
 import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
 import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
 import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
@@ -30,6 +42,10 @@ import dev.oneuiproject.oneui.widget.SwitchItemView
 
 class AppearanceSettingsActivity : AppCompatActivity() {
     private lateinit var prefs: android.content.SharedPreferences
+    private lateinit var developerModeRepository: DeveloperModeRepository
+    private lateinit var developerModeSwitch: SwitchItemView
+    private lateinit var widgetStudioEntry: CardItemView
+    private var suppressDeveloperModeChange = false
     private var defaultTint = BlurWidget.Companion.TintDefaults(
         BlurWidget.DEFAULT_TINT_HUE,
         BlurWidget.DEFAULT_TINT_SATURATION,
@@ -41,6 +57,7 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_appearance_settings)
         prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
+        developerModeRepository = DeveloperModeRepository(this)
         setupDefaultAppearance()
         findViewById<SwitchItemView>(R.id.global_borders).apply {
             isChecked = prefs.getBoolean("global_widget_borders", true)
@@ -50,6 +67,86 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             isChecked = prefs.getBoolean("global_widget_gradients", true)
             onCheckedChangedListener = { _, checked -> prefs.edit().putBoolean("global_widget_gradients", checked).apply(); refreshWidgets() }
         }
+        setupDeveloperMode()
+    }
+
+    private fun setupDeveloperMode() {
+        developerModeSwitch = findViewById(R.id.developer_mode)
+        widgetStudioEntry = findViewById(R.id.widget_studio_entry)
+        refreshDeveloperModeUi()
+        developerModeSwitch.onCheckedChangedListener = { _, checked ->
+            if (!suppressDeveloperModeChange) {
+                if (checked) {
+                    if (!developerModeRepository.isEnabled()) {
+                        setDeveloperSwitchChecked(false)
+                        showDeveloperCodeDialog()
+                    }
+                } else {
+                    developerModeRepository.setEnabled(false)
+                    refreshDeveloperModeUi()
+                }
+            }
+        }
+        widgetStudioEntry.setOnClickListener {
+            if (developerModeRepository.isEnabled()) {
+                startActivity(Intent(this, WidgetStudioActivity::class.java))
+            }
+        }
+    }
+
+    private fun showDeveloperCodeDialog() {
+        val input = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            keyListener = DigitsKeyListener.getInstance("0123456789")
+            filters = arrayOf(InputFilter.LengthFilter(DeveloperAccessCode.REQUIRED_LENGTH))
+            hint = getString(R.string.developer_code_hint)
+            setPadding(dp(24), dp(12), dp(24), dp(4))
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.developer_code_title)
+            .setMessage(R.string.developer_code_message)
+            .setView(input)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.enable, null)
+            .create()
+        dialog.setOnShowListener {
+            val enableButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            enableButton.isEnabled = false
+            input.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {
+                    enableButton.isEnabled = text?.length == DeveloperAccessCode.REQUIRED_LENGTH
+                    input.error = null
+                }
+                override fun afterTextChanged(text: Editable?) = Unit
+            })
+            enableButton.setOnClickListener {
+                val code = input.text.toString()
+                if (DeveloperAccessCode.isCorrect(code)) {
+                    developerModeRepository.setEnabled(true)
+                    refreshDeveloperModeUi()
+                    dialog.dismiss()
+                } else {
+                    input.error = getString(R.string.developer_code_invalid)
+                    input.selectAll()
+                }
+            }
+            input.requestFocus()
+            dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        }
+        dialog.show()
+    }
+
+    private fun refreshDeveloperModeUi() {
+        val enabled = developerModeRepository.isEnabled()
+        setDeveloperSwitchChecked(enabled)
+        widgetStudioEntry.visibility = if (enabled) View.VISIBLE else View.GONE
+    }
+
+    private fun setDeveloperSwitchChecked(checked: Boolean) {
+        suppressDeveloperModeChange = true
+        developerModeSwitch.isChecked = checked
+        suppressDeveloperModeChange = false
     }
 
     private fun setupDefaultAppearance() {
@@ -98,6 +195,8 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private companion object {
         val widgetProviders: List<Class<out AppWidgetProvider>> = listOf(
