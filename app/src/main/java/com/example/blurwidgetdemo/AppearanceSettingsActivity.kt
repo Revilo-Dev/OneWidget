@@ -19,11 +19,15 @@ import androidx.appcompat.widget.SeslSeekBar
 import androidx.picker3.app.SeslColorPickerDialog
 import com.example.blurwidgetdemo.studio.WidgetStudioActivity
 import com.example.blurwidgetdemo.studio.developer.DeveloperAccessCode
+import com.example.blurwidgetdemo.studio.developer.DeveloperModeCoordinator
 import com.example.blurwidgetdemo.studio.developer.DeveloperModeRepository
+import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetComponentController
+import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetUpdateReason
 import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
 import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
 import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
 import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
+import com.example.blurwidgetdemo.widgets.developer.DeveloperWidgetProvider
 import com.example.blurwidgetdemo.widgets.extra.AlarmWidget
 import com.example.blurwidgetdemo.widgets.extra.CounterWidget
 import com.example.blurwidgetdemo.widgets.extra.GoogleSearchWidget
@@ -43,6 +47,7 @@ import dev.oneuiproject.oneui.widget.SwitchItemView
 class AppearanceSettingsActivity : AppCompatActivity() {
     private lateinit var prefs: android.content.SharedPreferences
     private lateinit var developerModeRepository: DeveloperModeRepository
+    private lateinit var developerModeCoordinator: DeveloperModeCoordinator
     private lateinit var developerModeSwitch: SwitchItemView
     private lateinit var widgetStudioEntry: CardItemView
     private var suppressDeveloperModeChange = false
@@ -58,6 +63,10 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_appearance_settings)
         prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
         developerModeRepository = DeveloperModeRepository(this)
+        developerModeCoordinator = DeveloperModeCoordinator(
+            developerModeRepository,
+            DeveloperWidgetComponentController(this)
+        ).also { it.synchronize() }
         setupDefaultAppearance()
         findViewById<SwitchItemView>(R.id.global_borders).apply {
             isChecked = prefs.getBoolean("global_widget_borders", true)
@@ -82,8 +91,7 @@ class AppearanceSettingsActivity : AppCompatActivity() {
                         showDeveloperCodeDialog()
                     }
                 } else {
-                    developerModeRepository.setEnabled(false)
-                    refreshDeveloperModeUi()
+                    requestDisableDeveloperMode()
                 }
             }
         }
@@ -123,7 +131,11 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             enableButton.setOnClickListener {
                 val code = input.text.toString()
                 if (DeveloperAccessCode.isCorrect(code)) {
-                    developerModeRepository.setEnabled(true)
+                    developerModeCoordinator.setEnabled(true)
+                    DeveloperWidgetProvider.updateAll(
+                        this,
+                        DeveloperWidgetUpdateReason.DEVELOPER_MODE_ENABLED
+                    )
                     refreshDeveloperModeUi()
                     dialog.dismiss()
                 } else {
@@ -135,6 +147,37 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         }
         dialog.show()
+    }
+
+    private fun requestDisableDeveloperMode() {
+        val developerWidgetCount = DeveloperWidgetProvider.appWidgetIds(this).size
+        if (developerWidgetCount == 0) {
+            disableDeveloperMode()
+            return
+        }
+        setDeveloperSwitchChecked(true)
+        AlertDialog.Builder(this)
+            .setTitle(R.string.disable_developer_mode_title)
+            .setMessage(
+                resources.getQuantityString(
+                    R.plurals.disable_developer_mode_message,
+                    developerWidgetCount,
+                    developerWidgetCount
+                )
+            )
+            .setNegativeButton(android.R.string.cancel) { _, _ ->
+                setDeveloperSwitchChecked(true)
+            }
+            .setPositiveButton(R.string.disable_anyway) { _, _ ->
+                disableDeveloperMode()
+            }
+            .setOnCancelListener { setDeveloperSwitchChecked(true) }
+            .show()
+    }
+
+    private fun disableDeveloperMode() {
+        developerModeCoordinator.setEnabled(false)
+        refreshDeveloperModeUi()
     }
 
     private fun refreshDeveloperModeUi() {

@@ -17,6 +17,7 @@ import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
 import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
 import com.example.blurwidgetdemo.studio.model.WidgetVariantId
 import com.example.blurwidgetdemo.studio.registry.StudioWidgetDescriptor
+import com.example.blurwidgetdemo.studio.registry.StudioElementVisualType
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -60,6 +61,7 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
     private var design: ResolvedWidgetDesign? = null
     private var selectedElementId: String? = null
     private var canvasSize = StudioCanvasSize(152f, 72f)
+    private var showApproximateGridGaps = true
     private var currentVariantId: WidgetVariantId? = null
     private var zoom = 1f
     private var panX = 0f
@@ -85,16 +87,22 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
     fun setEditorData(
         resolvedDesign: ResolvedWidgetDesign?,
         widgetDescriptor: StudioWidgetDescriptor,
-        selectedElement: String?
+        selectedElement: String?,
+        requestedCanvasSize: StudioCanvasSize? = null,
+        showGridGaps: Boolean = true
     ) {
         val variantChanged = currentVariantId != resolvedDesign?.variantId
+        val nextCanvasSize = requestedCanvasSize
+            ?: (resolvedDesign?.variantId as? WidgetVariantId.Standard)?.let(metrics::canvasSize)
+            ?: StudioCanvasSize(152f, 72f)
+        val canvasSizeChanged = nextCanvasSize != canvasSize
         descriptor = widgetDescriptor
         design = resolvedDesign
         selectedElementId = selectedElement
         currentVariantId = resolvedDesign?.variantId
-        canvasSize = (resolvedDesign?.variantId as? WidgetVariantId.Standard)?.let(metrics::canvasSize)
-            ?: StudioCanvasSize(152f, 72f)
-        if (variantChanged) post(::fitToView)
+        canvasSize = nextCanvasSize
+        showApproximateGridGaps = showGridGaps
+        if (variantChanged || canvasSizeChanged) post(::fitToView)
         invalidate()
     }
 
@@ -156,6 +164,7 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
     }
 
     private fun drawCellGaps(canvas: Canvas) {
+        if (!showApproximateGridGaps) return
         val variant = currentVariantId as? WidgetVariantId.Standard ?: return
         fillPaint.color = Color.argb(45, 0, 0, 0)
         repeat(variant.columns - 1) { index ->
@@ -230,21 +239,36 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
             strokePaint.strokeWidth = if (selected) 2.5f / zoom else 1f / zoom
             strokePaint.pathEffect = if (!element.visible) DashPathEffect(floatArrayOf(4f, 4f), 0f) else null
             canvas.drawRoundRect(bounds, 6f, 6f, strokePaint)
-            if (element.visible) drawElementText(canvas, element, bounds)
+            if (element.visible) drawElementPreview(canvas, element, bounds)
         }
         strokePaint.pathEffect = null
     }
 
-    private fun drawElementText(canvas: Canvas, element: WidgetElementSpec, bounds: RectF) {
-        val text = SAMPLE_CONTENT[element.elementId]
-            ?: descriptor?.elements?.firstOrNull { it.elementId == element.elementId }?.displayName
-            ?: element.elementId
-        textPaint.textSize = when (element.elementId) {
-            "clock.time" -> 22f
-            else -> 13f
+    private fun drawElementPreview(canvas: Canvas, element: WidgetElementSpec, bounds: RectF) {
+        val elementDescriptor = descriptor?.elements?.firstOrNull { it.elementId == element.elementId }
+        when (elementDescriptor?.visualType ?: StudioElementVisualType.TEXT) {
+            StudioElementVisualType.TEXT -> {
+                val text = elementDescriptor?.sampleText ?: elementDescriptor?.displayName ?: element.elementId
+                textPaint.textSize = if ((elementDescriptor?.wrapHeightDp ?: 32f) >= 44f) 22f else 13f
+                val baseline = bounds.centerY() - (textPaint.ascent() + textPaint.descent()) / 2f
+                canvas.drawText(text, bounds.centerX(), baseline, textPaint)
+            }
+            StudioElementVisualType.ICON -> {
+                textPaint.textSize = min(bounds.width(), bounds.height()) * 0.55f
+                val baseline = bounds.centerY() - (textPaint.ascent() + textPaint.descent()) / 2f
+                canvas.drawText("⚡", bounds.centerX(), baseline, textPaint)
+            }
+            StudioElementVisualType.PROGRESS -> {
+                val radius = element.cornerRadiusDp.coerceAtMost(bounds.height() / 2f)
+                fillPaint.color = Color.argb(70, 255, 255, 255)
+                canvas.drawRoundRect(bounds, radius, radius, fillPaint)
+                fillPaint.color = Color.rgb(49, 206, 138)
+                val fill = RectF(bounds.left, bounds.top, bounds.left + bounds.width() * 0.72f, bounds.bottom)
+                canvas.drawRoundRect(fill, min(radius, fill.width() / 2f), min(radius, fill.width() / 2f), fillPaint)
+            }
+            StudioElementVisualType.PANEL,
+            StudioElementVisualType.SHAPE -> Unit
         }
-        val baseline = bounds.centerY() - (textPaint.ascent() + textPaint.descent()) / 2f
-        canvas.drawText(text, bounds.centerX(), baseline, textPaint)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -349,20 +373,16 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
     }
 
     private fun elementSize(element: WidgetElementSpec): StudioCanvasSize {
-        val sampleWidth = when (element.elementId) {
-            "clock.time" -> 92f
-            "clock.date" -> 68f
-            "clock.day" -> 76f
-            "clock.battery" -> 54f
-            else -> 64f
-        }
+        val elementDescriptor = descriptor?.elements?.firstOrNull { it.elementId == element.elementId }
+        val sampleWidth = elementDescriptor?.wrapWidthDp ?: 64f
+        val sampleHeight = elementDescriptor?.wrapHeightDp ?: 32f
         val width = when (element.widthMode) {
             DimensionMode.WRAP -> sampleWidth + element.paddingStartDp + element.paddingEndDp
             DimensionMode.MATCH -> max(24f, canvasSize.widthDp - element.paddingStartDp - element.paddingEndDp)
             DimensionMode.FIXED -> max(1f, element.widthDp)
         }
         val height = when (element.heightMode) {
-            DimensionMode.WRAP -> 32f + element.paddingTopDp + element.paddingBottomDp
+            DimensionMode.WRAP -> sampleHeight + element.paddingTopDp + element.paddingBottomDp
             DimensionMode.MATCH -> max(24f, canvasSize.heightDp - element.paddingTopDp - element.paddingBottomDp)
             DimensionMode.FIXED -> max(1f, element.heightDp)
         }
@@ -410,11 +430,5 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
         private const val FIT_PADDING_PX = 32f
         private const val MINIMUM_VISIBLE_DP = 16f
         private const val GUIDE_TOLERANCE_DP = 4f
-        private val SAMPLE_CONTENT = mapOf(
-            "clock.time" to "12:45",
-            "clock.date" to "31 Aug",
-            "clock.day" to "Monday",
-            "clock.battery" to "84%"
-        )
     }
 }

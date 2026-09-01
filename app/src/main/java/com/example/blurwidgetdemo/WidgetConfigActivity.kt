@@ -31,14 +31,29 @@ import dev.oneuiproject.oneui.widget.SwitchItemView
 import kotlin.math.min
 import kotlin.math.roundToInt
 import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
+import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
+import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
+import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
+import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
+import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
 import com.example.blurwidgetdemo.widgets.clock.ClockWidgetPreferences
 import com.example.blurwidgetdemo.widgets.clock.ClockTimeFormat
 import com.example.blurwidgetdemo.widgets.clock.ClockTextAlignment
 import com.example.blurwidgetdemo.widgets.clock.ClockTapAction
 import com.example.blurwidgetdemo.widgets.clock.ClockFont
 import com.example.blurwidgetdemo.widgets.clock.ClockWidgetLayout
+import com.example.blurwidgetdemo.widgets.clock.ClockConfigPreviewMapper
+import com.example.blurwidgetdemo.widgets.clock.ClockRemoteViewsRenderer
+import com.example.blurwidgetdemo.widgets.clock.ClockRenderMode
+import com.example.blurwidgetdemo.widgets.clock.ClockRenderSize
 import com.example.blurwidgetdemo.widgets.clock.fontResource
+import com.example.blurwidgetdemo.widgets.battery.BatteryConfigPreviewMapper
+import com.example.blurwidgetdemo.widgets.battery.BatteryRemoteViewsRenderer
+import com.example.blurwidgetdemo.widgets.battery.BatteryRenderMode
+import com.example.blurwidgetdemo.widgets.battery.BatteryRenderSize
+import com.example.blurwidgetdemo.widgets.battery.BatteryWidgetConfigurationRepository
 import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
+import com.example.blurwidgetdemo.studio.preview.RemoteViewsPreviewHost
 import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
 import com.example.blurwidgetdemo.widgets.WidgetAppearance
 import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
@@ -590,6 +605,62 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun renderPreviewWidget(previewWidget: FrameLayout, spec: PreviewSpec) {
+        if (previewWidget is RemoteViewsPreviewHost && (isClockWidget() || isBatteryWidget())) {
+            previewWidget.background = null
+            previewWidget.clipToOutline = false
+            val remoteViews = if (isClockWidget()) {
+                val settings = ClockConfigPreviewMapper.map(
+                    settings = clockSettings ?: ClockWidgetPreferences.load(
+                        ClockWidgetPreferences.preferences(this),
+                        appWidgetId
+                    ),
+                    hue = currentHue,
+                    saturation = currentSaturation,
+                    value = currentValue,
+                    alpha = currentAlpha,
+                    textScalePercent = currentTextScale,
+                    textColor = currentTextColor
+                )
+                ClockRemoteViewsRenderer.build(
+                    context = this,
+                    configuration = settings,
+                    renderSize = ClockRenderSize(spec.minWidthDp.toFloat(), spec.minHeightDp.toFloat()),
+                    design = null,
+                    mode = ClockRenderMode.CONFIG_PREVIEW
+                ).remoteViews
+            } else {
+                val configuration = BatteryConfigPreviewMapper.map(
+                    base = BatteryWidgetConfigurationRepository.load(this, appWidgetId),
+                    surfaceColor = currentTintColor(),
+                    textColor = currentTextColor,
+                    textScalePercent = currentTextScale,
+                    alignment = currentTextAlignment,
+                    compactDeviceKey = batteryCompactDevice,
+                    colors = batteryColors
+                )
+                BatteryRemoteViewsRenderer.build(
+                    context = this,
+                    configuration = configuration,
+                    runtimeData = BatteryWidget.runtimeData(this),
+                    renderSize = BatteryRenderSize(spec.minWidthDp.toFloat(), spec.minHeightDp.toFloat()),
+                    design = null,
+                    mode = BatteryRenderMode.CONFIG_PREVIEW
+                ).remoteViews
+            }
+            val applyResult = previewWidget.show(remoteViews)
+            val status = findViewById<TextView>(R.id.config_preview_status)
+            if (applyResult.successful) {
+                status.text = getString(R.string.config_preview_local_note)
+                return
+            }
+            Log.w("ConfigPreview", "RemoteViews.apply failed; using legacy preview: ${applyResult.error}")
+            status.text = getString(R.string.config_preview_legacy_fallback, applyResult.error.orEmpty())
+        }
+        renderLegacyPreviewWidget(previewWidget, spec)
+    }
+
+    /** Deprecated fallback retained for RemoteViews apply/inflate failures and unmigrated widgets. */
+    private fun renderLegacyPreviewWidget(previewWidget: FrameLayout, spec: PreviewSpec) {
         previewWidget.removeAllViews()
         previewWidget.background = roundedDrawable(Color.TRANSPARENT, previewRadiusFor(spec))
         previewWidget.clipToOutline = true
@@ -760,6 +831,26 @@ class WidgetConfigActivity : AppCompatActivity() {
 
         val manager = AppWidgetManager.getInstance(this)
         val provider = providerClassName()
+        val productionWidgetId = when (provider) {
+            DigitalClockWidget::class.java.name -> ClockStudioDescriptor.WIDGET_ID
+            BatteryWidget::class.java.name -> BatteryStudioDescriptor.WIDGET_ID
+            else -> null
+        }
+        productionWidgetId?.let { widgetId ->
+            val hasPromotion = when (
+                val active = ProductionWidgetDesignRepository(this).loadActive(widgetId)
+            ) {
+                is StudioRepositoryResult.Success -> active.value != null
+                is StudioRepositoryResult.Failure -> false
+            }
+            // Configuration completion is the creation boundary. Absent keys on upgraded
+            // installed widgets stay legacy until the user deliberately reconfigures them.
+            WidgetProductionDesignModeRepository(this).initializeNewWidget(
+                widgetId,
+                appWidgetId,
+                hasPromotion
+            )
+        }
         if (provider == DigitalClockWidget::class.java.name) {
             DigitalClockWidget.updateWidget(this, manager, appWidgetId, "CONFIG_SAVE")
         } else if (provider == BatteryWidget::class.java.name) {

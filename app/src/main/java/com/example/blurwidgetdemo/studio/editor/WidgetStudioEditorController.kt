@@ -312,6 +312,13 @@ class WidgetStudioEditorController(
                 mutateElement(design, command.elementId) { it.copy(heightDp = command.heightDp) }
             }
         }
+        is WidgetStudioEditCommand.SetCornerRadius -> {
+            if (!command.radiusDp.isFinite() || command.radiusDp < 0f) {
+                Mutation.Failure("Corner radius must be finite and non-negative")
+            } else withCapability(command.elementId, ElementCapability.CORNER_RADIUS) {
+                mutateElement(design, command.elementId) { it.copy(cornerRadiusDp = command.radiusDp) }
+            }
+        }
         is WidgetStudioEditCommand.CopyVariant -> {
             if (command.sourceVariantId !in descriptor.supportedVariants) {
                 Mutation.Failure("Unsupported source variant: ${command.sourceVariantId.stableId}")

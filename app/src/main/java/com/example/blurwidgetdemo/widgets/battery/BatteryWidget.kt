@@ -16,12 +16,13 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.view.View
-import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
-import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
+import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
+import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
+import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
+import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
+import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
 
 class BatteryWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
@@ -30,6 +31,10 @@ class BatteryWidget : AppWidgetProvider() {
     }
     override fun onEnabled(context: Context) = scheduleRefresh(context)
     override fun onDisabled(context: Context) = context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context))
+    override fun onDeleted(context: Context, ids: IntArray) {
+        val designModes = WidgetProductionDesignModeRepository(context)
+        ids.forEach { designModes.delete(BatteryStudioDescriptor.WIDGET_ID, it) }
+    }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -42,17 +47,26 @@ class BatteryWidget : AppWidgetProvider() {
     companion object {
         private const val ACTION_REFRESH = "com.example.blurwidgetdemo.action.REFRESH_BATTERY_WIDGET"
         data class Device(val key: String, val label: String, val level: Int?, val icon: Int, val charging: Boolean = false)
-        private const val PHONE = "phone"
+        const val PHONE = "phone"
         private const val RED = 0xFFF44336.toInt()
         private const val ORANGE = 0xFFFF9800.toInt()
         private const val GREEN = 0xFF4CAF50.toInt()
         private const val TEAL = 0xFF009688.toInt()
-        private val GRADIENT_CHARGING = intArrayOf(0xFF9BDCA9.toInt(), 0xFF31CE8A.toInt(), 0xFF2F989F.toInt())
-        private val GRADIENT_SUPER_FAST = intArrayOf(0xFF633EB9.toInt(), 0xFF6A8BFA.toInt(), 0xFF3ACD8C.toInt())
-        private val GRADIENT_NORMAL = intArrayOf(0xFF3BCE8E.toInt(), 0xFF87FA6A.toInt(), 0xFF3ACD8C.toInt())
-        private val GRADIENT_LOW = intArrayOf(0xFFFF856D.toInt(), 0xFFFFA352.toInt(), 0xFFFF836D.toInt())
 
         fun availableDevices(context: Context): List<Device> = listOf(phoneDevice(context)) + bluetoothDevices(context)
+        fun runtimeData(context: Context): BatteryRuntimeData = BatteryRuntimeData(
+            devices = availableDevices(context).map { device ->
+                BatteryDeviceRuntimeData(
+                    key = device.key,
+                    label = device.label,
+                    percentage = device.level,
+                    iconResId = iconFor(device),
+                    charging = device.charging,
+                    statusText = if (device.charging) "Charging" else "Battery"
+                )
+            },
+            powerSaving = context.getSystemService(PowerManager::class.java).isPowerSaveMode
+        )
         fun colour(context: Context, id: Int, state: String): Int {
             val fallback = when (state) { "low" -> RED; "power_saving" -> ORANGE; "charging" -> TEAL; else -> GREEN }
             return context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).getInt("battery_colour_${state}_$id", fallback)
@@ -60,40 +74,34 @@ class BatteryWidget : AppWidgetProvider() {
 
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
             val options = manager.getAppWidgetOptions(id)
-            val compact = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100 || options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180) < 250
-            val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
-            val devices = availableDevices(context)
-            if (compact) {
-                val selected = devices.firstOrNull { it.key == prefs.getString("battery_compact_device_$id", PHONE) } ?: devices.first()
-                RemoteViews(context.packageName, R.layout.widget_battery_compact).apply {
-                    WidgetAppearance.applyBorder(this, prefs)
-                    BlurWidget.applySurfaceTint(this, prefs, id)
-                    setTextViewText(R.id.battery_percentage, selected.level?.let { "$it%" } ?: "—")
-                    setImageViewResource(R.id.battery_icon, iconFor(selected))
-                    setImageViewBitmap(R.id.battery_compact_bar, progressBitmap(context, id, selected, prefs))
-                    setTextColor(R.id.battery_percentage, WidgetAppearance.textColor(prefs, id))
-                    setInt(R.id.battery_percentage, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
-                    setFloat(R.id.battery_percentage, "setTextSize", 30f * WidgetAppearance.textScale(prefs, id) / 100f)
-                }.also { manager.updateAppWidget(id, it) }
-            } else RemoteViews(context.packageName, R.layout.widget_battery_large).apply {
-                WidgetAppearance.applyBorder(this, prefs)
-                BlurWidget.applySurfaceTint(this, prefs, id)
-                val rows = arrayOf(R.id.battery_row_1, R.id.battery_row_2, R.id.battery_row_3, R.id.battery_row_4)
-                val labels = arrayOf(R.id.battery_label_1, R.id.battery_label_2, R.id.battery_label_3, R.id.battery_label_4)
-                val bars = arrayOf(R.id.battery_bar_1, R.id.battery_bar_2, R.id.battery_bar_3, R.id.battery_bar_4)
-                val icons = arrayOf(R.id.battery_icon_1, R.id.battery_icon_2, R.id.battery_icon_3, R.id.battery_icon_4)
-                rows.indices.forEach { index ->
-                    val device = devices.getOrNull(index)
-                    setViewVisibility(rows[index], if (device == null) View.GONE else View.VISIBLE)
-                    if (device != null) {
-                        setTextViewText(labels[index], "${device.label}  ${device.level?.let { "$it%" } ?: "Unavailable"}")
-                        setTextColor(labels[index], WidgetAppearance.textColor(prefs, id))
-                        setFloat(labels[index], "setTextSize", 15f * WidgetAppearance.textScale(prefs, id) / 100f)
-                        setImageViewResource(icons[index], iconFor(device))
-                        setImageViewBitmap(bars[index], progressBitmap(context, id, device, prefs))
-                    }
-                }
-            }.also { manager.updateAppWidget(id, it) }
+            val renderSize = BatteryWidgetSizeResolver.fromOptions(options)
+            val mode = WidgetProductionDesignModeRepository(context).mode(
+                BatteryStudioDescriptor.WIDGET_ID,
+                id
+            )
+            val promoted = when (
+                val loaded = ProductionWidgetDesignRepository(context)
+                    .loadActive(BatteryStudioDescriptor.WIDGET_ID)
+            ) {
+                is StudioRepositoryResult.Success -> loaded.value
+                is StudioRepositoryResult.Failure -> null
+            }
+            val productionDesign = ProductionWidgetDesignResolver.resolve(
+                mode = mode,
+                promotedDesign = promoted,
+                widgetId = BatteryStudioDescriptor.WIDGET_ID,
+                widthDp = renderSize.widthDp,
+                heightDp = renderSize.heightDp
+            )
+            val rendered = BatteryRemoteViewsRenderer.build(
+                context = context,
+                configuration = BatteryWidgetConfigurationRepository.load(context, id),
+                runtimeData = runtimeData(context),
+                renderSize = renderSize,
+                design = productionDesign,
+                mode = BatteryRenderMode.PRODUCTION
+            )
+            manager.updateAppWidget(id, rendered.remoteViews)
         }
 
         private fun refreshIntent(context: Context) = PendingIntent.getBroadcast(context, 7001,
@@ -145,26 +153,5 @@ class BatteryWidget : AppWidgetProvider() {
             else -> R.drawable.devices
         }
         private fun iconFor(device: Device): Int = if (device.charging) if ((device.level ?: 0) >= 85) R.drawable.superfast_charging else R.drawable.charging else device.icon
-        private fun stateFor(context: Context, device: Device): String = when {
-            device.charging && (device.level ?: 0) >= 85 -> "super_fast_charging"
-            device.charging -> "charging"
-            context.getSystemService(PowerManager::class.java).isPowerSaveMode -> "power_saving"
-            (device.level ?: 100) <= 15 -> "low"
-            else -> "normal"
-        }
-
-        private fun progressBitmap(context: Context, id: Int, device: Device, prefs: android.content.SharedPreferences): android.graphics.Bitmap {
-            val state = stateFor(context, device)
-            return if (WidgetAppearance.gradientsEnabled(prefs)) {
-                WidgetProgressBarRenderer.render(device.level ?: 0, when (state) {
-                    "charging" -> GRADIENT_CHARGING
-                    "super_fast_charging" -> GRADIENT_SUPER_FAST
-                    "low" -> GRADIENT_LOW
-                    else -> GRADIENT_NORMAL
-                })
-            } else {
-                WidgetProgressBarRenderer.render(device.level ?: 0, colour(context, id, state), false)
-            }
-        }
     }
 }

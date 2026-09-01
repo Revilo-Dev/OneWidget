@@ -1,6 +1,7 @@
 package com.example.blurwidgetdemo.studio.editor
 
 import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
+import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
 import com.example.blurwidgetdemo.studio.data.StudioRepositoryError
 import com.example.blurwidgetdemo.studio.data.StudioRepositoryErrorKind
 import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
@@ -252,6 +253,24 @@ class WidgetStudioEditorControllerTest {
         failure(controller.save())
         assertEquals(0, repository.saveCalls)
         assertTrue(controller.state.validationIssues.isNotEmpty())
+    }
+
+    @Test fun `new battery controller starts clean and resets selected element`() {
+        val battery = WidgetStudioEditorController(
+            descriptor = BatteryStudioDescriptor.create(),
+            loadDesign = {
+                StudioRepositoryResult.Failure(
+                    StudioRepositoryError(StudioRepositoryErrorKind.NOT_FOUND, "Not found")
+                )
+            },
+            saveDesign = { StudioRepositoryResult.Success(it.copy(revision = it.revision + 1L)) }
+        )
+        success(battery.initialize())
+
+        assertEquals(BatteryStudioDescriptor.WIDGET_ID, battery.state.selectedWidgetId)
+        assertEquals(BatteryStudioDescriptor.PERCENTAGE, battery.state.selectedElementId)
+        assertEquals(twoByOne, battery.state.selectedVariantId)
+        assertFalse(battery.state.dirty)
     }
 
     private fun controller(repository: FakeRepository = FakeRepository()): WidgetStudioEditorController =

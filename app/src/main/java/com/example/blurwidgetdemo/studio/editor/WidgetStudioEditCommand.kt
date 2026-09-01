@@ -60,6 +60,10 @@ sealed interface WidgetStudioEditCommand {
         override val label = "Set fixed height"
     }
 
+    data class SetCornerRadius(val elementId: String, val radiusDp: Float) : WidgetStudioEditCommand {
+        override val label = "Set corner radius"
+    }
+
     data class CopyVariant(val sourceVariantId: WidgetVariantId) : WidgetStudioEditCommand {
         override val label = "Copy variant"
     }

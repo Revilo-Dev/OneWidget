@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.util.SizeF
@@ -23,6 +24,20 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
+import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
+import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
+import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
+import com.example.blurwidgetdemo.studio.data.WidgetDesignRepository
+import com.example.blurwidgetdemo.studio.developer.DeveloperModeRepository
+import com.example.blurwidgetdemo.studio.gallery.GalleryPreviewRequest
+import com.example.blurwidgetdemo.studio.gallery.GalleryPreviewSource
+import com.example.blurwidgetdemo.studio.gallery.SnapshotCacheKey
+import com.example.blurwidgetdemo.studio.gallery.WidgetGalleryBitmapCache
+import com.example.blurwidgetdemo.studio.gallery.WidgetGalleryPreviewResolver
+import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
+import com.example.blurwidgetdemo.studio.production.ProductionWidgetSnapshotRepository
+import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotRepository
 import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
 import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
 import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
@@ -46,9 +61,27 @@ import dev.oneuiproject.oneui.widget.RoundedLinearLayout
 class MainActivity : AppCompatActivity() {
     private var pendingProvider: Class<out AppWidgetProvider>? = null
     private var pendingSize: WidgetSize? = null
+    private val snapshotRepository by lazy { WidgetSnapshotRepository(this) }
+    private val designRepository by lazy { WidgetDesignRepository(this) }
+    private val developerModeRepository by lazy { DeveloperModeRepository(this) }
+    private val productionDesignRepository by lazy { ProductionWidgetDesignRepository(this) }
+    private val productionSnapshotRepository by lazy { ProductionWidgetSnapshotRepository(this) }
+    private val galleryPreviewResolver by lazy {
+        WidgetGalleryPreviewResolver(
+            developerSnapshotStatus = snapshotRepository::status,
+            productionSnapshotStatus = productionSnapshotRepository::status
+        )
+    }
+    private val studioRevisions = mutableMapOf<String, Long?>()
+    private val productionRevisions = mutableMapOf<String, Long?>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
+
+    override fun onResume() {
+        super.onResume()
         addWidgetPicker()
     }
 
@@ -71,6 +104,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun addWidgetPicker() {
         val container = findViewById<LinearLayout>(R.id.widget_picker_list)
+        container.removeAllViews()
+        studioRevisions.clear()
+        productionRevisions.clear()
         pickerCategories().forEachIndexed { index, category ->
             container.addView(categoryCard(category), LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -93,7 +129,8 @@ class MainActivity : AppCompatActivity() {
                 "2 × 1" to R.layout.widget_digital_clock_compact_clock_stamp,
                 "3 × 2" to R.layout.widget_digital_clock_medium_clock_stamp,
                 "4 × 2" to R.layout.widget_digital_clock_large_clock_stamp,
-                "4 × 4" to R.layout.widget_digital_clock_large_clock_stamp)
+                "4 × 4" to R.layout.widget_digital_clock_large_clock_stamp),
+            studioWidgetId = ClockStudioDescriptor.WIDGET_ID
             ),
             widget("Alarm", R.drawable.category_clock, AlarmWidget::class.java,
                 sizes("2 × 1" to R.layout.widget_alarm_compact, "3 × 2" to R.layout.widget_alarm_large,
@@ -103,7 +140,8 @@ class MainActivity : AppCompatActivity() {
             "Battery", R.drawable.battery, BatteryWidget::class.java,
             sizes("1 × 1" to R.layout.widget_battery_compact, "2 × 1" to R.layout.widget_battery_compact,
                 "3 × 1" to R.layout.widget_battery_compact, "4 × 1" to R.layout.widget_battery_compact,
-                "2 × 2" to R.layout.widget_battery_large, "4 × 2" to R.layout.widget_battery_large)
+                "2 × 2" to R.layout.widget_battery_large, "4 × 2" to R.layout.widget_battery_large),
+            studioWidgetId = BatteryStudioDescriptor.WIDGET_ID
         ))),
         PickerCategory("Weather", R.drawable.category_weather, listOf(widget(
             "Weather", R.drawable.weather_sunny, WeatherWidget::class.java,
@@ -188,8 +226,14 @@ class MainActivity : AppCompatActivity() {
         WidgetSize(name, layout, parts[0].toInt(), parts[1].toInt())
     }
 
-    private fun widget(title: String, icon: Int, provider: Class<out AppWidgetProvider>, sizes: List<WidgetSize>, toggleKind: ToggleKind? = null) =
-        PickerWidget(title, icon, provider, sizes, toggleKind)
+    private fun widget(
+        title: String,
+        icon: Int,
+        provider: Class<out AppWidgetProvider>,
+        sizes: List<WidgetSize>,
+        toggleKind: ToggleKind? = null,
+        studioWidgetId: String? = null
+    ) = PickerWidget(title, icon, provider, sizes, toggleKind, studioWidgetId)
 
     private fun categoryCard(category: PickerCategory): View {
         val card = RoundedLinearLayout(this).apply {
@@ -261,8 +305,104 @@ class MainActivity : AppCompatActivity() {
             setTextColor(themeColor(android.R.attr.textColorSecondary))
             gravity = Gravity.CENTER_HORIZONTAL
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-        addView(ScaledWidgetPreview(this@MainActivity, size.layout, size.columns, size.rows, item.title, item.icon),
-            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        addView(
+            galleryPreview(item, size),
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
+    }
+
+    private fun galleryPreview(item: PickerWidget, size: WidgetSize): View {
+        val variant = WidgetVariantId.Standard(size.columns, size.rows)
+        val developerModeEnabled = developerModeRepository.isEnabled()
+        val revision = item.studioWidgetId?.takeIf { developerModeEnabled }?.let { widgetId ->
+            studioRevisions.getOrPut(widgetId) {
+                when (val loaded = designRepository.load(widgetId)) {
+                    is StudioRepositoryResult.Success -> loaded.value.revision
+                    is StudioRepositoryResult.Failure -> null
+                }
+            }
+        }
+        val productionRevision = item.studioWidgetId?.let { widgetId ->
+            productionRevisions.getOrPut(widgetId) {
+                when (val loaded = productionDesignRepository.loadActive(widgetId)) {
+                    is StudioRepositoryResult.Success -> loaded.value?.metadata?.designRevision
+                    is StudioRepositoryResult.Failure -> null
+                }
+            }
+        }
+        val source = galleryPreviewResolver.resolve(
+            GalleryPreviewRequest(
+                developerModeEnabled = developerModeEnabled,
+                widgetId = item.studioWidgetId,
+                variantId = variant,
+                currentDesignRevision = revision,
+                productionDesignRevision = productionRevision,
+                packagedPreviewResId = size.layout,
+                legacyPreviewAvailable = true
+            )
+        )
+        if (source is GalleryPreviewSource.GeneratedSnapshot) {
+            return generatedSnapshotView(source) ?: ScaledWidgetPreview(
+                this,
+                size.layout,
+                size.columns,
+                size.rows,
+                item.title,
+                item.icon
+            )
+        }
+        return when (source) {
+            is GalleryPreviewSource.PackagedPreview -> ScaledWidgetPreview(
+                this,
+                source.resourceId,
+                size.columns,
+                size.rows,
+                item.title,
+                item.icon
+            )
+            GalleryPreviewSource.LegacyScaledPreview -> ScaledWidgetPreview(
+                this,
+                size.layout,
+                size.columns,
+                size.rows,
+                item.title,
+                item.icon
+            )
+            GalleryPreviewSource.Fallback -> ImageView(this).apply {
+                minimumHeight = dp(72)
+                setImageResource(item.icon)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                contentDescription = getString(R.string.widget_preview)
+            }
+            is GalleryPreviewSource.GeneratedSnapshot -> error("Generated snapshot handled above")
+        }
+    }
+
+    private fun generatedSnapshotView(source: GalleryPreviewSource.GeneratedSnapshot): View? {
+        val metadata = source.snapshot.metadata
+        val key = SnapshotCacheKey(
+            metadata.widgetId,
+            metadata.variantId,
+            metadata.designRevision,
+            metadata.snapshotPath,
+            metadata.scope
+        )
+        val bitmap = WidgetGalleryBitmapCache.get(key)
+            ?: BitmapFactory.decodeFile(source.snapshot.file.absolutePath)?.also { decoded ->
+                WidgetGalleryBitmapCache.put(key, decoded)
+            }
+            ?: return null
+        return ImageView(this).apply {
+            minimumHeight = dp(72)
+            adjustViewBounds = true
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setPadding(0, dp(4), 0, dp(4))
+            setImageBitmap(bitmap)
+            contentDescription = getString(R.string.widget_preview)
+        }
     }
 
     private fun pickerRow(title: String, icon: Int, count: String): LinearLayout = LinearLayout(this).apply {
@@ -404,7 +544,14 @@ class MainActivity : AppCompatActivity() {
             return "$count widget${if (count == 1) "" else "s"}"
         }
     }
-    private data class PickerWidget(val title: String, val icon: Int, val provider: Class<out AppWidgetProvider>, val sizes: List<WidgetSize>, val toggleKind: ToggleKind? = null) {
+    private data class PickerWidget(
+        val title: String,
+        val icon: Int,
+        val provider: Class<out AppWidgetProvider>,
+        val sizes: List<WidgetSize>,
+        val toggleKind: ToggleKind? = null,
+        val studioWidgetId: String? = null
+    ) {
         fun sizeCountText() = "${sizes.size} size${if (sizes.size == 1) "" else "s"}"
     }
     private data class WidgetSize(val label: String, val layout: Int, val columns: Int, val rows: Int) {

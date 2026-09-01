@@ -15,10 +15,16 @@ object WidgetProgressBarRenderer {
     private const val WIDTH = 600
     private const val HEIGHT = 60
 
-    fun render(progress: Int, colour: Int, animated: Boolean, now: Long = System.currentTimeMillis()): Bitmap {
+    fun render(
+        progress: Int,
+        colour: Int,
+        animated: Boolean,
+        now: Long = System.currentTimeMillis(),
+        cornerRadiusFraction: Float = 0.5f
+    ): Bitmap {
         val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        val radius = HEIGHT / 2f
+        val radius = HEIGHT * cornerRadiusFraction.coerceIn(0f, 0.5f)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.color = Color.argb(54, 255, 255, 255)
         canvas.drawRoundRect(0f, 0f, WIDTH.toFloat(), HEIGHT.toFloat(), radius, radius, paint)
@@ -50,11 +56,11 @@ object WidgetProgressBarRenderer {
     }
 
     /** A fixed left-to-right palette for widgets whose colours communicate status. */
-    fun render(progress: Int, colours: IntArray): Bitmap {
+    fun render(progress: Int, colours: IntArray, cornerRadiusFraction: Float = 0.5f): Bitmap {
         require(colours.size >= 2) { "A gradient needs at least two colours" }
         val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        val radius = HEIGHT / 2f
+        val radius = HEIGHT * cornerRadiusFraction.coerceIn(0f, 0.5f)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.argb(54, 255, 255, 255) }
         canvas.drawRoundRect(0f, 0f, WIDTH.toFloat(), HEIGHT.toFloat(), radius, radius, paint)
         val fillWidth = WIDTH * progress.coerceIn(0, 100) / 100f

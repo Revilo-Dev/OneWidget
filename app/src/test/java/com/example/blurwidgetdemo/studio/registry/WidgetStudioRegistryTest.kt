@@ -1,23 +1,27 @@
 package com.example.blurwidgetdemo.studio.registry
 
 import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
+import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
 import com.example.blurwidgetdemo.studio.model.WidgetVariantId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WidgetStudioRegistryTest {
-    @Test fun `default registry contains only the digital clock`() {
+    @Test fun `default registry contains clock and battery only`() {
         val registry = DefaultWidgetStudioRegistry.create()
-        assertEquals(1, registry.registeredWidgetCount())
+        assertEquals(2, registry.registeredWidgetCount())
         assertEquals("Digital Clock", registry.descriptor(ClockStudioDescriptor.WIDGET_ID)?.displayName)
+        assertEquals("Battery", registry.descriptor(BatteryStudioDescriptor.WIDGET_ID)?.displayName)
         assertNull(registry.descriptor("unsupported_widget"))
     }
 
     @Test fun `clock exposes all standard variants`() {
         val descriptor = DefaultWidgetStudioRegistry.create().descriptor(ClockStudioDescriptor.WIDGET_ID)!!
         assertEquals(25, descriptor.supportedVariants.size)
+        assertNotNull(descriptor.renderer)
         assertTrue(WidgetVariantId.Standard(1, 1) in descriptor.supportedVariants)
         assertTrue(WidgetVariantId.Standard(5, 5) in descriptor.supportedVariants)
     }

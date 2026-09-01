@@ -1,19 +1,24 @@
 package com.example.blurwidgetdemo.studio.registry
 
 import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
+import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
 import com.example.blurwidgetdemo.studio.model.ElementCapability
 import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
 import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import com.example.blurwidgetdemo.studio.rendering.StudioRemoteViewsRenderer
+
+enum class StudioElementVisualType { TEXT, ICON, PROGRESS, PANEL, SHAPE }
 
 data class StudioElementDescriptor(
     val elementId: String,
     val displayName: String,
     val capabilities: Set<ElementCapability>,
-    val required: Boolean = false
+    val required: Boolean = false,
+    val visualType: StudioElementVisualType = StudioElementVisualType.TEXT,
+    val sampleText: String? = null,
+    val wrapWidthDp: Float = 64f,
+    val wrapHeightDp: Float = 32f
 )
-
-/** Reserved renderer seam for the shared RemoteViews work in a later phase. */
-interface StudioWidgetRenderer
 
 /** Reserved sample-data seam; runtime values remain outside WidgetDesignSpec. */
 fun interface StudioSampleDataProvider {
@@ -26,7 +31,7 @@ data class StudioWidgetDescriptor(
     val supportedVariants: Set<WidgetVariantId>,
     val elements: List<StudioElementDescriptor>,
     val defaultDesign: WidgetDesignSpec,
-    val renderer: StudioWidgetRenderer? = null,
+    val renderer: StudioRemoteViewsRenderer? = null,
     val sampleDataProvider: StudioSampleDataProvider? = null
 ) {
     val capabilities: Set<ElementCapability> = elements.flatMapTo(linkedSetOf()) { it.capabilities }
@@ -66,5 +71,6 @@ class WidgetStudioRegistry {
 object DefaultWidgetStudioRegistry {
     fun create(): WidgetStudioRegistry = WidgetStudioRegistry().apply {
         check(register(ClockStudioDescriptor.create()) == RegistryRegistrationResult.Registered)
+        check(register(BatteryStudioDescriptor.create()) == RegistryRegistrationResult.Registered)
     }
 }

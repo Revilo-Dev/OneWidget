@@ -2,9 +2,11 @@
 <dev.oneuiproject.oneui.layout.ToolbarLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:title="@string/widget_studio">
+    app:title="@string/widget_studio"
+    tools:ignore="TooManyViews">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -36,6 +38,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </LinearLayout>
 
@@ -108,14 +112,59 @@
                     android:text="@string/studio_save" />
             </LinearLayout>
 
-            <com.example.blurwidgetdemo.studio.canvas.WidgetStudioCanvasView
-                android:id="@+id/studio_canvas"
+            <include layout="@layout/studio_developer_test_controls" />
+
+            <include layout="@layout/studio_snapshot_controls" />
+
+            <include layout="@layout/studio_phase7_controls" />
+
+            <RadioGroup
+                android:id="@+id/studio_preview_mode"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/studio_mode_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/studio_mode_edit" />
+
+                <RadioButton
+                    android:id="@+id/studio_mode_actual"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:text="@string/studio_mode_actual" />
+            </RadioGroup>
+
+            <FrameLayout
+                android:id="@+id/studio_preview_host"
                 android:layout_width="match_parent"
                 android:layout_height="360dp"
-                android:layout_marginTop="10dp"
-                android:contentDescription="@string/studio_canvas_description" />
+                android:layout_marginTop="6dp">
+
+                <com.example.blurwidgetdemo.studio.canvas.WidgetStudioCanvasView
+                    android:id="@+id/studio_canvas"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/studio_canvas_description" />
+
+                <com.example.blurwidgetdemo.studio.preview.ActualRemoteViewsPreview
+                    android:id="@+id/studio_actual_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/studio_actual_preview_description"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <include layout="@layout/studio_actual_diagnostics" />
 
             <HorizontalScrollView
+                android:id="@+id/studio_edit_zoom_controls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
@@ -163,6 +212,7 @@
             </HorizontalScrollView>
 
             <LinearLayout
+                android:id="@+id/studio_edit_canvas_controls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
@@ -473,6 +523,31 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
                 </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/studio_corner_radius_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/studio_corner_radius"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/studio_corner_radius_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/studio_corner_radius_hint"
+                    android:importantForAutofill="no"
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1" />
             </LinearLayout>
 
             <Button

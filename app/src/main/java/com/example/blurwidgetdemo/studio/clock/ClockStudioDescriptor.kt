@@ -34,12 +34,13 @@ object ClockStudioDescriptor {
         displayName = "Digital Clock",
         supportedVariants = WidgetVariantId.standardVariants.toSet(),
         elements = listOf(
-            StudioElementDescriptor(TIME, "Time", TEXT_CAPABILITIES, required = true),
-            StudioElementDescriptor(DATE, "Date", TEXT_CAPABILITIES),
-            StudioElementDescriptor(DAY, "Day", TEXT_CAPABILITIES),
-            StudioElementDescriptor(BATTERY, "Phone battery", TEXT_CAPABILITIES)
+            StudioElementDescriptor(TIME, "Time", TEXT_CAPABILITIES, required = true, sampleText = "12:45", wrapWidthDp = 92f),
+            StudioElementDescriptor(DATE, "Date", TEXT_CAPABILITIES, sampleText = "31 Aug", wrapWidthDp = 68f),
+            StudioElementDescriptor(DAY, "Day", TEXT_CAPABILITIES, sampleText = "Monday", wrapWidthDp = 76f),
+            StudioElementDescriptor(BATTERY, "Phone battery", TEXT_CAPABILITIES, sampleText = "84%", wrapWidthDp = 54f)
         ),
-        defaultDesign = defaultDesign()
+        defaultDesign = defaultDesign(),
+        renderer = ClockStudioRemoteViewsRenderer
     )
 
     /**
