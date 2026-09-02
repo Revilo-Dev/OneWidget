@@ -16,6 +16,11 @@ import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
 import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
+import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -26,9 +31,17 @@ class WeatherWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         ids.forEach { render(context, manager, it) }
         val result = goAsync()
-        Thread { ids.forEach { refresh(context, manager, it) }; result.finish() }.start()
+        Thread {
+            try {
+                ids.forEach { refresh(context, manager, it) }
+            } finally {
+                result.finish()
+            }
+        }.start()
     }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = render(context, manager, id)
+    override fun onDeleted(context: Context, ids: IntArray) =
+        UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.WEATHER, ids)
 
     companion object {
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
@@ -48,12 +61,32 @@ class WeatherWidget : AppWidgetProvider() {
             val weatherCode = prefs.getInt("weather_code_$id", -1)
             val temp = if (tempC.isNaN()) if (hasLocation) "Weather" else "Location needed" else formatTemperature(tempC, unit)
             val source = condition ?: if (hasLocation) "Updating forecast…" else "Allow location to show weather"
-            RemoteViews(context.packageName, if (compact) R.layout.widget_weather_compact else R.layout.widget_weather_large).apply {
+            val locationText = location ?: if (hasLocation) "Current location" else "Location access required"
+            val rootAction = samsungWeatherIntent(context, id)
+            val promoted = UniversalProductionWidgetRenderer.buildIfPromoted(
+                context,
+                manager,
+                id,
+                UniversalWidgetIds.WEATHER,
+                UniversalWidgetContent(
+                    mapOf(
+                        "universal.icon" to UniversalElementContent(imageResId = iconFor(weatherCode)),
+                        "universal.temperature" to UniversalElementContent(text = temp),
+                        "universal.location" to UniversalElementContent(text = locationText, visible = showLocation),
+                        "universal.condition" to UniversalElementContent(text = source)
+                    )
+                ),
+                UniversalWidgetActions(root = rootAction)
+            )
+            val views = promoted ?: RemoteViews(
+                context.packageName,
+                if (compact) R.layout.widget_weather_compact else R.layout.widget_weather_large
+            ).apply {
                 BlurWidget.applySurfaceTint(this, prefs, id)
-                setOnClickPendingIntent(android.R.id.background, samsungWeatherIntent(context, id))
+                setOnClickPendingIntent(android.R.id.background, rootAction)
                 setTextViewText(R.id.weather_temperature, temp)
                 setTextViewText(R.id.weather_condition, source)
-                setTextViewText(R.id.weather_location, location ?: if (hasLocation) "Current location" else "Location access required")
+                setTextViewText(R.id.weather_location, locationText)
                 setViewVisibility(R.id.weather_location, if (showLocation) View.VISIBLE else View.GONE)
                 setImageViewResource(R.id.weather_icon, iconFor(weatherCode))
                 val color = WidgetAppearance.textColor(prefs, id)
@@ -63,7 +96,8 @@ class WeatherWidget : AppWidgetProvider() {
                 setFloat(R.id.weather_temperature, "setTextSize", (if (centred) 32f else 26f) * textScale)
                 val gravity = if (centred) Gravity.CENTER else Gravity.START or Gravity.CENTER_VERTICAL
                 intArrayOf(R.id.weather_temperature, R.id.weather_condition, R.id.weather_location).forEach { setInt(it, "setGravity", gravity) }
-            }.also { manager.updateAppWidget(id, it) }
+            }
+            manager.updateAppWidget(id, views)
         }
 
         private fun refresh(context: Context, manager: AppWidgetManager, id: Int) {
@@ -79,14 +113,20 @@ class WeatherWidget : AppWidgetProvider() {
             runCatching {
                 val url = URL("https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,weather_code&temperature_unit=celsius")
                 val connection = (url.openConnection() as HttpURLConnection).apply { connectTimeout = 8_000; readTimeout = 8_000 }
-                val weather = connection.inputStream.bufferedReader().use { JSONObject(it.readText()) }.getJSONObject("current")
-                val code = weather.getInt("weather_code")
-                context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).edit()
-                    .putFloat("weather_temp_c_$id", weather.getDouble("temperature_2m").toFloat())
-                    .putString("weather_condition_$id", condition(code))
-                    .putInt("weather_code_$id", code)
-                    .putString("weather_location_$id", locality(context, location))
-                    .apply()
+                try {
+                    val weather = connection.inputStream.bufferedReader().use {
+                        JSONObject(it.readText())
+                    }.getJSONObject("current")
+                    val code = weather.getInt("weather_code")
+                    context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).edit()
+                        .putFloat("weather_temp_c_$id", weather.getDouble("temperature_2m").toFloat())
+                        .putString("weather_condition_$id", condition(code))
+                        .putInt("weather_code_$id", code)
+                        .putString("weather_location_$id", locality(context, location))
+                        .apply()
+                } finally {
+                    connection.disconnect()
+                }
             }
             render(context, manager, id)
         }

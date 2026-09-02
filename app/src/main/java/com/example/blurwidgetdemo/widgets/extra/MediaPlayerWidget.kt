@@ -20,11 +20,19 @@ import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
 import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
+import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 
 /** Shows the active media session when notification-listener access has been enabled. */
 class MediaPlayerWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
+    override fun onDeleted(context: Context, ids: IntArray) =
+        UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.MEDIA_PLAYER, ids)
+
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         val id = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
@@ -57,14 +65,70 @@ class MediaPlayerWidget : AppWidgetProvider() {
             val metadata = controller?.metadata
             val isPlaying = state?.state == PlaybackState.STATE_PLAYING
             val large = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) > 100
-            RemoteViews(context.packageName, if (large) R.layout.widget_media_large else R.layout.widget_media_compact).apply {
+            val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "No media"
+            val artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "Nothing is playing"
+            val art = artwork(metadata)
+            val hasMedia = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) != null
+            val duration = duration(metadata)
+            val progressBitmap = WidgetProgressBarRenderer.renderMedia(
+                progress(state, metadata),
+                artworkColour(art)
+            )
+            val previousAction = command(context, id, ACTION_PREVIOUS, 0)
+            val toggleAction = command(context, id, ACTION_TOGGLE, 1)
+            val nextAction = command(context, id, ACTION_NEXT, 2)
+            val rootAction = controller?.sessionActivity ?: PendingIntent.getActivity(
+                context,
+                id,
+                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val promoted = UniversalProductionWidgetRenderer.buildIfPromoted(
+                context,
+                manager,
+                id,
+                UniversalWidgetIds.MEDIA_PLAYER,
+                UniversalWidgetContent(
+                    mapOf(
+                        "universal.art" to UniversalElementContent(
+                            bitmap = art,
+                            imageResId = if (art == null) R.drawable.music_idle_bob else null
+                        ),
+                        "universal.title" to UniversalElementContent(text = title),
+                        "universal.artist" to UniversalElementContent(text = artist),
+                        "universal.previous" to UniversalElementContent(imageResId = R.drawable.control_previous),
+                        "universal.play_pause" to UniversalElementContent(
+                            imageResId = if (isPlaying) R.drawable.control_pause else R.drawable.control_play
+                        ),
+                        "universal.next" to UniversalElementContent(imageResId = R.drawable.control_next),
+                        "universal.progress" to UniversalElementContent(
+                            bitmap = progressBitmap,
+                            visible = hasMedia && duration > 0L
+                        ),
+                        "universal.time" to UniversalElementContent(
+                            text = playbackTime(state, duration),
+                            visible = hasMedia && duration > 0L
+                        )
+                    )
+                ),
+                UniversalWidgetActions(
+                    root = rootAction,
+                    elements = mapOf(
+                        "universal.previous" to previousAction,
+                        "universal.play_pause" to toggleAction,
+                        "universal.next" to nextAction
+                    )
+                )
+            )
+            val views = promoted ?: RemoteViews(
+                context.packageName,
+                if (large) R.layout.widget_media_large else R.layout.widget_media_compact
+            ).apply {
                 BlurWidget.applySurfaceTint(this, prefs, id)
-                val hasMedia = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) != null
-                val duration = duration(metadata)
-                setTextViewText(R.id.media_title, metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "No media")
-                setTextViewText(R.id.media_artist, metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "Nothing is playing")
+                setTextViewText(R.id.media_title, title)
+                setTextViewText(R.id.media_artist, artist)
                 setViewVisibility(R.id.media_artist, if (large) View.VISIBLE else View.GONE)
-                artwork(metadata)?.let {
+                art?.let {
                     setImageViewBitmap(R.id.media_art, it)
                     setViewVisibility(R.id.media_art, View.VISIBLE)
                     setViewVisibility(R.id.media_idle_icon, View.GONE)
@@ -76,16 +140,16 @@ class MediaPlayerWidget : AppWidgetProvider() {
                 setImageViewResource(R.id.media_previous, R.drawable.control_previous)
                 setImageViewResource(R.id.media_play_pause, if (isPlaying) R.drawable.control_pause else R.drawable.control_play)
                 setImageViewResource(R.id.media_next, R.drawable.control_next)
-                setImageViewBitmap(R.id.media_progress, WidgetProgressBarRenderer.renderMedia(progress(state, metadata), artworkColour(artwork(metadata))))
+                setImageViewBitmap(R.id.media_progress, progressBitmap)
                 setTextViewText(R.id.media_time, playbackTime(state, duration))
                 setViewVisibility(R.id.media_progress, if (large && hasMedia && duration > 0L) View.VISIBLE else View.GONE)
                 setViewVisibility(R.id.media_time, if (large && hasMedia && duration > 0L) View.VISIBLE else View.GONE)
-                setOnClickPendingIntent(R.id.media_previous, command(context, id, ACTION_PREVIOUS, 0))
-                setOnClickPendingIntent(R.id.media_play_pause, command(context, id, ACTION_TOGGLE, 1))
-                setOnClickPendingIntent(R.id.media_next, command(context, id, ACTION_NEXT, 2))
-                setOnClickPendingIntent(android.R.id.background, controller?.sessionActivity ?: PendingIntent.getActivity(context, id,
-                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-            }.also { manager.updateAppWidget(id, it) }
+                setOnClickPendingIntent(R.id.media_previous, previousAction)
+                setOnClickPendingIntent(R.id.media_play_pause, toggleAction)
+                setOnClickPendingIntent(R.id.media_next, nextAction)
+                setOnClickPendingIntent(android.R.id.background, rootAction)
+            }
+            manager.updateAppWidget(id, views)
         }
 
         private fun activeController(context: Context): MediaController? = runCatching {

@@ -75,6 +75,7 @@ import com.example.blurwidgetdemo.studio.snapshot.SnapshotStatus
 import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotRenderer
 import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotRepository
 import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotStorage
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
 import com.example.blurwidgetdemo.widgets.developer.DeveloperWidgetProvider
 import com.example.blurwidgetdemo.studio.verification.DeviceTechnicalInfoCapture
 import com.example.blurwidgetdemo.studio.verification.VerificationRevisionStatus
@@ -179,6 +180,8 @@ class WidgetStudioActivity : AppCompatActivity() {
     private lateinit var verifyAlignment: CheckBox
     private lateinit var verifyRadius: CheckBox
     private lateinit var verifyProgress: CheckBox
+    private lateinit var verifyContentStates: CheckBox
+    private lateinit var verifySystemUiHost: CheckBox
     private lateinit var verifySnapshot: CheckBox
     private lateinit var verificationFailed: CheckBox
     private lateinit var verificationNotes: EditText
@@ -334,6 +337,8 @@ class WidgetStudioActivity : AppCompatActivity() {
         verifyAlignment = findViewById(R.id.studio_verify_alignment)
         verifyRadius = findViewById(R.id.studio_verify_radius)
         verifyProgress = findViewById(R.id.studio_verify_progress)
+        verifyContentStates = findViewById(R.id.studio_verify_content_states)
+        verifySystemUiHost = findViewById(R.id.studio_verify_system_ui_host)
         verifySnapshot = findViewById(R.id.studio_verify_snapshot)
         verificationFailed = findViewById(R.id.studio_verification_failed)
         verificationNotes = findViewById(R.id.studio_verification_notes)
@@ -1308,9 +1313,19 @@ class WidgetStudioActivity : AppCompatActivity() {
         }
         renderDeviceInfo(requireNotNull(verificationDraft))
 
-        val battery = descriptor.widgetId == com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor.WIDGET_ID
-        verifyProgress.visibility = if (battery) View.VISIBLE else View.GONE
-        verifyRadius.visibility = if (battery) View.VISIBLE else View.GONE
+        val progressWidget = descriptor.widgetId in setOf(
+            com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor.WIDGET_ID,
+            com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor.WIDGET_ID
+        ) || descriptor.widgetId in UniversalWidgetStudioCatalog.progressWidgetIds
+        verifyProgress.visibility = if (progressWidget) View.VISIBLE else View.GONE
+        verifyRadius.visibility = if (progressWidget) View.VISIBLE else View.GONE
+        verifyContentStates.visibility = if (
+            descriptor.widgetId == com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor.WIDGET_ID ||
+            descriptor.widgetId in UniversalWidgetStudioCatalog.contentStateWidgetIds
+        ) View.VISIBLE else View.GONE
+        val systemUiWidget = descriptor.widgetId in UniversalWidgetStudioCatalog.systemUiWidgetIds
+        verifySystemUiHost.visibility = if (systemUiWidget) View.VISIBLE else View.GONE
+        verifyBlur.visibility = if (systemUiWidget) View.GONE else View.VISIBLE
 
         val active = when (val loaded = productionDesignRepository.loadActive(descriptor.widgetId)) {
             is StudioRepositoryResult.Success -> loaded.value
@@ -1337,6 +1352,7 @@ class WidgetStudioActivity : AppCompatActivity() {
             }
         }
         productionMapping.text = productionMappingSummary(descriptor.widgetId)
+        usePromotedForNew.visibility = if (systemUiWidget) View.GONE else View.VISIBLE
         usePromotedForNew.isChecked = productionModeRepository.usePromotedForNewWidgets(descriptor.widgetId)
         promoteProduction.isEnabled = !state.dirty && state.workingDesign.revision > 0L
         revertProduction.isEnabled = active != null || productionHistory().isNotEmpty()
@@ -1353,6 +1369,8 @@ class WidgetStudioActivity : AppCompatActivity() {
         verifyAlignment.isChecked = value.alignmentVerified
         verifyRadius.isChecked = value.radiusVerified
         verifyProgress.isChecked = value.progressVerified
+        verifyContentStates.isChecked = value.contentStatesVerified
+        verifySystemUiHost.isChecked = value.systemUiHostVerified
         verifySnapshot.isChecked = value.snapshotVerified
         verificationFailed.isChecked = value.failed
         verificationNotes.setText(value.notes)
@@ -1424,6 +1442,8 @@ class WidgetStudioActivity : AppCompatActivity() {
             alignmentVerified = verifyAlignment.isChecked,
             radiusVerified = verifyRadius.isChecked,
             progressVerified = verifyProgress.isChecked,
+            contentStatesVerified = verifyContentStates.isChecked,
+            systemUiHostVerified = verifySystemUiHost.isChecked,
             snapshotVerified = verifySnapshot.isChecked,
             failed = verificationFailed.isChecked,
             notes = verificationNotes.text.toString().trim(),

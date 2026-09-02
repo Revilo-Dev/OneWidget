@@ -8,58 +8,112 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
+import com.example.blurwidgetdemo.MainActivity
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
 
 class StepCounterWidget : NamedActionWidget() {
     override val title = "Steps"
     override val icon = R.drawable.running
-    override fun action(context: Context, id: Int) = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_FITNESS)
+    override val studioWidgetId = UniversalWidgetIds.STEP_COUNTER
+    override fun action(context: Context, id: Int): Intent =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_FITNESS)
+        } else {
+            Intent(context, MainActivity::class.java)
+        }
     override fun layoutResource(context: Context, manager: AppWidgetManager, id: Int): Int {
         val options = manager.getAppWidgetOptions(id)
         return if (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 40) > 100) R.layout.widget_steps_large
         else R.layout.widget_steps_compact
     }
     override fun displayText(context: Context, id: Int): String {
+        if (!hasActivityPermission(context)) return "Permission needed"
         val steps = stepCount(context, id)
         return NumberFormat.getIntegerInstance().format(steps)
     }
     override fun applyContent(views: RemoteViews, context: Context, id: Int) {
         val steps = stepCount(context, id)
+        val permitted = hasActivityPermission(context)
+        val countText = if (permitted) NumberFormat.getIntegerInstance().format(steps) else "Permission needed"
+        val goalText = if (permitted) "/ $DAILY_GOAL steps" else "Allow activity recognition"
         val options = AppWidgetManager.getInstance(context).getAppWidgetOptions(id)
         if (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 40) > 100) {
             views.setImageViewResource(R.id.steps_icon, icon)
-            views.setTextViewText(R.id.steps_count, NumberFormat.getIntegerInstance().format(steps))
-            views.setTextViewText(R.id.steps_goal, "/ $DAILY_GOAL steps")
+            views.setTextViewText(R.id.steps_count, countText)
+            views.setTextViewText(R.id.steps_goal, goalText)
         } else {
             views.setImageViewResource(R.id.steps_icon, icon)
-            views.setTextViewText(R.id.steps_count, NumberFormat.getIntegerInstance().format(steps))
+            views.setTextViewText(R.id.steps_count, countText)
         }
+    }
+    override fun studioContent(context: Context, id: Int): UniversalWidgetContent {
+        val permitted = hasActivityPermission(context)
+        val steps = if (permitted) {
+            NumberFormat.getIntegerInstance().format(stepCount(context, id))
+        } else {
+            "Permission needed"
+        }
+        return UniversalWidgetContent(
+            mapOf(
+                "universal.icon" to UniversalElementContent(imageResId = icon),
+                "universal.count" to UniversalElementContent(text = steps),
+                "universal.goal" to UniversalElementContent(
+                    text = if (permitted) "/ $DAILY_GOAL steps" else "Allow activity recognition"
+                )
+            )
+        )
     }
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         super.onUpdate(context, manager, ids)
-        if (context.checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) return
+        if (!hasActivityPermission(context)) return
         val sensorManager = context.getSystemService(SensorManager::class.java)
         val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) ?: return
         val result = goAsync()
-        sensorManager.registerListener(object : SensorEventListener {
+        val completed = AtomicBoolean(false)
+        val handler = Handler(Looper.getMainLooper())
+        val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
                 val rawCounter = event.values.firstOrNull()?.toLong() ?: return
-                saveTodayCounts(context, ids, rawCounter)
-                sensorManager.unregisterListener(this)
-                this@StepCounterWidget.refreshRendered(context, manager, ids)
-                result.finish()
+                if (!completed.compareAndSet(false, true)) return
+                try {
+                    saveTodayCounts(context, ids, rawCounter)
+                    sensorManager.unregisterListener(this)
+                    this@StepCounterWidget.refreshRendered(context, manager, ids)
+                } finally {
+                    result.finish()
+                }
             }
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
-        }, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+        val registered = runCatching {
+            sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        }.getOrDefault(false)
+        if (!registered) {
+            if (completed.compareAndSet(false, true)) result.finish()
+            return
+        }
+        handler.postDelayed({
+            if (completed.compareAndSet(false, true)) {
+                sensorManager.unregisterListener(listener)
+                result.finish()
+            }
+        }, SENSOR_TIMEOUT_MILLIS)
     }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) {
         super.onAppWidgetOptionsChanged(context, manager, id, options)
@@ -67,6 +121,9 @@ class StepCounterWidget : NamedActionWidget() {
 
     private fun stepCount(context: Context, id: Int) = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
         .getLong("step_counter_$id", 0).coerceAtLeast(0)
+    private fun hasActivityPermission(context: Context) =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+            context.checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED
     private fun refreshRendered(context: Context, manager: AppWidgetManager, ids: IntArray) = super.onUpdate(context, manager, ids)
 
     /** TYPE_STEP_COUNTER is cumulative since boot, so keep a per-widget baseline for each day. */
@@ -95,5 +152,8 @@ class StepCounterWidget : NamedActionWidget() {
         set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
     }.timeInMillis
 
-    private companion object { const val DAILY_GOAL = 10_000 }
+    private companion object {
+        const val DAILY_GOAL = 10_000
+        const val SENSOR_TIMEOUT_MILLIS = 5_000L
+    }
 }

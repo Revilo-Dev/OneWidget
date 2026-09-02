@@ -12,10 +12,15 @@ import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
 import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
+import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
 
 abstract class NamedActionWidget : AppWidgetProvider() {
     abstract val title: String
     abstract val icon: Int
+    abstract val studioWidgetId: String
     abstract fun action(context: Context, id: Int): Intent
     protected open fun displayText(context: Context, id: Int) = title
     protected open fun textColor(prefs: SharedPreferences, id: Int) = WidgetAppearance.textColor(prefs, id)
@@ -28,12 +33,42 @@ abstract class NamedActionWidget : AppWidgetProvider() {
         views.setTextViewText(R.id.action_label, displayText(context, id))
     }
 
+    protected open fun studioContent(context: Context, id: Int): UniversalWidgetContent {
+        val bitmap = iconBitmap(context, id)
+        return UniversalWidgetContent(
+            mapOf(
+                "universal.icon" to UniversalElementContent(
+                    bitmap = bitmap,
+                    imageResId = if (bitmap == null) icon else null
+                ),
+                "universal.label" to UniversalElementContent(text = displayText(context, id))
+            )
+        )
+    }
+
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { render(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = render(context, manager, id)
+    override fun onDeleted(context: Context, ids: IntArray) =
+        UniversalProductionWidgetRenderer.deleteModes(context, studioWidgetId, ids)
+
     private fun render(context: Context, manager: AppWidgetManager, id: Int) {
         val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
         val iconOnly = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 80) <= 100 && manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
-        RemoteViews(context.packageName, layoutResource(context, manager, id)).apply {
+        val action = PendingIntent.getActivity(
+            context,
+            id,
+            action(context, id).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val promoted = UniversalProductionWidgetRenderer.buildIfPromoted(
+            context = context,
+            manager = manager,
+            appWidgetId = id,
+            widgetId = studioWidgetId,
+            content = studioContent(context, id),
+            actions = UniversalWidgetActions(root = action)
+        )
+        val views = promoted ?: RemoteViews(context.packageName, layoutResource(context, manager, id)).apply {
             BlurWidget.applySurfaceTint(this, prefs, id)
             applyContent(this, context, id)
             setViewVisibility(R.id.action_label, if (iconOnly) View.GONE else View.VISIBLE)
@@ -41,7 +76,8 @@ abstract class NamedActionWidget : AppWidgetProvider() {
             setInt(R.id.action_label, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
             val padding = if (WidgetAppearance.alignment(prefs, id) == WidgetAppearance.Alignment.START) startLabelPadding(context) else 0
             setViewPadding(R.id.action_label, padding, 0, 0, 0)
-            setOnClickPendingIntent(android.R.id.background, PendingIntent.getActivity(context, id, action(context, id).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-        }.also { manager.updateAppWidget(id, it) }
+            setOnClickPendingIntent(android.R.id.background, action)
+        }
+        manager.updateAppWidget(id, views)
     }
 }

@@ -1,11 +1,10 @@
 package com.example.blurwidgetdemo
 
-import android.Manifest
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -26,6 +25,9 @@ import androidx.core.content.ContextCompat
 import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
 import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
 import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
+import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
+import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
 import com.example.blurwidgetdemo.studio.data.WidgetDesignRepository
 import com.example.blurwidgetdemo.studio.developer.DeveloperModeRepository
@@ -37,6 +39,7 @@ import com.example.blurwidgetdemo.studio.gallery.WidgetGalleryPreviewResolver
 import com.example.blurwidgetdemo.studio.model.WidgetVariantId
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetSnapshotRepository
+import com.example.blurwidgetdemo.studio.production.WidgetPinResultReceiver
 import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotRepository
 import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
 import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
@@ -59,8 +62,6 @@ import dev.oneuiproject.oneui.widget.RoundedLinearLayout
 
 /** A launcher-like list that previews the same layouts supplied to the widget host. */
 class MainActivity : AppCompatActivity() {
-    private var pendingProvider: Class<out AppWidgetProvider>? = null
-    private var pendingSize: WidgetSize? = null
     private val snapshotRepository by lazy { WidgetSnapshotRepository(this) }
     private val designRepository by lazy { WidgetDesignRepository(this) }
     private val developerModeRepository by lazy { DeveloperModeRepository(this) }
@@ -120,7 +121,8 @@ class MainActivity : AppCompatActivity() {
             "Glass", R.drawable.ic_home_24, BlurWidget::class.java,
             sizes("1 × 1" to R.layout.widget_preview_square, "2 × 1" to R.layout.widget_preview_strip,
                 "2 × 2" to R.layout.widget_preview_square, "4 × 2" to R.layout.widget_preview_large,
-                "4 × 4" to R.layout.widget_preview_large, "4 × 5" to R.layout.widget_preview_large)
+                "4 × 4" to R.layout.widget_preview_large, "4 × 5" to R.layout.widget_preview_large),
+            studioWidgetId = UniversalWidgetIds.GLASS
         ))),
         PickerCategory("Clock", R.drawable.category_clock, listOf(
             widget(
@@ -134,7 +136,8 @@ class MainActivity : AppCompatActivity() {
             ),
             widget("Alarm", R.drawable.category_clock, AlarmWidget::class.java,
                 sizes("2 × 1" to R.layout.widget_alarm_compact, "3 × 2" to R.layout.widget_alarm_large,
-                    "4 × 2" to R.layout.widget_alarm_large))
+                    "4 × 2" to R.layout.widget_alarm_large),
+                studioWidgetId = UniversalWidgetIds.ALARM)
         )),
         PickerCategory("Battery", R.drawable.category_battery, listOf(widget(
             "Battery", R.drawable.battery, BatteryWidget::class.java,
@@ -147,60 +150,74 @@ class MainActivity : AppCompatActivity() {
             "Weather", R.drawable.weather_sunny, WeatherWidget::class.java,
             sizes("1 × 1" to R.layout.widget_weather_compact, "2 × 1" to R.layout.widget_weather_compact,
                 "3 × 1" to R.layout.widget_weather_compact, "4 × 1" to R.layout.widget_weather_compact,
-                "2 × 2" to R.layout.widget_weather_large, "4 × 2" to R.layout.widget_weather_large)
+                "2 × 2" to R.layout.widget_weather_large, "4 × 2" to R.layout.widget_weather_large),
+            studioWidgetId = UniversalWidgetIds.WEATHER
         ))),
         PickerCategory("Calendar", R.drawable.category_calander, listOf(
             widget("Next event", R.drawable.calendar_today, CalendarWidget::class.java,
                 sizes("1 × 1" to R.layout.widget_calendar_compact, "2 × 1" to R.layout.widget_calendar_compact,
                     "3 × 1" to R.layout.widget_calendar_compact, "4 × 1" to R.layout.widget_calendar_compact,
-                    "2 × 2" to R.layout.widget_calendar_large, "4 × 2" to R.layout.widget_calendar_large)),
+                    "2 × 2" to R.layout.widget_calendar_large, "4 × 2" to R.layout.widget_calendar_large),
+                studioWidgetId = CalendarStudioDescriptor.WIDGET_ID),
             widget("Calendar display", R.drawable.calendar_today, CalendarDisplayWidget::class.java,
-                sizes("2 × 2" to R.layout.widget_calendar_display, "4 × 2" to R.layout.widget_calendar_display))
+                sizes("2 × 2" to R.layout.widget_calendar_display, "4 × 2" to R.layout.widget_calendar_display),
+                studioWidgetId = UniversalWidgetIds.CALENDAR_DISPLAY)
         )),
         PickerCategory("Storage", R.drawable.category_storage, listOf(widget(
             "Storage", R.drawable.manage_storage, StorageWidget::class.java,
             sizes("1 × 1" to R.layout.widget_storage_compact, "2 × 1" to R.layout.widget_storage_compact,
                 "3 × 1" to R.layout.widget_storage_compact, "4 × 1" to R.layout.widget_storage_compact,
-                "2 × 2" to R.layout.widget_storage_large, "4 × 2" to R.layout.widget_storage_large)
+                "2 × 2" to R.layout.widget_storage_large, "4 × 2" to R.layout.widget_storage_large),
+            studioWidgetId = StorageStudioDescriptor.WIDGET_ID
         ))),
         PickerCategory("Health", R.drawable.category_health, listOf(
             stepCounterWidget(),
             widget("Hydration", R.drawable.water_drop, HydrationWidget::class.java,
                 sizes("1 × 1" to R.layout.widget_hydration_compact, "2 × 1" to R.layout.widget_hydration_compact,
                     "3 × 1" to R.layout.widget_hydration_compact, "4 × 1" to R.layout.widget_hydration_compact,
-                    "2 × 2" to R.layout.widget_hydration_large, "4 × 2" to R.layout.widget_hydration_large))
+                    "2 × 2" to R.layout.widget_hydration_large, "4 × 2" to R.layout.widget_hydration_large),
+                studioWidgetId = UniversalWidgetIds.HYDRATION)
         )),
         PickerCategory("Search", R.drawable.category_search, listOf(
-            actionWidget("Google Search", R.drawable.google, GoogleSearchWidget::class.java, 2),
-            actionWidget("Samsung Browser search", R.drawable.samsung_browser, SamsungBrowserSearchWidget::class.java, 2),
-            actionWidget("YouTube search", R.drawable.youtube, YouTubeSearchWidget::class.java, 2)
+            actionWidget("Google Search", R.drawable.google, GoogleSearchWidget::class.java, 2, UniversalWidgetIds.GOOGLE_SEARCH),
+            actionWidget("Samsung Browser search", R.drawable.samsung_browser, SamsungBrowserSearchWidget::class.java, 2, UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH),
+            actionWidget("YouTube search", R.drawable.youtube, YouTubeSearchWidget::class.java, 2, UniversalWidgetIds.YOUTUBE_SEARCH)
         )),
         PickerCategory("Media player", R.drawable.category_media, listOf(
             widget("Media player", R.drawable.music_alt, MediaPlayerWidget::class.java,
                 sizes("2 × 1" to R.layout.widget_media_compact, "2 × 2" to R.layout.widget_media_large,
-                    "3 × 2" to R.layout.widget_media_large, "4 × 2" to R.layout.widget_media_large))
+                    "3 × 2" to R.layout.widget_media_large, "4 × 2" to R.layout.widget_media_large),
+                studioWidgetId = UniversalWidgetIds.MEDIA_PLAYER)
         )),
         PickerCategory("Other", R.drawable.category_more, listOf(
-            actionWidget("Open app", R.drawable.phone, OpenAppWidget::class.java, 2),
-            actionWidget("Text", R.drawable.text_check_on, TextWidget::class.java, 2),
+            actionWidget("Open app", R.drawable.phone, OpenAppWidget::class.java, 2, UniversalWidgetIds.OPEN_APP),
+            actionWidget("Text", R.drawable.text_check_on, TextWidget::class.java, 2, UniversalWidgetIds.TEXT),
             widget("Counter", R.drawable.list_add, CounterWidget::class.java,
                 sizes("2 × 1" to R.layout.widget_counter_compact, "2 × 2" to R.layout.widget_counter_large,
-                    "4 × 2" to R.layout.widget_counter_large))
+                    "4 × 2" to R.layout.widget_counter_large),
+                studioWidgetId = UniversalWidgetIds.COUNTER)
         )),
         PickerCategory("Toggles", R.drawable.category_settings, ToggleKind.entries.map { kind ->
             widget(kind.label, kind.icon, ToggleWidget::class.java,
-                toggleSizes("1 × 1" to R.layout.widget_toggle_square, "2 × 1" to R.layout.widget_toggle), kind)
+                toggleSizes("1 × 1" to R.layout.widget_toggle_square, "2 × 1" to R.layout.widget_toggle), kind,
+                studioWidgetId = UniversalWidgetIds.TOGGLE)
         })
     )
 
-    private fun actionWidget(title: String, icon: Int, provider: Class<out AppWidgetProvider>, count: Int): PickerWidget {
+    private fun actionWidget(
+        title: String,
+        icon: Int,
+        provider: Class<out AppWidgetProvider>,
+        count: Int,
+        studioWidgetId: String
+    ): PickerWidget {
         val variants = if (count == 2) {
             sizes("1 × 1" to R.layout.widget_action, "2 × 1" to R.layout.widget_action)
         } else {
             sizes("1 × 1" to R.layout.widget_action, "2 × 1" to R.layout.widget_action,
                 "2 × 2" to R.layout.widget_action, "4 × 2" to R.layout.widget_action)
         }
-        return widget(title, icon, provider, variants)
+        return widget(title, icon, provider, variants, studioWidgetId = studioWidgetId)
     }
 
     private fun stepCounterWidget() = widget(
@@ -211,7 +228,8 @@ class MainActivity : AppCompatActivity() {
             "3 × 1" to R.layout.widget_steps_compact,
             "4 × 1" to R.layout.widget_steps_compact,
             "5 × 1" to R.layout.widget_steps_compact
-        )
+        ),
+        studioWidgetId = UniversalWidgetIds.STEP_COUNTER
     )
 
     private fun sizes(vararg definitions: Pair<String, Int>): List<WidgetSize> = definitions
@@ -460,43 +478,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestPlacement(item: PickerWidget, size: WidgetSize) {
-        val provider = item.provider
-        if (provider == WeatherWidget::class.java && !hasWeatherLocationPermission()) {
-            pendingProvider = provider
-            pendingSize = size
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), WEATHER_PERMISSION_REQUEST)
-        } else if (provider == CalendarWidget::class.java && checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            pendingProvider = provider
-            pendingSize = size
-            requestPermissions(arrayOf(Manifest.permission.READ_CALENDAR), CALENDAR_PERMISSION_REQUEST)
-        } else {
-            requestWidgetPin(provider, size, item.toggleKind)
-        }
+        // Runtime permissions are requested by the launcher configuration activity.
+        // Keeping them there avoids duplicate prompts and still allows explicit
+        // permission-required widget states when access is denied.
+        requestWidgetPin(item.provider, size, item.toggleKind)
     }
-
-    private fun hasWeatherLocationPermission() = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-        checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     private fun requestWidgetPin(provider: Class<out AppWidgetProvider>, size: WidgetSize, toggleKind: ToggleKind? = null) {
         val manager = getSystemService(AppWidgetManager::class.java)
         if (manager.isRequestPinAppWidgetSupported) {
-            manager.requestPinAppWidget(ComponentName(this, provider), widgetOptions(size, toggleKind), null)
+            val studioWidgetId = when (provider) {
+                DigitalClockWidget::class.java -> ClockStudioDescriptor.WIDGET_ID
+                BatteryWidget::class.java -> BatteryStudioDescriptor.WIDGET_ID
+                StorageWidget::class.java -> StorageStudioDescriptor.WIDGET_ID
+                CalendarWidget::class.java -> CalendarStudioDescriptor.WIDGET_ID
+                else -> com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
+                    .definitionForProvider(provider.name)?.widgetId
+            }
+            val successCallback = studioWidgetId?.let { widgetId ->
+                PendingIntent.getBroadcast(
+                    this,
+                    (provider.name.hashCode() * 31 + size.columns * 7 + size.rows),
+                    Intent(this, WidgetPinResultReceiver::class.java)
+                        .putExtra(WidgetPinResultReceiver.EXTRA_STUDIO_WIDGET_ID, widgetId)
+                        .putExtra(WidgetPinResultReceiver.EXTRA_PROVIDER_CLASS_NAME, provider.name),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                )
+            }
+            manager.requestPinAppWidget(
+                ComponentName(this, provider),
+                widgetOptions(size, toggleKind),
+                successCallback
+            )
         } else {
             AlertDialog.Builder(this)
                 .setMessage(R.string.add_widget_not_supported)
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if ((requestCode == CALENDAR_PERMISSION_REQUEST || requestCode == WEATHER_PERMISSION_REQUEST) &&
-            grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            pendingProvider?.let { provider -> pendingSize?.let { requestWidgetPin(provider, it) } }
-        }
-        pendingProvider = null
-        pendingSize = null
     }
 
     /** Samsung Home honors these app-widget dimensions when a widget is pinned from the app. */
@@ -559,8 +578,4 @@ class MainActivity : AppCompatActivity() {
         val isWideSingleRow get() = columns == 2 && rows == 1
     }
 
-    private companion object {
-        const val CALENDAR_PERMISSION_REQUEST = 41
-        const val WEATHER_PERMISSION_REQUEST = 42
-    }
 }

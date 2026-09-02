@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/studio_actual_diagnostics_section"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <TextView
+        android:id="@+id/studio_actual_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_actual_note"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/studio_render_diagnostics_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:typeface="monospace" />
+
+    <CheckBox
+        android:id="@+id/studio_render_diagnostics_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_render_diagnostics_details" />
+
+    <TextView
+        android:id="@+id/studio_render_diagnostics_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textIsSelectable="true"
+        android:typeface="monospace"
+        android:visibility="gone" />
+</LinearLayout>

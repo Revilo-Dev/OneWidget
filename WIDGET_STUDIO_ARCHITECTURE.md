@@ -142,3 +142,44 @@ per-widget preference keys remain unchanged.
 Phase 3 should begin with a shared Digital Clock `RemoteViews` renderer that can consume a resolved
 design without changing provider identity or preference compatibility. Actual launcher sizing and
 the Developer Test Widget should remain separate follow-up work.
+
+## Phase 8 status
+
+Phases 3-7 supplied the shared rendering, actual preview, developer host, snapshots,
+device verification, immutable promotion, per-instance opt-in, and gallery isolation
+described in their phase documents. Phase 8 adds Storage to those generic paths.
+
+The default registry now contains Digital Clock, Battery, and Storage. Storage models
+compact content as one configured primary metric and large content as three composite
+metric rows. Live filesystem, memory, and traffic values remain renderer input rather
+than design data. Production providers read only immutable promoted copies when an
+instance is explicitly in promoted mode; existing instances with no mode key remain
+legacy. Weather and the remaining widgets are still outside Widget Studio.
+
+## Phase 9 status
+
+The default registry now also contains Next event Calendar. Its design contains only
+title/details geometry; event data and permission/provider states are runtime renderer
+input. Developer render modes use deterministic non-personal sample content. Device
+verification schema 2 retains schema-1 compatibility and adds a Calendar-only content
+state check. Calendar Display and Weather remain outside Widget Studio.
+
+## Phase 10 status
+
+The registry now contains all 18 Home-screen widget families and both Samsung
+lock-screen message variants. Four widgets retain purpose-built shared renderers;
+the remaining families use one reusable eight-slot RemoteViews renderer with stable,
+widget-namespaced element IDs. API 31+ applies exact geometry while Android 8-11 uses
+a non-overlapping vertical fallback.
+
+Every Home-screen provider preserves its legacy layout for existing instances and
+uses immutable promoted geometry only for explicitly opted-in instances. Live data,
+permissions, artwork, calendar values, counters, and PendingIntent actions remain
+runtime inputs. Gallery previews, configuration samples, ACTUAL previews, Developer
+Test Widget rendering, snapshots, verification, and promotion now resolve across the
+complete Home-screen registry.
+
+Verification schema 3 adds a Samsung System UI host check with schema-1/2 migration.
+Lock-screen designs can be edited, snapshotted, and verified, but production promotion
+is intentionally blocked: the lock/AOD/cover ServiceBox path has different monotone
+contracts and no safe per-instance creation boundary.

@@ -23,6 +23,8 @@ class OpenAppWidgetConfigActivity : AppCompatActivity() {
                 .putString("open_app_class_$widgetId", selected.activityInfo.name)
                 .putString("open_app_label_$widgetId", selected.loadLabel(packageManager).toString())
                 .apply()
+            com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+                .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.OPEN_APP, widgetId)
             OpenAppWidget().onUpdate(this, AppWidgetManager.getInstance(this), intArrayOf(widgetId))
             setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
             finish()

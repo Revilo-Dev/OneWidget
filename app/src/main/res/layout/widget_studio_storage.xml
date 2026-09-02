@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_clock_background">
+
+    <FrameLayout
+        android:id="@+id/storage_primary_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center">
+        <ImageView
+            android:id="@+id/storage_primary_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:contentDescription="@null"
+            android:scaleType="fitXY" />
+        <ImageView
+            android:id="@+id/storage_primary_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="start|center_vertical"
+            android:contentDescription="@null" />
+        <TextView
+            android:id="@+id/storage_primary_label"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:gravity="center"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            tools:text="Storage  62% • 79GB/128GB" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/storage_storage_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="16dp">
+        <ImageView
+            android:id="@+id/storage_storage_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:contentDescription="@null"
+            android:scaleType="fitXY" />
+        <ImageView
+            android:id="@+id/storage_storage_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="start|center_vertical"
+            android:contentDescription="@null" />
+        <TextView
+            android:id="@+id/storage_storage_label"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:gravity="center"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            tools:text="Storage  62% • 79GB/128GB" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/storage_memory_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="center">
+        <ImageView
+            android:id="@+id/storage_memory_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:contentDescription="@null"
+            android:scaleType="fitXY" />
+        <ImageView
+            android:id="@+id/storage_memory_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="start|center_vertical"
+            android:contentDescription="@null" />
+        <TextView
+            android:id="@+id/storage_memory_label"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:gravity="center"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            tools:text="Memory  58% • 5GB/8GB" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/storage_data_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="16dp">
+        <ImageView
+            android:id="@+id/storage_data_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:contentDescription="@null"
+            android:scaleType="fitXY" />
+        <ImageView
+            android:id="@+id/storage_data_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="start|center_vertical"
+            android:contentDescription="@null" />
+        <TextView
+            android:id="@+id/storage_data_label"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:gravity="center"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            tools:text="Data usage  34% • 3GB/10GB" />
+    </FrameLayout>
+</FrameLayout>

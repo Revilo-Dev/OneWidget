@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="18dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_device_verification_title"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/studio_verification_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/studio_device_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/studio_device_info_not_captured"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <EditText
+        android:id="@+id/studio_one_ui_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/studio_one_ui_version_hint"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLines="1" />
+
+    <Button
+        android:id="@+id/studio_capture_device_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_capture_device_info" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_actual_preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_actual_preview" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_developer_widget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_developer_widget" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_geometry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_geometry" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_visibility"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_visibility" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_padding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_padding" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_alignment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_alignment" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_blur"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_blur" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_progress" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_radius"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_radius" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_content_states"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_content_states" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_system_ui_host"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_system_ui_host" />
+
+    <CheckBox
+        android:id="@+id/studio_verify_snapshot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verify_snapshot" />
+
+    <CheckBox
+        android:id="@+id/studio_verification_failed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_verification_failed" />
+
+    <EditText
+        android:id="@+id/studio_verification_notes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top|start"
+        android:hint="@string/studio_verification_notes"
+        android:importantForAutofill="no"
+        android:inputType="textCapSentences|textMultiLine"
+        android:minLines="2" />
+
+    <Button
+        android:id="@+id/studio_save_verification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_save_verification" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/studio_production_status_title"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/studio_production_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/studio_production_mapping"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <CheckBox
+        android:id="@+id/studio_use_promoted_for_new"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_use_promoted_for_new" />
+
+    <Button
+        android:id="@+id/studio_promote_production"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_promote_production" />
+
+    <Button
+        android:id="@+id/studio_revert_production"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/studio_revert_production" />
+</LinearLayout>

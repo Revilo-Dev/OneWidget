@@ -2,6 +2,9 @@ package com.example.blurwidgetdemo.studio.registry
 
 import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
 import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
+import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
+import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
 import com.example.blurwidgetdemo.studio.model.ElementCapability
 import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
 import com.example.blurwidgetdemo.studio.model.WidgetVariantId
@@ -72,5 +75,10 @@ object DefaultWidgetStudioRegistry {
     fun create(): WidgetStudioRegistry = WidgetStudioRegistry().apply {
         check(register(ClockStudioDescriptor.create()) == RegistryRegistrationResult.Registered)
         check(register(BatteryStudioDescriptor.create()) == RegistryRegistrationResult.Registered)
+        check(register(StorageStudioDescriptor.create()) == RegistryRegistrationResult.Registered)
+        check(register(CalendarStudioDescriptor.create()) == RegistryRegistrationResult.Registered)
+        UniversalWidgetStudioCatalog.definitions.forEach { definition ->
+            check(register(definition.createDescriptor()) == RegistryRegistrationResult.Registered)
+        }
     }
 }

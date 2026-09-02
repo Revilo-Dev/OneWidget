@@ -3,7 +3,7 @@ package com.example.blurwidgetdemo.widgets.extra
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
@@ -13,6 +13,11 @@ import android.view.View
 import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
+import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 
 enum class ToggleKind(val label: String, val icon: Int) {
     DATA("Mobile data", R.drawable.network_storage), DARK_MODE("Dark mode", R.drawable.dark), WIFI("Wi-Fi", R.drawable.wifi_2),
@@ -25,6 +30,9 @@ enum class ToggleKind(val label: String, val icon: Int) {
 class ToggleWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { render(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = render(context, manager, id)
+    override fun onDeleted(context: Context, ids: IntArray) =
+        UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.TOGGLE, ids)
+
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         if (intent.action == ACTION_TOGGLE) {
@@ -40,36 +48,80 @@ class ToggleWidget : AppWidgetProvider() {
         val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 40)
         val kind = ToggleKind.from(prefs.getString("toggle_kind_$id", options.getString(OPTION_TOGGLE_KIND)))
         val layout = if (width <= 100 && height <= 100) R.layout.widget_toggle_square else R.layout.widget_toggle
-        RemoteViews(context.packageName, layout).apply {
+        val enabled = isEnabled(context, id, kind)
+        val accent = prefs.getInt("toggle_accent_$id", 0xFF387AFF.toInt())
+        val overlay = if (width <= 100 && height <= 100) {
+            ToggleOverlayRenderer.renderCircle(width, height, accent)
+        } else {
+            ToggleOverlayRenderer.renderFill(width, height, accent)
+        }
+        val rootAction = PendingIntent.getBroadcast(
+            context,
+            id,
+            Intent(context, ToggleWidget::class.java).setAction(ACTION_TOGGLE)
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val promoted = UniversalProductionWidgetRenderer.buildIfPromoted(
+            context,
+            manager,
+            id,
+            UniversalWidgetIds.TOGGLE,
+            UniversalWidgetContent(
+                mapOf(
+                    "universal.state" to UniversalElementContent(bitmap = overlay, visible = enabled),
+                    "universal.icon" to UniversalElementContent(imageResId = kind.icon)
+                )
+            ),
+            UniversalWidgetActions(root = rootAction)
+        )
+        val views = promoted ?: RemoteViews(context.packageName, layout).apply {
             BlurWidget.applySurfaceTint(this, prefs, id)
-            setViewVisibility(R.id.toggle_circle, if (isEnabled(context, id, kind)) View.VISIBLE else View.GONE)
-            val accent = prefs.getInt("toggle_accent_$id", 0xFF387AFF.toInt())
-            setImageViewBitmap(R.id.toggle_circle, if (width <= 100 && height <= 100) ToggleOverlayRenderer.renderCircle(width, height, accent) else ToggleOverlayRenderer.renderFill(width, height, accent))
+            setViewVisibility(R.id.toggle_circle, if (enabled) View.VISIBLE else View.GONE)
+            setImageViewBitmap(R.id.toggle_circle, overlay)
             setImageViewResource(R.id.toggle_icon, kind.icon)
-            setOnClickPendingIntent(android.R.id.background, PendingIntent.getBroadcast(context, id, Intent(context, ToggleWidget::class.java).setAction(ACTION_TOGGLE).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-        }.also { manager.updateAppWidget(id, it) }
+            setOnClickPendingIntent(android.R.id.background, rootAction)
+        }
+        manager.updateAppWidget(id, views)
     }
 
     private fun isEnabled(context: Context, id: Int, kind: ToggleKind): Boolean = when (kind) {
         ToggleKind.DARK_MODE -> (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
         ToggleKind.WIFI -> context.applicationContext.getSystemService(android.net.wifi.WifiManager::class.java).isWifiEnabled
         ToggleKind.DO_NOT_DISTURB -> runCatching { context.getSystemService(android.app.NotificationManager::class.java).currentInterruptionFilter != android.app.NotificationManager.INTERRUPTION_FILTER_ALL }.getOrDefault(false)
-        ToggleKind.BLUETOOTH -> runCatching { BluetoothAdapter.getDefaultAdapter()?.isEnabled == true }.getOrDefault(false)
+        ToggleKind.BLUETOOTH -> runCatching {
+            context.getSystemService(BluetoothManager::class.java).adapter?.isEnabled == true
+        }.getOrDefault(false)
         ToggleKind.LOCATION -> context.getSystemService(LocationManager::class.java).let { if (android.os.Build.VERSION.SDK_INT >= 28) it.isLocationEnabled else it.isProviderEnabled(LocationManager.GPS_PROVIDER) || it.isProviderEnabled(LocationManager.NETWORK_PROVIDER) }
         ToggleKind.TORCH -> context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).getBoolean("torch_enabled_$id", false)
         else -> false
     }
 
-    private fun toggle(context: Context, id: Int) = when (ToggleKind.from(context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).getString("toggle_kind_$id", null))) {
-        ToggleKind.DARK_MODE -> context.startActivity(Intent(Settings.ACTION_DISPLAY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        ToggleKind.WIFI -> context.startActivity(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        ToggleKind.BLUETOOTH -> context.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        ToggleKind.LOCATION -> context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        ToggleKind.CAMERA -> context.startActivity(Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        ToggleKind.DO_NOT_DISTURB -> context.startActivity(Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        ToggleKind.HOTSPOT -> context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        ToggleKind.TORCH -> context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        ToggleKind.DATA -> context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    private fun toggle(context: Context, id: Int) {
+        val kind = ToggleKind.from(
+            context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
+                .getString("toggle_kind_$id", null)
+        )
+        val target = when (kind) {
+            ToggleKind.DARK_MODE -> Intent(Settings.ACTION_DISPLAY_SETTINGS)
+            ToggleKind.WIFI -> if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            } else {
+                Intent(Settings.ACTION_WIFI_SETTINGS)
+            }
+            ToggleKind.BLUETOOTH -> Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+            ToggleKind.LOCATION -> Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            ToggleKind.CAMERA -> Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
+            ToggleKind.DO_NOT_DISTURB -> Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS)
+            ToggleKind.HOTSPOT, ToggleKind.DATA -> Intent(Settings.ACTION_WIRELESS_SETTINGS)
+            ToggleKind.TORCH -> Intent(Settings.ACTION_SETTINGS)
+        }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        runCatching { context.startActivity(target) }
+            .recoverCatching {
+                context.startActivity(
+                    Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
     }
     companion object {
         const val ACTION_TOGGLE = "com.example.blurwidgetdemo.action.TOGGLE"

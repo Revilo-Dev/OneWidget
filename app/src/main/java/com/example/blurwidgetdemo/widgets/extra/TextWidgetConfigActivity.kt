@@ -16,6 +16,8 @@ class TextWidgetConfigActivity : AppCompatActivity() {
         val input = EditText(this).apply { hint = "Enter widget text"; setText(getSharedPreferences("widget_prefs", MODE_PRIVATE).getString("text_widget_$id", "")) }
         AlertDialog.Builder(this).setTitle("Text widget").setView(input).setNegativeButton("Cancel") { _, _ -> finish() }.setPositiveButton("Save") { _, _ ->
             getSharedPreferences("widget_prefs", MODE_PRIVATE).edit().putString("text_widget_$id", input.text.toString().ifBlank { "Text" }).apply()
+            com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+                .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.TEXT, id)
             TextWidget().onUpdate(this, AppWidgetManager.getInstance(this), intArrayOf(id))
             setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)); finish()
         }.show()

@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 
 class SamsungBrowserSearchWidget : NamedActionWidget() {
     override val title = "Search"
     override val icon = R.drawable.samsung_browser
+    override val studioWidgetId = UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH
     override val layoutResource = R.layout.widget_google_search
 
     override fun action(context: Context, id: Int): Intent {
@@ -25,6 +27,7 @@ class SamsungBrowserSearchWidget : NamedActionWidget() {
 class YouTubeSearchWidget : NamedActionWidget() {
     override val title = "Search YouTube"
     override val icon = R.drawable.youtube
+    override val studioWidgetId = UniversalWidgetIds.YOUTUBE_SEARCH
     override val layoutResource = R.layout.widget_google_search
 
     override fun action(context: Context, id: Int): Intent {

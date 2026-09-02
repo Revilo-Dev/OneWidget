@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_clock_background">
+
+    <FrameLayout
+        android:id="@+id/calendar_title_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_gravity="center">
+        <TextView
+            android:id="@+id/calendar_title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="#FFFFFFFF"
+            android:textSize="23sp"
+            android:textStyle="bold"
+            tools:text="Team catch-up" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/calendar_details_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:layout_gravity="center">
+        <TextView
+            android:id="@+id/calendar_details"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="#E6FFFFFF"
+            android:textSize="14sp"
+            tools:text="Starts 10:00 AM" />
+    </FrameLayout>
+</FrameLayout>

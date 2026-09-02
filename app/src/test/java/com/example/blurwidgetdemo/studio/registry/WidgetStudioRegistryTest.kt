@@ -2,6 +2,10 @@ package com.example.blurwidgetdemo.studio.registry
 
 import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
 import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
+import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
+import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
 import com.example.blurwidgetdemo.studio.model.WidgetVariantId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -10,11 +14,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WidgetStudioRegistryTest {
-    @Test fun `default registry contains clock and battery only`() {
+    @Test fun `default registry contains all onboarded widgets only`() {
         val registry = DefaultWidgetStudioRegistry.create()
-        assertEquals(2, registry.registeredWidgetCount())
+        assertEquals(4 + UniversalWidgetStudioCatalog.definitions.size, registry.registeredWidgetCount())
         assertEquals("Digital Clock", registry.descriptor(ClockStudioDescriptor.WIDGET_ID)?.displayName)
         assertEquals("Battery", registry.descriptor(BatteryStudioDescriptor.WIDGET_ID)?.displayName)
+        assertEquals("Storage", registry.descriptor(StorageStudioDescriptor.WIDGET_ID)?.displayName)
+        assertEquals("Next event", registry.descriptor(CalendarStudioDescriptor.WIDGET_ID)?.displayName)
+        assertEquals("Weather", registry.descriptor(UniversalWidgetIds.WEATHER)?.displayName)
+        assertEquals("Media player", registry.descriptor(UniversalWidgetIds.MEDIA_PLAYER)?.displayName)
+        assertEquals(
+            "Lock-screen message 2×1",
+            registry.descriptor(UniversalWidgetIds.LOCKSCREEN_MESSAGE_WIDE)?.displayName
+        )
         assertNull(registry.descriptor("unsupported_widget"))
     }
 

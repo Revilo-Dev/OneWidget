@@ -265,6 +265,14 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
                 fillPaint.color = Color.rgb(49, 206, 138)
                 val fill = RectF(bounds.left, bounds.top, bounds.left + bounds.width() * 0.72f, bounds.bottom)
                 canvas.drawRoundRect(fill, min(radius, fill.width() / 2f), min(radius, fill.width() / 2f), fillPaint)
+                elementDescriptor?.sampleText?.let { text ->
+                    textPaint.textSize = min(12f, bounds.height() * 0.42f)
+                    val baseline = bounds.centerY() - (textPaint.ascent() + textPaint.descent()) / 2f
+                    canvas.save()
+                    canvas.clipRect(bounds)
+                    canvas.drawText(text, bounds.centerX(), baseline, textPaint)
+                    canvas.restore()
+                }
             }
             StudioElementVisualType.PANEL,
             StudioElementVisualType.SHAPE -> Unit

@@ -3,8 +3,11 @@ package com.example.blurwidgetdemo.widgets.extra
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.blurwidgetdemo.R
 
 class StepCounterConfigActivity : AppCompatActivity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID
@@ -13,8 +16,30 @@ class StepCounterConfigActivity : AppCompatActivity() {
         setResult(RESULT_CANCELED)
         widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
         if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) { finish(); return }
-        if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) finishConfiguration() else requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), 1)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+            checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED
+        ) {
+            finishConfiguration()
+        } else {
+            requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), PERMISSION_REQUEST)
+        }
     }
-    override fun onRequestPermissionsResult(code: Int, permissions: Array<out String>, results: IntArray) { super.onRequestPermissionsResult(code, permissions, results); if (results.firstOrNull() == PackageManager.PERMISSION_GRANTED) finishConfiguration() else finish() }
-    private fun finishConfiguration() { StepCounterWidget().onUpdate(this, AppWidgetManager.getInstance(this), intArrayOf(widgetId)); setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)); finish() }
+    override fun onRequestPermissionsResult(code: Int, permissions: Array<out String>, results: IntArray) {
+        super.onRequestPermissionsResult(code, permissions, results)
+        if (results.firstOrNull() != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, R.string.steps_permission_denied, Toast.LENGTH_LONG).show()
+        }
+        finishConfiguration()
+    }
+    private fun finishConfiguration() {
+        com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+            .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.STEP_COUNTER, widgetId)
+        StepCounterWidget().onUpdate(this, AppWidgetManager.getInstance(this), intArrayOf(widgetId))
+        setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
+        finish()
+    }
+
+    private companion object {
+        const val PERMISSION_REQUEST = 1
+    }
 }

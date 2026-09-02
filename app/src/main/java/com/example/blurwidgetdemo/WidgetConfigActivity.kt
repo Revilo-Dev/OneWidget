@@ -24,6 +24,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.picker3.app.SeslColorPickerDialog
 import dev.oneuiproject.oneui.widget.CardItemView
@@ -33,9 +34,15 @@ import kotlin.math.roundToInt
 import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
 import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
 import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
+import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
+import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
 import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
 import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
+import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
+import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStyle
 import com.example.blurwidgetdemo.widgets.clock.ClockWidgetPreferences
 import com.example.blurwidgetdemo.widgets.clock.ClockTimeFormat
 import com.example.blurwidgetdemo.widgets.clock.ClockTextAlignment
@@ -57,8 +64,19 @@ import com.example.blurwidgetdemo.studio.preview.RemoteViewsPreviewHost
 import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
 import com.example.blurwidgetdemo.widgets.WidgetAppearance
 import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
+import com.example.blurwidgetdemo.widgets.calendar.CalendarConfigPreviewMapper
+import com.example.blurwidgetdemo.widgets.calendar.CalendarRemoteViewsRenderer
+import com.example.blurwidgetdemo.widgets.calendar.CalendarRenderMode
+import com.example.blurwidgetdemo.widgets.calendar.CalendarRenderSize
+import com.example.blurwidgetdemo.widgets.calendar.CalendarSamples
+import com.example.blurwidgetdemo.widgets.calendar.CalendarWidgetConfigurationRepository
 import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
 import com.example.blurwidgetdemo.widgets.storage.StorageWidget
+import com.example.blurwidgetdemo.widgets.storage.StorageConfigPreviewMapper
+import com.example.blurwidgetdemo.widgets.storage.StorageRemoteViewsRenderer
+import com.example.blurwidgetdemo.widgets.storage.StorageRenderMode
+import com.example.blurwidgetdemo.widgets.storage.StorageRenderSize
+import com.example.blurwidgetdemo.widgets.storage.StorageWidgetConfigurationRepository
 import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
 import com.example.blurwidgetdemo.widgets.extra.ToggleKind
 import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
@@ -307,7 +325,7 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun setupBatteryOptions() {
         if (!isBatteryWidget()) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT), 102)
+            requestPermissions(arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT), BLUETOOTH_PERMISSION_REQUEST)
         }
         findViewById<View>(R.id.battery_options_section).visibility = View.VISIBLE
         val deviceItem = findViewById<CardItemView>(R.id.battery_compact_device)
@@ -330,7 +348,9 @@ class WidgetConfigActivity : AppCompatActivity() {
 
     private fun setupCalendarOptions() {
         if (!isCalendarWidget() && !isCalendarDisplayWidget()) return
-        requestPermissionIfNeeded(android.Manifest.permission.READ_CALENDAR, 101)
+        if (isCalendarWidget()) {
+            requestPermissionIfNeeded(android.Manifest.permission.READ_CALENDAR, CALENDAR_PERMISSION_REQUEST)
+        }
         if (!isCalendarDisplayWidget()) return
         findViewById<View>(R.id.calendar_options_section).visibility = View.VISIBLE
         val item = findViewById<CardItemView>(R.id.calendar_accent_colour)
@@ -348,7 +368,10 @@ class WidgetConfigActivity : AppCompatActivity() {
         if (!isWeatherWidget()) return
         if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
             checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), 102)
+            requestPermissions(
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION),
+                WEATHER_PERMISSION_REQUEST
+            )
         }
         findViewById<View>(R.id.weather_options_section).visibility = View.VISIBLE
         val unit = findViewById<CardItemView>(R.id.weather_temperature_unit)
@@ -367,6 +390,17 @@ class WidgetConfigActivity : AppCompatActivity() {
 
     private fun requestPermissionIfNeeded(permission: String, requestCode: Int) {
         if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) requestPermissions(arrayOf(permission), requestCode)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CALENDAR_PERMISSION_REQUEST &&
+            grantResults.firstOrNull() != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, R.string.calendar_permission_denied_config, Toast.LENGTH_LONG).show()
+        } else if (requestCode == WEATHER_PERMISSION_REQUEST &&
+            grantResults.none { it == PackageManager.PERMISSION_GRANTED }) {
+            Toast.makeText(this, R.string.weather_permission_denied_config, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setupClockOptions() {
@@ -605,7 +639,10 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun renderPreviewWidget(previewWidget: FrameLayout, spec: PreviewSpec) {
-        if (previewWidget is RemoteViewsPreviewHost && (isClockWidget() || isBatteryWidget())) {
+        if (previewWidget is RemoteViewsPreviewHost &&
+            (isClockWidget() || isBatteryWidget() || isStorageWidget() || isCalendarWidget() ||
+                UniversalWidgetStudioCatalog.definitionForProvider(providerClassName()) != null)
+        ) {
             previewWidget.background = null
             previewWidget.clipToOutline = false
             val remoteViews = if (isClockWidget()) {
@@ -628,7 +665,7 @@ class WidgetConfigActivity : AppCompatActivity() {
                     design = null,
                     mode = ClockRenderMode.CONFIG_PREVIEW
                 ).remoteViews
-            } else {
+            } else if (isBatteryWidget()) {
                 val configuration = BatteryConfigPreviewMapper.map(
                     base = BatteryWidgetConfigurationRepository.load(this, appWidgetId),
                     surfaceColor = currentTintColor(),
@@ -646,6 +683,65 @@ class WidgetConfigActivity : AppCompatActivity() {
                     design = null,
                     mode = BatteryRenderMode.CONFIG_PREVIEW
                 ).remoteViews
+            } else if (isStorageWidget()) {
+                val configuration = StorageConfigPreviewMapper.map(
+                    base = StorageWidgetConfigurationRepository.load(this, appWidgetId),
+                    surfaceColor = currentTintColor(),
+                    textColor = currentTextColor,
+                    textScalePercent = currentTextScale,
+                    alignment = currentTextAlignment,
+                    compactMetric = storageCompactMetric,
+                    hideData = storageHideData,
+                    showTitles = storageShowTitles,
+                    detailMode = storageDetailMode,
+                    colors = storageColors
+                )
+                StorageRemoteViewsRenderer.build(
+                    context = this,
+                    configuration = configuration,
+                    runtimeData = StorageWidget.runtimeData(this),
+                    renderSize = StorageRenderSize(
+                        spec.minWidthDp.toFloat(),
+                        spec.minHeightDp.toFloat()
+                    ),
+                    design = null,
+                    mode = StorageRenderMode.CONFIG_PREVIEW
+                ).remoteViews
+            } else if (isCalendarWidget()) {
+                val configuration = CalendarConfigPreviewMapper.map(
+                    base = CalendarWidgetConfigurationRepository.load(this, appWidgetId),
+                    surfaceColor = currentTintColor(),
+                    textColor = currentTextColor,
+                    textScalePercent = currentTextScale,
+                    alignment = currentTextAlignment
+                )
+                CalendarRemoteViewsRenderer.build(
+                    context = this,
+                    configuration = configuration,
+                    content = CalendarSamples.event(),
+                    renderSize = CalendarRenderSize(
+                        spec.minWidthDp.toFloat(),
+                        spec.minHeightDp.toFloat()
+                    ),
+                    design = null,
+                    mode = CalendarRenderMode.CONFIG_PREVIEW
+                ).remoteViews
+            } else {
+                requireNotNull(
+                    UniversalProductionWidgetRenderer.buildConfigurationSample(
+                        context = this,
+                        providerClassName = providerClassName(),
+                        renderSize = WidgetRenderSize(
+                            spec.minWidthDp.toFloat(),
+                            spec.minHeightDp.toFloat()
+                        ),
+                        style = UniversalWidgetStyle(
+                            surfaceColor = currentTintColor(),
+                            textColor = currentTextColor,
+                            textScalePercent = currentTextScale
+                        )
+                    )
+                )
             }
             val applyResult = previewWidget.show(remoteViews)
             val status = findViewById<TextView>(R.id.config_preview_status)
@@ -834,7 +930,9 @@ class WidgetConfigActivity : AppCompatActivity() {
         val productionWidgetId = when (provider) {
             DigitalClockWidget::class.java.name -> ClockStudioDescriptor.WIDGET_ID
             BatteryWidget::class.java.name -> BatteryStudioDescriptor.WIDGET_ID
-            else -> null
+            StorageWidget::class.java.name -> StorageStudioDescriptor.WIDGET_ID
+            CalendarWidget::class.java.name -> CalendarStudioDescriptor.WIDGET_ID
+            else -> UniversalWidgetStudioCatalog.definitionForProvider(provider)?.widgetId
         }
         productionWidgetId?.let { widgetId ->
             val hasPromotion = when (
@@ -929,7 +1027,6 @@ class WidgetConfigActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun WallpaperManager.appliedSystemWallpaperDrawable(): Drawable? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return null
         return getWallpaperFile(WallpaperManager.FLAG_SYSTEM)?.use { descriptor ->
             BitmapFactory.decodeFileDescriptor(descriptor.fileDescriptor)?.let { BitmapDrawable(resources, it) }
         }
@@ -980,6 +1077,9 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun opacityPercent(alpha: Int): Int = (alpha.coerceIn(0, 255) / 255f * 100f).roundToInt()
 
     companion object {
+        private const val CALENDAR_PERMISSION_REQUEST = 101
+        private const val WEATHER_PERMISSION_REQUEST = 102
+        private const val BLUETOOTH_PERMISSION_REQUEST = 103
         private const val MIN_BLUR_ALPHA = 1
         private const val MAX_BLUR_ALPHA = 254
         private const val MAX_RECENT_COLORS = 6

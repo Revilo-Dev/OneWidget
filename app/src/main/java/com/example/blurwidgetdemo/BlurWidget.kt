@@ -9,6 +9,10 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.widget.RemoteViews
+import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
+import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 
 class BlurWidget : AppWidgetProvider() {
 
@@ -34,6 +38,7 @@ class BlurWidget : AppWidgetProvider() {
             editor.remove("tint_alpha_$id")
         }
         editor.apply()
+        UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.GLASS, appWidgetIds)
     }
 
     companion object {
@@ -62,7 +67,16 @@ class BlurWidget : AppWidgetProvider() {
                 else -> R.layout.widget_blur
             }
 
-            val views = RemoteViews(context.packageName, layoutResource).apply {
+            val promoted = UniversalProductionWidgetRenderer.buildIfPromoted(
+                context,
+                appWidgetManager,
+                appWidgetId,
+                UniversalWidgetIds.GLASS,
+                UniversalWidgetContent(
+                    mapOf("universal.surface" to UniversalElementContent())
+                )
+            )
+            val views = promoted ?: RemoteViews(context.packageName, layoutResource).apply {
                 // One UI Home looks for this exact view ID and composites its native
                 // wallpaper blur beneath the translucent colour on compatible devices.
                 // Keep the layout root tagged @android:id/background and its alpha 1..254.

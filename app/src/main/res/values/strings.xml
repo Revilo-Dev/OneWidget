@@ -265,8 +265,10 @@
     <string name="studio_verify_padding">Padding</string>
     <string name="studio_verify_alignment">Alignment</string>
     <string name="studio_verify_blur">Native One UI blur</string>
-    <string name="studio_verify_progress">Battery progress rendering</string>
-    <string name="studio_verify_radius">Battery progress corner radius</string>
+    <string name="studio_verify_progress">Progress rendering</string>
+    <string name="studio_verify_radius">Progress corner radius</string>
+    <string name="studio_verify_content_states">Runtime content, empty, permission, and unavailable states</string>
+    <string name="studio_verify_system_ui_host">Samsung lock screen, AOD, and cover host rendering</string>
     <string name="studio_verify_snapshot">Snapshot parity</string>
     <string name="studio_verification_failed">Mark this verification as failed</string>
     <string name="studio_verification_notes">Compatibility notes</string>
@@ -288,4 +290,7 @@
     <string name="studio_revert_confirm_title">Activate production design?</string>
     <string name="studio_revert_legacy">Legacy built-in design</string>
     <string name="studio_revert_success">Production design selection updated</string>
+    <string name="calendar_permission_denied_config">Without Calendar access, the widget will show a permission-needed state.</string>
+    <string name="weather_permission_denied_config">Without location access, the widget will show a permission-needed state.</string>
+    <string name="steps_permission_denied">Without activity access, the widget will show a permission-needed state.</string>
 </resources>

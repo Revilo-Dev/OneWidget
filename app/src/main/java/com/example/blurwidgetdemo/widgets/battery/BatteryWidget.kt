@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.ComponentName
@@ -119,7 +118,8 @@ class BatteryWidget : AppWidgetProvider() {
         @SuppressLint("MissingPermission")
         private fun bluetoothDevices(context: Context): List<Device> {
             if (Build.VERSION.SDK_INT >= 31 && context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) return emptyList()
-            val pairedDevices: Set<android.bluetooth.BluetoothDevice> = BluetoothAdapter.getDefaultAdapter()?.bondedDevices ?: emptySet()
+            val pairedDevices: Set<android.bluetooth.BluetoothDevice> =
+                context.getSystemService(BluetoothManager::class.java).adapter?.bondedDevices ?: emptySet()
             val connectedAddresses = connectedBluetoothAddresses(context)
             return pairedDevices.mapNotNull { device ->
                 if (device.address !in connectedAddresses) return@mapNotNull null
@@ -135,7 +135,7 @@ class BatteryWidget : AppWidgetProvider() {
                 BluetoothProfile.A2DP,
                 BluetoothProfile.HEADSET,
                 BluetoothProfile.GATT,
-                if (Build.VERSION.SDK_INT >= 26) BluetoothProfile.HEARING_AID else null,
+                if (Build.VERSION.SDK_INT >= 29) BluetoothProfile.HEARING_AID else null,
                 if (Build.VERSION.SDK_INT >= 33) BluetoothProfile.LE_AUDIO else null
             ).filterNotNull().flatMap { profile -> manager.getConnectedDevices(profile) }
                 .mapTo(mutableSetOf()) { it.address }

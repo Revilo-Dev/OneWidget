@@ -13,6 +13,11 @@ import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
+import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -21,6 +26,9 @@ import java.util.Locale
 class HydrationWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
+
+    override fun onDeleted(context: Context, ids: IntArray) =
+        UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.HYDRATION, ids)
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -59,7 +67,30 @@ class HydrationWidget : AppWidgetProvider() {
             val count = currentCount(prefs, id)
             val compact = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
             val layout = if (compact) R.layout.widget_hydration_compact else R.layout.widget_hydration_large
-            RemoteViews(context.packageName, layout).apply {
+            val minusAction = action(context, id, ACTION_REMOVE_WATER, 0)
+            val plusAction = action(context, id, ACTION_ADD_WATER, 1)
+            val promoted = UniversalProductionWidgetRenderer.buildIfPromoted(
+                context,
+                manager,
+                id,
+                UniversalWidgetIds.HYDRATION,
+                UniversalWidgetContent(
+                    mapOf(
+                        "universal.icon" to UniversalElementContent(imageResId = R.drawable.ic_water_glass),
+                        "universal.count" to UniversalElementContent(text = count.toString()),
+                        "universal.goal" to UniversalElementContent(text = "of $DAILY_GOAL glasses"),
+                        "universal.minus" to UniversalElementContent(imageResId = R.drawable.minus),
+                        "universal.plus" to UniversalElementContent(imageResId = R.drawable.plus)
+                    )
+                ),
+                UniversalWidgetActions(
+                    elements = mapOf(
+                        "universal.minus" to minusAction,
+                        "universal.plus" to plusAction
+                    )
+                )
+            )
+            val views = promoted ?: RemoteViews(context.packageName, layout).apply {
                 BlurWidget.applySurfaceTint(this, prefs, id)
                 setImageViewResource(R.id.hydration_icon, R.drawable.ic_water_glass)
                 setImageViewResource(R.id.hydration_minus, R.drawable.minus)
@@ -67,9 +98,10 @@ class HydrationWidget : AppWidgetProvider() {
                 setTextViewText(R.id.hydration_count, count.toString())
                 setTextViewText(R.id.hydration_goal, "of $DAILY_GOAL glasses")
                 setViewVisibility(R.id.hydration_goal, if (compact) View.GONE else View.VISIBLE)
-                setOnClickPendingIntent(R.id.hydration_minus, action(context, id, ACTION_REMOVE_WATER, 0))
-                setOnClickPendingIntent(R.id.hydration_plus, action(context, id, ACTION_ADD_WATER, 1))
-            }.also { manager.updateAppWidget(id, it) }
+                setOnClickPendingIntent(R.id.hydration_minus, minusAction)
+                setOnClickPendingIntent(R.id.hydration_plus, plusAction)
+            }
+            manager.updateAppWidget(id, views)
             scheduleReset(context, id)
         }
 
@@ -121,6 +153,8 @@ class HydrationConfigActivity : AppCompatActivity() {
         val prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
         TimePickerDialog(this, { _, hour, minute ->
             HydrationWidget.saveResetTime(this, id, hour, minute)
+            com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+                .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.HYDRATION, id)
             HydrationWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
             setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
             finish()

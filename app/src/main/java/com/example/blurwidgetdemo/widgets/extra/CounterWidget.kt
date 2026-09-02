@@ -13,6 +13,11 @@ import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
+import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
+import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -22,6 +27,9 @@ import java.util.Locale
 class CounterWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
+
+    override fun onDeleted(context: Context, ids: IntArray) =
+        UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.COUNTER, ids)
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -51,19 +59,51 @@ class CounterWidget : AppWidgetProvider() {
             val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
             val value = currentValue(prefs, id)
             val compact = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
-            RemoteViews(context.packageName, if (compact) R.layout.widget_counter_compact else R.layout.widget_counter_large).apply {
+            val reset = "Clears ${formatReset(prefs.getInt("counter_hour_$id", 0), prefs.getInt("counter_minute_$id", 0))}"
+            val minusAction = action(context, id, ACTION_REMOVE, 0)
+            val plusAction = action(context, id, ACTION_ADD, 1)
+            val rootAction = PendingIntent.getActivity(
+                context,
+                id,
+                Intent(context, CounterConfigActivity::class.java).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val promoted = UniversalProductionWidgetRenderer.buildIfPromoted(
+                context,
+                manager,
+                id,
+                UniversalWidgetIds.COUNTER,
+                UniversalWidgetContent(
+                    mapOf(
+                        "universal.minus" to UniversalElementContent(imageResId = R.drawable.minus),
+                        "universal.value" to UniversalElementContent(text = value.toString()),
+                        "universal.plus" to UniversalElementContent(imageResId = R.drawable.plus),
+                        "universal.reset" to UniversalElementContent(text = reset)
+                    )
+                ),
+                UniversalWidgetActions(
+                    root = rootAction,
+                    elements = mapOf(
+                        "universal.minus" to minusAction,
+                        "universal.plus" to plusAction
+                    )
+                )
+            )
+            val views = promoted ?: RemoteViews(
+                context.packageName,
+                if (compact) R.layout.widget_counter_compact else R.layout.widget_counter_large
+            ).apply {
                 BlurWidget.applySurfaceTint(this, prefs, id)
                 setTextViewText(R.id.counter_value, value.toString())
-                setTextViewText(R.id.counter_reset, "Clears ${formatReset(prefs.getInt("counter_hour_$id", 0), prefs.getInt("counter_minute_$id", 0))}")
+                setTextViewText(R.id.counter_reset, reset)
                 setViewVisibility(R.id.counter_reset, if (compact) View.GONE else View.VISIBLE)
                 setImageViewResource(R.id.counter_minus, R.drawable.minus)
                 setImageViewResource(R.id.counter_plus, R.drawable.plus)
-                setOnClickPendingIntent(R.id.counter_minus, action(context, id, ACTION_REMOVE, 0))
-                setOnClickPendingIntent(R.id.counter_plus, action(context, id, ACTION_ADD, 1))
-                setOnClickPendingIntent(android.R.id.background, PendingIntent.getActivity(context, id,
-                    Intent(context, CounterConfigActivity::class.java).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-            }.also { manager.updateAppWidget(id, it) }
+                setOnClickPendingIntent(R.id.counter_minus, minusAction)
+                setOnClickPendingIntent(R.id.counter_plus, plusAction)
+                setOnClickPendingIntent(android.R.id.background, rootAction)
+            }
+            manager.updateAppWidget(id, views)
             scheduleReset(context, id)
         }
 
@@ -128,6 +168,8 @@ class CounterConfigActivity : AppCompatActivity() {
         val now = Calendar.getInstance()
         TimePickerDialog(this, { _, hour, minute ->
             CounterWidget.saveResetTime(this, id, hour, minute)
+            com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+                .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.COUNTER, id)
             CounterWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
             setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
             finish()
