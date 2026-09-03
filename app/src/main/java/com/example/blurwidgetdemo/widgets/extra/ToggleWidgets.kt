@@ -54,8 +54,9 @@ class ToggleWidget : AppWidgetProvider() {
         val layout = if (width <= 100 && height <= 100) R.layout.widget_toggle_square else R.layout.widget_toggle
         val enabled = isEnabled(context, id, kind)
         val accent = prefs.getInt("toggle_accent_$id", 0xFF387AFF.toInt())
-        val overlay = if (width <= 100 && height <= 100) {
-            ToggleOverlayRenderer.renderCircle(width, height, accent)
+        val singleCell = width <= 100 && height <= 100
+        val overlay = if (singleCell) {
+            ToggleOverlayRenderer.renderCircle(width, height, if (enabled) accent else 0x667F8798)
         } else {
             ToggleOverlayRenderer.renderFill(width, height, accent)
         }
@@ -80,8 +81,12 @@ class ToggleWidget : AppWidgetProvider() {
             UniversalWidgetActions(root = rootAction)
         )
         val views = promoted ?: RemoteViews(context.packageName, layout).apply {
-            BlurWidget.applySurfaceTint(this, prefs, id)
-            setViewVisibility(R.id.toggle_circle, if (enabled) View.VISIBLE else View.GONE)
+            if (singleCell) {
+                setInt(android.R.id.background, "setBackgroundResource", android.R.color.transparent)
+            } else {
+                BlurWidget.applySurfaceTint(this, prefs, id)
+            }
+            setViewVisibility(R.id.toggle_circle, View.VISIBLE)
             setImageViewBitmap(R.id.toggle_circle, overlay)
             setImageViewResource(R.id.toggle_icon, kind.icon)
             setOnClickPendingIntent(android.R.id.background, rootAction)

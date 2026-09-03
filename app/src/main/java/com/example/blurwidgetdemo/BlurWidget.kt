@@ -147,6 +147,12 @@ class BlurWidget : AppWidgetProvider() {
             applySurfaceColor(views, tintColor(prefs, appWidgetId))
         }
 
+        /** Media artwork is clipped by its own matching outline, so it must not add a second edge stroke. */
+        fun applyMediaSurfaceTint(views: RemoteViews, prefs: SharedPreferences, appWidgetId: Int) {
+            views.setInt(android.R.id.background, "setBackgroundResource", R.drawable.widget_clock_background_no_border)
+            applySurfaceColor(views, tintColor(prefs, appWidgetId))
+        }
+
         fun applySurfaceColor(views: RemoteViews, color: Int) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 views.setColorStateList(android.R.id.background, "setBackgroundTintList", ColorStateList.valueOf(color))

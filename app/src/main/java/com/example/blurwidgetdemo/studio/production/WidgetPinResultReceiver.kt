@@ -5,8 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.studio.registry.DefaultWidgetStudioRegistry
 import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+import com.example.blurwidgetdemo.widgets.WidgetInitialSizeSpec
 
 /** Initializes production mode at the launcher-confirmed creation boundary. */
 class WidgetPinResultReceiver : BroadcastReceiver() {
@@ -24,6 +26,14 @@ class WidgetPinResultReceiver : BroadcastReceiver() {
             return
         }
         UniversalProductionWidgetRenderer.initializeConfiguredWidget(context, widgetId, appWidgetId)
+        val requestedColumns = intent.getIntExtra(WidgetInitialSizeSpec.EXTRA_COLUMNS, 0)
+        val requestedRows = intent.getIntExtra(WidgetInitialSizeSpec.EXTRA_ROWS, 0)
+        if (requestedColumns > 0 && requestedRows > 0) {
+            context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putString("requested_size_$appWidgetId", "${requestedColumns}x${requestedRows}")
+                .apply()
+        }
         if (providerClassName?.startsWith(context.packageName) == true) {
             context.sendBroadcast(
                 Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)

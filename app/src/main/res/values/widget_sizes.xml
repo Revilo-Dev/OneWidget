@@ -85,4 +85,13 @@
         <item>3x2</item>
         <item>4x2</item>
     </string-array>
+    <string-array name="widget_support_cell_sizes_search">
+        <item>4x1</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_media">
+        <item>2x1</item>
+        <item>2x2</item>
+        <item>3x2</item>
+        <item>4x2</item>
+    </string-array>
 </resources>

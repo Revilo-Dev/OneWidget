@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.WidgetPreviewEnvironment
 
 data class RemoteViewsApplyResult(
     val successful: Boolean,
@@ -33,6 +34,10 @@ open class RemoteViewsPreviewHost @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
+    init {
+        WidgetPreviewEnvironment.apply(this)
+    }
+
     fun show(remoteViews: RemoteViews): RemoteViewsApplyResult {
         removeAllViews()
         return when (val attempt = RemoteViewsApplyGuard.run { remoteViews.apply(context, this) }) {

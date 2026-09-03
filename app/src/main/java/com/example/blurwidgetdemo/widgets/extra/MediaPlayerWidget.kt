@@ -149,7 +149,7 @@ class MediaPlayerWidget : AppWidgetProvider() {
                     else -> R.layout.widget_media_compact
                 }
             ).apply {
-                BlurWidget.applySurfaceTint(this, prefs, id)
+                BlurWidget.applyMediaSurfaceTint(this, prefs, id)
                 setTextViewText(R.id.media_title, title)
                 setTextViewText(R.id.media_artist, artist)
                 setViewVisibility(R.id.media_artist, if (large) View.VISIBLE else View.GONE)

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Search adapts from an icon-sized tile through multi-row search cards. -->
+<!-- New selection starts as 4×1; min-resize remains smaller for launcher-driven resizing. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:initialLayout="@layout/widget_google_search" android:previewLayout="@layout/widget_google_search"
-    android:minWidth="72dp" android:minHeight="76dp" android:minResizeWidth="72dp" android:minResizeHeight="76dp"
+    android:minWidth="342dp" android:minHeight="76dp" android:minResizeWidth="72dp" android:minResizeHeight="76dp"
     android:maxResizeWidth="1000dp" android:maxResizeHeight="1000dp" android:resizeMode="horizontal|vertical"
-    android:targetCellWidth="1" android:targetCellHeight="1" android:widgetCategory="home_screen"
+    android:targetCellWidth="4" android:targetCellHeight="1" android:widgetCategory="home_screen"
     android:configure="com.example.blurwidgetdemo.WidgetConfigActivity" android:widgetFeatures="reconfigurable"
-    app:previewLayoutSmall="@layout/widget_google_search" app:previewLayoutWideSmall="@layout/widget_google_search" app:previewLayoutMedium="@layout/widget_google_search" app:previewLayoutLarge="@layout/widget_google_search"
-    app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large" />
+    app:previewLayoutWideSmall="@layout/widget_google_search"
+    app:widgetStyle="colorful" app:widgetSize="wideSmall" />

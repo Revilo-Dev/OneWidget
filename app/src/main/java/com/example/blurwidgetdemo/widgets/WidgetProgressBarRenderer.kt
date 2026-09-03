@@ -7,6 +7,7 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
+import android.graphics.PorterDuff
 import android.graphics.Shader
 import kotlin.math.roundToInt
 
@@ -23,7 +24,7 @@ object WidgetProgressBarRenderer {
         cornerRadiusFraction: Float = 0.5f
     ): Bitmap {
         val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
+        val canvas = transparentCanvas(bitmap)
         val radius = HEIGHT * cornerRadiusFraction.coerceIn(0f, 0.5f)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.color = Color.argb(54, 255, 255, 255)
@@ -59,7 +60,7 @@ object WidgetProgressBarRenderer {
     fun render(progress: Int, colours: IntArray, cornerRadiusFraction: Float = 0.5f): Bitmap {
         require(colours.size >= 2) { "A gradient needs at least two colours" }
         val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
+        val canvas = transparentCanvas(bitmap)
         val radius = HEIGHT * cornerRadiusFraction.coerceIn(0f, 0.5f)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.argb(54, 255, 255, 255) }
         canvas.drawRoundRect(0f, 0f, WIDTH.toFloat(), HEIGHT.toFloat(), radius, radius, paint)
@@ -90,7 +91,7 @@ object WidgetProgressBarRenderer {
         val mediaWidth = width.coerceAtLeast(1)
         val mediaHeight = height.coerceAtLeast(1)
         val bitmap = Bitmap.createBitmap(mediaWidth, mediaHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
+        val canvas = transparentCanvas(bitmap)
         val radius = mediaHeight / 2f
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         val track = Path().apply {
@@ -153,5 +154,9 @@ object WidgetProgressBarRenderer {
     ) {
         val fillRadius = minOf(radius, fillWidth / 2f)
         canvas.drawRoundRect(0f, 0f, fillWidth, height, fillRadius, fillRadius, paint)
+    }
+
+    private fun transparentCanvas(bitmap: Bitmap): Canvas = Canvas(bitmap).also {
+        it.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
     }
 }

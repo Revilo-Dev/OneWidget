@@ -56,6 +56,7 @@ import com.example.blurwidgetdemo.widgets.extra.YouTubeSearchWidget
 import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
 import com.example.blurwidgetdemo.widgets.storage.StorageWidget
 import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
+import com.example.blurwidgetdemo.widgets.WidgetInitialSizeSpec
 import dev.oneuiproject.oneui.widget.RoundedLinearLayout
 
 /** A launcher-like list that previews the same layouts supplied to the widget host. */
@@ -117,7 +118,7 @@ class MainActivity : AppCompatActivity() {
     private fun pickerCategories() = listOf(
         PickerCategory("Glass", R.drawable.category_blur, listOf(widget(
             "Glass", R.drawable.ic_home_24, BlurWidget::class.java,
-            sizes("1 × 1" to R.layout.widget_preview_square, "2 × 1" to R.layout.widget_preview_strip,
+            sizes("2 × 1" to R.layout.widget_preview_strip,
                 "2 × 2" to R.layout.widget_preview_square, "4 × 2" to R.layout.widget_preview_large,
                 "4 × 4" to R.layout.widget_preview_large, "4 × 5" to R.layout.widget_preview_large),
             studioWidgetId = UniversalWidgetIds.GLASS
@@ -125,35 +126,34 @@ class MainActivity : AppCompatActivity() {
         PickerCategory("Clock", R.drawable.category_clock, listOf(
             widget(
             "Digital clock", R.drawable.time, DigitalClockWidget::class.java,
-            sizes("1 × 1" to R.layout.widget_digital_clock_compact_clock_stamp,
-                "2 × 1" to R.layout.widget_digital_clock_compact_clock_stamp,
+            sizes("2 × 1" to R.layout.widget_digital_clock_compact_clock_stamp,
                 "3 × 2" to R.layout.widget_digital_clock_medium_clock_stamp,
                 "4 × 2" to R.layout.widget_digital_clock_large_clock_stamp,
                 "4 × 4" to R.layout.widget_digital_clock_large_clock_stamp),
             studioWidgetId = ClockStudioDescriptor.WIDGET_ID
             ),
             widget("Alarm", R.drawable.category_clock, AlarmWidget::class.java,
-                sizes("1 × 1" to R.layout.widget_alarm_compact, "2 × 1" to R.layout.widget_alarm_compact, "3 × 2" to R.layout.widget_alarm_large,
+                sizes("2 × 1" to R.layout.widget_alarm_compact, "3 × 2" to R.layout.widget_alarm_large,
                     "4 × 2" to R.layout.widget_alarm_large),
                 studioWidgetId = UniversalWidgetIds.ALARM)
         )),
         PickerCategory("Battery", R.drawable.category_battery, listOf(widget(
             "Battery", R.drawable.battery, BatteryWidget::class.java,
-            sizes("1 × 1" to R.layout.widget_battery_compact, "2 × 1" to R.layout.widget_battery_compact,
+            sizes("2 × 1" to R.layout.widget_battery_compact,
                 "3 × 1" to R.layout.widget_battery_compact, "4 × 1" to R.layout.widget_battery_compact,
                 "2 × 2" to R.layout.widget_battery_large, "4 × 2" to R.layout.widget_battery_large),
             studioWidgetId = BatteryStudioDescriptor.WIDGET_ID
         ))),
         PickerCategory("Weather", R.drawable.category_weather, listOf(widget(
             "Weather", R.drawable.weather_sunny, WeatherWidget::class.java,
-            sizes("1 × 1" to R.layout.widget_weather_compact, "2 × 1" to R.layout.widget_weather_compact,
+            sizes("2 × 1" to R.layout.widget_weather_compact,
                 "3 × 1" to R.layout.widget_weather_compact, "4 × 1" to R.layout.widget_weather_compact,
                 "2 × 2" to R.layout.widget_weather_large, "4 × 2" to R.layout.widget_weather_large),
             studioWidgetId = UniversalWidgetIds.WEATHER
         ))),
         PickerCategory("Calendar", R.drawable.category_calander, listOf(
             widget("Next event", R.drawable.calendar_today, CalendarWidget::class.java,
-                sizes("1 × 1" to R.layout.widget_calendar_compact, "2 × 1" to R.layout.widget_calendar_compact,
+                sizes("2 × 1" to R.layout.widget_calendar_compact,
                     "3 × 1" to R.layout.widget_calendar_compact, "4 × 1" to R.layout.widget_calendar_compact,
                     "2 × 2" to R.layout.widget_calendar_large, "4 × 2" to R.layout.widget_calendar_large),
                 studioWidgetId = CalendarStudioDescriptor.WIDGET_ID),
@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
         )),
         PickerCategory("Storage", R.drawable.category_storage, listOf(widget(
             "Storage", R.drawable.manage_storage, StorageWidget::class.java,
-            sizes("1 × 1" to R.layout.widget_storage_compact, "2 × 1" to R.layout.widget_storage_compact,
+            sizes("2 × 1" to R.layout.widget_storage_compact,
                 "3 × 1" to R.layout.widget_storage_compact, "4 × 1" to R.layout.widget_storage_compact,
                 "2 × 2" to R.layout.widget_storage_large, "4 × 2" to R.layout.widget_storage_large),
             studioWidgetId = StorageStudioDescriptor.WIDGET_ID
@@ -171,19 +171,22 @@ class MainActivity : AppCompatActivity() {
         PickerCategory("Health", R.drawable.category_health, listOf(
             stepCounterWidget(),
             widget("Hydration", R.drawable.water_drop, HydrationWidget::class.java,
-                sizes("1 × 1" to R.layout.widget_hydration_compact, "2 × 1" to R.layout.widget_hydration_compact,
+                sizes("2 × 1" to R.layout.widget_hydration_compact,
                     "3 × 1" to R.layout.widget_hydration_compact, "4 × 1" to R.layout.widget_hydration_compact,
                     "2 × 2" to R.layout.widget_hydration_large, "4 × 2" to R.layout.widget_hydration_large),
                 studioWidgetId = UniversalWidgetIds.HYDRATION)
         )),
         PickerCategory("Search", R.drawable.category_search, listOf(
-            actionWidget("Google Search", R.drawable.google, GoogleSearchWidget::class.java, 4, UniversalWidgetIds.GOOGLE_SEARCH),
-            actionWidget("Samsung Browser search", R.drawable.samsung_browser, SamsungBrowserSearchWidget::class.java, 4, UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH),
-            actionWidget("YouTube search", R.drawable.youtube, YouTubeSearchWidget::class.java, 4, UniversalWidgetIds.YOUTUBE_SEARCH)
+            widget("Google Search", R.drawable.google, GoogleSearchWidget::class.java,
+                sizes("4 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.GOOGLE_SEARCH),
+            widget("Samsung Browser search", R.drawable.samsung_browser, SamsungBrowserSearchWidget::class.java,
+                sizes("4 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH),
+            widget("YouTube search", R.drawable.youtube, YouTubeSearchWidget::class.java,
+                sizes("4 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.YOUTUBE_SEARCH)
         )),
         PickerCategory("Media player", R.drawable.category_media, listOf(
             widget("Media player", R.drawable.music_alt, MediaPlayerWidget::class.java,
-                sizes("1 × 1" to R.layout.widget_media_square, "2 × 1" to R.layout.widget_media_compact, "2 × 2" to R.layout.widget_media_large,
+                sizes("2 × 1" to R.layout.widget_media_compact, "2 × 2" to R.layout.widget_media_large,
                     "3 × 2" to R.layout.widget_media_large, "4 × 2" to R.layout.widget_media_large),
                 studioWidgetId = UniversalWidgetIds.MEDIA_PLAYER)
         )),
@@ -191,7 +194,7 @@ class MainActivity : AppCompatActivity() {
             actionWidget("Open app", R.drawable.phone, OpenAppWidget::class.java, 4, UniversalWidgetIds.OPEN_APP),
             actionWidget("Text", R.drawable.text_check_on, TextWidget::class.java, 4, UniversalWidgetIds.TEXT),
             widget("Counter", R.drawable.list_add, CounterWidget::class.java,
-                sizes("1 × 1" to R.layout.widget_counter_square, "2 × 1" to R.layout.widget_counter_compact, "2 × 2" to R.layout.widget_counter_large,
+                sizes("2 × 1" to R.layout.widget_counter_compact, "2 × 2" to R.layout.widget_counter_large,
                     "4 × 2" to R.layout.widget_counter_large),
                 studioWidgetId = UniversalWidgetIds.COUNTER)
         )),
@@ -210,9 +213,9 @@ class MainActivity : AppCompatActivity() {
         studioWidgetId: String
     ): PickerWidget {
         val variants = if (count == 2) {
-            sizes("1 × 1" to R.layout.widget_action, "2 × 1" to R.layout.widget_action)
+            sizes("2 × 1" to R.layout.widget_action)
         } else {
-            sizes("1 × 1" to R.layout.widget_action, "2 × 1" to R.layout.widget_action,
+            sizes("2 × 1" to R.layout.widget_action,
                 "2 × 2" to R.layout.widget_action, "4 × 2" to R.layout.widget_action)
         }
         return widget(title, icon, provider, variants, studioWidgetId = studioWidgetId)
@@ -221,7 +224,6 @@ class MainActivity : AppCompatActivity() {
     private fun stepCounterWidget() = widget(
         "Step counter", R.drawable.running, StepCounterWidget::class.java,
         sizes(
-            "1 × 1" to R.layout.widget_steps_compact,
             "2 × 1" to R.layout.widget_steps_compact,
             "3 × 1" to R.layout.widget_steps_compact,
             "4 × 1" to R.layout.widget_steps_compact,
@@ -498,7 +500,9 @@ class MainActivity : AppCompatActivity() {
                     (provider.name.hashCode() * 31 + size.columns * 7 + size.rows),
                     Intent(this, WidgetPinResultReceiver::class.java)
                         .putExtra(WidgetPinResultReceiver.EXTRA_STUDIO_WIDGET_ID, widgetId)
-                        .putExtra(WidgetPinResultReceiver.EXTRA_PROVIDER_CLASS_NAME, provider.name),
+                        .putExtra(WidgetPinResultReceiver.EXTRA_PROVIDER_CLASS_NAME, provider.name)
+                        .putExtra(WidgetInitialSizeSpec.EXTRA_COLUMNS, size.spec.columns)
+                        .putExtra(WidgetInitialSizeSpec.EXTRA_ROWS, size.spec.rows),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 )
             }
@@ -566,6 +570,7 @@ class MainActivity : AppCompatActivity() {
         fun sizeCountText() = "${sizes.size} size${if (sizes.size == 1) "" else "s"}"
     }
     private data class WidgetSize(val label: String, val layout: Int, val columns: Int, val rows: Int) {
+        val spec = WidgetInitialSizeSpec.grid(columns, rows)
         val isSingleCell get() = columns == 1 && rows == 1
         val isWideSingleRow get() = columns == 2 && rows == 1
     }

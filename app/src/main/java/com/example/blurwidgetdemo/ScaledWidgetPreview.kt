@@ -1,7 +1,6 @@
 package com.example.blurwidgetdemo
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -30,8 +29,7 @@ class ScaledWidgetPreview(
     private val surface = FrameLayout(context)
     private var contentScale = 1f
     private val preview = LayoutInflater.from(context).inflate(layout, surface, false).also { view ->
-        // The app picker intentionally has no extra blurred or rounded surface over the widget.
-        view.setBackgroundColor(Color.TRANSPARENT)
+        // Preserve the widget's own transparent/blur-compatible background on a neutral stage.
         view.foreground = null
         bindBaseContent(view, title, icon)
         surface.addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
@@ -43,11 +41,7 @@ class ScaledWidgetPreview(
         preview.isClickable = false
         preview.isFocusable = false
         preview.findViewById<View>(android.R.id.background)?.isClickable = false
-        surface.addView(ImageView(context).apply {
-            setImageResource(previewSurface(columns, rows))
-            scaleType = ImageView.ScaleType.FIT_XY
-            contentDescription = null
-        }, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        WidgetPreviewEnvironment.apply(surface)
         addView(surface)
         setPadding(0, dp(4), 0, dp(4))
     }
@@ -172,14 +166,6 @@ class ScaledWidgetPreview(
     }
 
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
-
-    private fun previewSurface(columns: Int, rows: Int) = when {
-        columns == 1 && rows == 1 -> R.drawable._2x2_widget_large_dark
-        rows == 1 && columns <= 2 -> R.drawable._2x1_widget_large_dark
-        rows == 1 -> R.drawable._4x1_widget_large_dark
-        columns <= 2 -> R.drawable._2x2_widget_large_dark
-        else -> R.drawable._4x2_widget_large_dark
-    }
 
     private companion object {
         const val TOGGLE_ACCENT = 0xFF387AFF.toInt()
