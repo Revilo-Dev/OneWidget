@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -147,20 +148,34 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
         canvas.translate(originX, originY)
         canvas.scale(scale, scale)
         drawCanvasSurface(canvas)
-        canvas.clipRect(0f, 0f, canvasSize.widthDp, canvasSize.heightDp)
+        val radius = min(WIDGET_CORNER_RADIUS_DP, min(canvasSize.widthDp, canvasSize.heightDp) / 2f)
+        canvas.clipToWidgetBounds(
+            RectF(0f, 0f, canvasSize.widthDp, canvasSize.heightDp),
+            radius
+        )
         drawGuides(canvas)
         drawElements(canvas)
         canvas.restore()
     }
 
     private fun drawCanvasSurface(canvas: Canvas) {
+        val surface = RectF(0f, 0f, canvasSize.widthDp, canvasSize.heightDp)
+        val radius = min(WIDGET_CORNER_RADIUS_DP, min(canvasSize.widthDp, canvasSize.heightDp) / 2f)
         fillPaint.color = Color.rgb(65, 68, 75)
-        canvas.drawRect(0f, 0f, canvasSize.widthDp, canvasSize.heightDp, fillPaint)
+        canvas.drawRoundRect(surface, radius, radius, fillPaint)
+        canvas.save()
+        canvas.clipToWidgetBounds(surface, radius)
         drawCellGaps(canvas)
         strokePaint.color = Color.rgb(190, 194, 201)
         strokePaint.strokeWidth = 1.5f / zoom
         strokePaint.pathEffect = null
-        canvas.drawRect(0f, 0f, canvasSize.widthDp, canvasSize.heightDp, strokePaint)
+        canvas.drawRoundRect(surface, radius, radius, strokePaint)
+        canvas.restore()
+    }
+
+    private fun Canvas.clipToWidgetBounds(bounds: RectF, radius: Float) {
+        val path = Path().apply { addRoundRect(bounds, radius, radius, Path.Direction.CW) }
+        clipPath(path)
     }
 
     private fun drawCellGaps(canvas: Canvas) {
@@ -438,5 +453,6 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
         private const val FIT_PADDING_PX = 32f
         private const val MINIMUM_VISIBLE_DP = 16f
         private const val GUIDE_TOLERANCE_DP = 4f
+        private const val WIDGET_CORNER_RADIUS_DP = 28f
     }
 }

@@ -74,11 +74,13 @@
         <item>4x2</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_counter">
+        <item>1x1</item>
         <item>2x1</item>
         <item>2x2</item>
         <item>4x2</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_alarm">
+        <item>1x1</item>
         <item>2x1</item>
         <item>3x2</item>
         <item>4x2</item>

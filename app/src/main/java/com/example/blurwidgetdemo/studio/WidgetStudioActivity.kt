@@ -706,11 +706,17 @@ class WidgetStudioActivity : AppCompatActivity() {
             )
         )
         val applyResult = actualPreview.show(result.remoteViews)
+        if (!applyResult.successful) {
+            // A malformed or host-incompatible RemoteViews tree must not leave Studio blank.
+            // The editable canvas uses the same resolved design and remains a dependable preview.
+            actualPreview.visibility = View.GONE
+            canvas.visibility = View.VISIBLE
+        }
         renderDiagnosticsSummary.text = buildString {
             append("widget=${design.widgetId}  variant=${variant.stableId}\n")
             append("size=${canvasSize.widthDp.toInt()}x${canvasSize.heightDp.toInt()}dp  ")
             append("api=${android.os.Build.VERSION.SDK_INT}  apply=")
-            append(if (applyResult.successful) "SUCCESS" else "FAILED")
+            append(if (applyResult.successful) "SUCCESS" else "FALLBACK_CANVAS")
             append("  diagnostics=${result.diagnostics.size}")
         }
         renderDiagnosticsDetails.text = buildString {
@@ -1207,7 +1213,9 @@ class WidgetStudioActivity : AppCompatActivity() {
         visibilitySection.visibility = sectionVisibility(sections.visibility)
         positionSection.visibility = sectionVisibility(sections.position)
         sizeSection.visibility = sectionVisibility(sections.size)
-        paddingSection.visibility = sectionVisibility(sections.padding)
+        // Padding remains part of saved designs for compatibility, but content is now positioned
+        // against the clipped widget canvas instead of exposing a separate padding zone.
+        paddingSection.visibility = View.GONE
         alignmentSection.visibility = sectionVisibility(sections.alignment)
         cornerRadiusSection.visibility = sectionVisibility(sections.cornerRadius)
         resetElementButton.isEnabled = element != null

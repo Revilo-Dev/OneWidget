@@ -6,7 +6,11 @@ import android.appwidget.AppWidgetProvider
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.location.LocationManager
+import android.net.Uri
 import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
@@ -102,6 +106,8 @@ class ToggleWidget : AppWidgetProvider() {
             context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
                 .getString("toggle_kind_$id", null)
         )
+        if (kind == ToggleKind.TORCH && toggleTorch(context, id)) return
+        if (kind == ToggleKind.DO_NOT_DISTURB && toggleDoNotDisturb(context)) return
         val target = when (kind) {
             ToggleKind.DARK_MODE -> Intent(Settings.ACTION_DISPLAY_SETTINGS)
             ToggleKind.WIFI -> if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
@@ -112,9 +118,14 @@ class ToggleWidget : AppWidgetProvider() {
             ToggleKind.BLUETOOTH -> Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
             ToggleKind.LOCATION -> Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             ToggleKind.CAMERA -> Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
-            ToggleKind.DO_NOT_DISTURB -> Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS)
-            ToggleKind.HOTSPOT, ToggleKind.DATA -> Intent(Settings.ACTION_WIRELESS_SETTINGS)
-            ToggleKind.TORCH -> Intent(Settings.ACTION_SETTINGS)
+            ToggleKind.DO_NOT_DISTURB -> Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+            ToggleKind.DATA -> if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            } else {
+                Intent(Settings.ACTION_WIRELESS_SETTINGS)
+            }
+            ToggleKind.HOTSPOT -> Intent("android.settings.TETHER_SETTINGS")
+            ToggleKind.TORCH -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         runCatching { context.startActivity(target) }
             .recoverCatching {
@@ -122,6 +133,42 @@ class ToggleWidget : AppWidgetProvider() {
                     Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 )
             }
+    }
+
+    private fun toggleDoNotDisturb(context: Context): Boolean {
+        val manager = context.getSystemService(android.app.NotificationManager::class.java)
+        if (!manager.isNotificationPolicyAccessGranted) return false
+        return runCatching {
+            val enabled = manager.currentInterruptionFilter != android.app.NotificationManager.INTERRUPTION_FILTER_ALL
+            manager.setInterruptionFilter(
+                if (enabled) android.app.NotificationManager.INTERRUPTION_FILTER_ALL
+                else android.app.NotificationManager.INTERRUPTION_FILTER_PRIORITY
+            )
+            true
+        }.getOrDefault(false)
+    }
+
+    private fun toggleTorch(context: Context, id: Int): Boolean {
+        if (context.checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            context.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(Uri.fromParts("package", context.packageName, null))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            return true
+        }
+        return runCatching {
+            val manager = context.getSystemService(CameraManager::class.java)
+            val cameraId = manager.cameraIdList.firstOrNull { candidate ->
+                manager.getCameraCharacteristics(candidate)
+                    .get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+            } ?: return false
+            val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
+            val enabled = !prefs.getBoolean("torch_enabled_$id", false)
+            manager.setTorchMode(cameraId, enabled)
+            prefs.edit().putBoolean("torch_enabled_$id", enabled).apply()
+            true
+        }.getOrDefault(false)
     }
     companion object {
         const val ACTION_TOGGLE = "com.example.blurwidgetdemo.action.TOGGLE"

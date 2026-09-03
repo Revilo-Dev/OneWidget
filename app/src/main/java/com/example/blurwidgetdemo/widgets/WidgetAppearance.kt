@@ -20,9 +20,6 @@ object WidgetAppearance {
     fun alignment(prefs: SharedPreferences, id: Int) = Alignment.fromPreference(prefs.getString("text_alignment_$id", null))
     fun bordersEnabled(prefs: SharedPreferences) = prefs.getBoolean(GLOBAL_BORDERS, true)
     fun gradientsEnabled(prefs: SharedPreferences) = prefs.getBoolean(GLOBAL_GRADIENTS, true)
-    /**
-     * Widget roots already use the shared rounded glass surface. Do not paint a second foreground
-     * outline over it: that foreground is rectangular on several launchers and clips the corners.
-     */
+    /** Widget borders are part of the rounded root drawable, never a rectangular foreground. */
     fun applyBorder(views: RemoteViews, prefs: SharedPreferences) = Unit
 }

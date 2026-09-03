@@ -63,9 +63,15 @@ class CalendarDisplayWidget : AppWidgetProvider() {
                 setOnClickPendingIntent(android.R.id.background, rootAction)
                 setTextViewText(R.id.month_title, month)
                 setTextColor(R.id.month_title, color); setInt(R.id.month_title, "setGravity", WidgetAppearance.alignment(prefs, id).gravity)
+                weekdays.forEach { viewId ->
+                    setTextViewText(viewId, DateFormatSymbols().shortWeekdays[week.get(Calendar.DAY_OF_WEEK)].take(1))
+                    week.add(Calendar.DAY_OF_YEAR, 1)
+                }
+                week.add(Calendar.DAY_OF_YEAR, -DAYS_IN_WEEK)
                 labels.forEach { viewId ->
                     val active = week.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
-                    setTextViewText(viewId, "${DateFormatSymbols().shortWeekdays[week.get(Calendar.DAY_OF_WEEK)].take(1)}\n${week.get(Calendar.DAY_OF_MONTH)}")
+                    val date = week.get(Calendar.DAY_OF_MONTH).toString()
+                    setTextViewText(viewId, date)
                     val weekend = week.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || week.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
                     setTextColor(viewId, if (active) Color.WHITE else if (weekend) 0xFFFD4B47.toInt() else color)
                     if (active) {
@@ -95,5 +101,11 @@ class CalendarDisplayWidget : AppWidgetProvider() {
             }
             return rows.joinToString("\n")
         }
+
+        private val weekdays = intArrayOf(
+            R.id.weekday_0, R.id.weekday_1, R.id.weekday_2, R.id.weekday_3,
+            R.id.weekday_4, R.id.weekday_5, R.id.weekday_6
+        )
+        private const val DAYS_IN_WEEK = 7
     }
 }

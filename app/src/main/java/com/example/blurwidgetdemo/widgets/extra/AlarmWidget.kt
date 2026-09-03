@@ -5,7 +5,6 @@ import android.app.TimePickerDialog
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.content.ComponentName
 import android.content.Intent
 import android.provider.AlarmClock
 import android.os.Bundle
@@ -62,7 +61,10 @@ class AlarmWidget : AppWidgetProvider() {
 
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
             val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
-            val large = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) > 100
+            val options = manager.getAppWidgetOptions(id)
+            val large = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) > 100
+            val singleCell = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 80) <= 100 &&
+                options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
             val hour = prefs.getInt("alarm_hour_$id", -1)
             val hasAlarm = hour >= 0
             val enabled = prefs.getBoolean("alarm_enabled_$id", true)
@@ -111,10 +113,16 @@ class AlarmWidget : AppWidgetProvider() {
                 setImageViewResource(R.id.alarm_toggle, R.drawable.category_clock)
                 setTextViewText(R.id.alarm_time, time)
                 setTextViewText(R.id.alarm_status, status)
-                setViewVisibility(R.id.alarm_snooze, if (large && hasAlarm && active) View.VISIBLE else View.GONE)
                 setInt(R.id.alarm_toggle, "setImageAlpha", if (active) 255 else 92)
                 setOnClickPendingIntent(R.id.alarm_toggle, toggleAction)
-                setOnClickPendingIntent(R.id.alarm_snooze, snoozeAction)
+                if (large) {
+                    setViewVisibility(R.id.alarm_snooze, if (hasAlarm && active) View.VISIBLE else View.GONE)
+                    setOnClickPendingIntent(R.id.alarm_snooze, snoozeAction)
+                } else {
+                    setImageViewResource(R.id.alarm_snooze_compact, R.drawable.alarm_snooze)
+                    setViewVisibility(R.id.alarm_snooze_compact, if (singleCell && hasAlarm && active) View.VISIBLE else View.GONE)
+                    setOnClickPendingIntent(R.id.alarm_snooze_compact, snoozeAction)
+                }
                 setOnClickPendingIntent(android.R.id.background, rootAction)
             }
             manager.updateAppWidget(id, views)
@@ -134,15 +142,13 @@ class AlarmWidget : AppWidgetProvider() {
         private fun today() = SimpleDateFormat("yyyyMMdd", Locale.US).format(java.util.Date())
 
         private fun clockPendingIntent(context: Context, id: Int): PendingIntent {
-            val samsungClock = Intent(Intent.ACTION_MAIN)
-                .addCategory(Intent.CATEGORY_LAUNCHER)
-                .setComponent(ComponentName(SAMSUNG_CLOCK_PACKAGE, SAMSUNG_CLOCK_ACTIVITY))
-            val intent = if (samsungClock.resolveActivity(context.packageManager) != null) samsungClock else Intent(AlarmClock.ACTION_SHOW_ALARMS)
-            return PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            return PendingIntent.getActivity(
+                context,
+                id,
+                Intent(AlarmClock.ACTION_SHOW_ALARMS),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
-
-        private const val SAMSUNG_CLOCK_PACKAGE = "com.sec.android.app.clockpackage"
-        private const val SAMSUNG_CLOCK_ACTIVITY = "com.sec.android.app.clockpackage.ClockPackage"
     }
 }
 

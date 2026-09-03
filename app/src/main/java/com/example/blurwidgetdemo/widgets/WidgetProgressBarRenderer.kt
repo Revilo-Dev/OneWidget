@@ -81,19 +81,28 @@ object WidgetProgressBarRenderer {
     }
 
     /** Playback progress with a bright, touch-target-like thumb at the current position. */
-    fun renderMedia(progress: Int, colour: Int): Bitmap {
-        val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
+    fun renderMedia(
+        progress: Int,
+        colour: Int,
+        width: Int = WIDTH,
+        height: Int = HEIGHT
+    ): Bitmap {
+        val mediaWidth = width.coerceAtLeast(1)
+        val mediaHeight = height.coerceAtLeast(1)
+        val bitmap = Bitmap.createBitmap(mediaWidth, mediaHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        val radius = HEIGHT / 2f
+        val radius = mediaHeight / 2f
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        val track = Path().apply { addRoundRect(0f, 0f, WIDTH.toFloat(), HEIGHT.toFloat(), radius, radius, Path.Direction.CW) }
+        val track = Path().apply {
+            addRoundRect(0f, 0f, mediaWidth.toFloat(), mediaHeight.toFloat(), radius, radius, Path.Direction.CW)
+        }
         paint.color = Color.argb(70, 255, 255, 255)
-        canvas.drawRoundRect(0f, 0f, WIDTH.toFloat(), HEIGHT.toFloat(), radius, radius, paint)
+        canvas.drawRoundRect(0f, 0f, mediaWidth.toFloat(), mediaHeight.toFloat(), radius, radius, paint)
         canvas.save()
         // Keep the fill and thumb glow inside the pill, including at 0% and 100%.
         canvas.clipPath(track)
 
-        val fillWidth = WIDTH * progress.coerceIn(0, 100) / 100f
+        val fillWidth = mediaWidth * progress.coerceIn(0, 100) / 100f
         val base = colour or 0xFF000000.toInt()
         if (fillWidth > 0f) {
             paint.shader = LinearGradient(
@@ -102,25 +111,25 @@ object WidgetProgressBarRenderer {
                 null,
                 Shader.TileMode.CLAMP
             )
-            drawFill(canvas, fillWidth, radius, paint)
+            drawFill(canvas, fillWidth, radius, paint, mediaHeight.toFloat())
             paint.shader = null
         }
 
         // Widgets cannot receive drag coordinates, but the illuminated thumb still clearly
         // communicates the current seek position and makes the bar read like a media control.
-        val thumbX = fillWidth.coerceIn(0f, WIDTH.toFloat())
+        val thumbX = fillWidth.coerceIn(0f, mediaWidth.toFloat())
         paint.shader = RadialGradient(
-            thumbX, HEIGHT / 2f, HEIGHT / 2f,
+            thumbX, mediaHeight / 2f, mediaHeight / 2f,
             intArrayOf(Color.argb(125, Color.red(base), Color.green(base), Color.blue(base)), Color.TRANSPARENT),
             floatArrayOf(0f, 1f),
             Shader.TileMode.CLAMP
         )
-        canvas.drawCircle(thumbX, HEIGHT / 2f, HEIGHT / 2f, paint)
+        canvas.drawCircle(thumbX, mediaHeight / 2f, mediaHeight / 2f, paint)
         paint.shader = null
         paint.color = lighter(base, .35f)
-        canvas.drawCircle(thumbX, HEIGHT / 2f, HEIGHT * .20f, paint)
+        canvas.drawCircle(thumbX, mediaHeight / 2f, mediaHeight * .20f, paint)
         paint.color = Color.WHITE
-        canvas.drawCircle(thumbX, HEIGHT / 2f, HEIGHT * .115f, paint)
+        canvas.drawCircle(thumbX, mediaHeight / 2f, mediaHeight * .115f, paint)
         canvas.restore()
         return bitmap
     }
@@ -135,8 +144,14 @@ object WidgetProgressBarRenderer {
     )
 
     /** Uses a half-width cap for short fills so both ends stay completely circular. */
-    private fun drawFill(canvas: Canvas, fillWidth: Float, radius: Float, paint: Paint) {
+    private fun drawFill(
+        canvas: Canvas,
+        fillWidth: Float,
+        radius: Float,
+        paint: Paint,
+        height: Float = HEIGHT.toFloat()
+    ) {
         val fillRadius = minOf(radius, fillWidth / 2f)
-        canvas.drawRoundRect(0f, 0f, fillWidth, HEIGHT.toFloat(), fillRadius, fillRadius, paint)
+        canvas.drawRoundRect(0f, 0f, fillWidth, height, fillRadius, fillRadius, paint)
     }
 }

@@ -7,9 +7,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Typeface
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.Bundle
-import android.util.SizeF
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -135,7 +133,7 @@ class MainActivity : AppCompatActivity() {
             studioWidgetId = ClockStudioDescriptor.WIDGET_ID
             ),
             widget("Alarm", R.drawable.category_clock, AlarmWidget::class.java,
-                sizes("2 × 1" to R.layout.widget_alarm_compact, "3 × 2" to R.layout.widget_alarm_large,
+                sizes("1 × 1" to R.layout.widget_alarm_compact, "2 × 1" to R.layout.widget_alarm_compact, "3 × 2" to R.layout.widget_alarm_large,
                     "4 × 2" to R.layout.widget_alarm_large),
                 studioWidgetId = UniversalWidgetIds.ALARM)
         )),
@@ -179,21 +177,21 @@ class MainActivity : AppCompatActivity() {
                 studioWidgetId = UniversalWidgetIds.HYDRATION)
         )),
         PickerCategory("Search", R.drawable.category_search, listOf(
-            actionWidget("Google Search", R.drawable.google, GoogleSearchWidget::class.java, 2, UniversalWidgetIds.GOOGLE_SEARCH),
-            actionWidget("Samsung Browser search", R.drawable.samsung_browser, SamsungBrowserSearchWidget::class.java, 2, UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH),
-            actionWidget("YouTube search", R.drawable.youtube, YouTubeSearchWidget::class.java, 2, UniversalWidgetIds.YOUTUBE_SEARCH)
+            actionWidget("Google Search", R.drawable.google, GoogleSearchWidget::class.java, 4, UniversalWidgetIds.GOOGLE_SEARCH),
+            actionWidget("Samsung Browser search", R.drawable.samsung_browser, SamsungBrowserSearchWidget::class.java, 4, UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH),
+            actionWidget("YouTube search", R.drawable.youtube, YouTubeSearchWidget::class.java, 4, UniversalWidgetIds.YOUTUBE_SEARCH)
         )),
         PickerCategory("Media player", R.drawable.category_media, listOf(
             widget("Media player", R.drawable.music_alt, MediaPlayerWidget::class.java,
-                sizes("2 × 1" to R.layout.widget_media_compact, "2 × 2" to R.layout.widget_media_large,
+                sizes("1 × 1" to R.layout.widget_media_square, "2 × 1" to R.layout.widget_media_compact, "2 × 2" to R.layout.widget_media_large,
                     "3 × 2" to R.layout.widget_media_large, "4 × 2" to R.layout.widget_media_large),
                 studioWidgetId = UniversalWidgetIds.MEDIA_PLAYER)
         )),
         PickerCategory("Other", R.drawable.category_more, listOf(
-            actionWidget("Open app", R.drawable.phone, OpenAppWidget::class.java, 2, UniversalWidgetIds.OPEN_APP),
-            actionWidget("Text", R.drawable.text_check_on, TextWidget::class.java, 2, UniversalWidgetIds.TEXT),
+            actionWidget("Open app", R.drawable.phone, OpenAppWidget::class.java, 4, UniversalWidgetIds.OPEN_APP),
+            actionWidget("Text", R.drawable.text_check_on, TextWidget::class.java, 4, UniversalWidgetIds.TEXT),
             widget("Counter", R.drawable.list_add, CounterWidget::class.java,
-                sizes("2 × 1" to R.layout.widget_counter_compact, "2 × 2" to R.layout.widget_counter_large,
+                sizes("1 × 1" to R.layout.widget_counter_square, "2 × 1" to R.layout.widget_counter_compact, "2 × 2" to R.layout.widget_counter_large,
                     "4 × 2" to R.layout.widget_counter_large),
                 studioWidgetId = UniversalWidgetIds.COUNTER)
         )),
@@ -233,7 +231,6 @@ class MainActivity : AppCompatActivity() {
     )
 
     private fun sizes(vararg definitions: Pair<String, Int>): List<WidgetSize> = definitions
-        .filterNot { it.first == "1 × 1" }
         .map { (name, layout) ->
         val parts = name.split(" × ")
         WidgetSize(name, layout, parts[0].toInt(), parts[1].toInt())
@@ -507,7 +504,7 @@ class MainActivity : AppCompatActivity() {
             }
             manager.requestPinAppWidget(
                 ComponentName(this, provider),
-                widgetOptions(size, toggleKind),
+                widgetOptions(toggleKind),
                 successCallback
             )
         } else {
@@ -518,17 +515,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Samsung Home honors these app-widget dimensions when a widget is pinned from the app. */
-    private fun widgetOptions(size: WidgetSize, toggleKind: ToggleKind?) = Bundle().apply {
-        val width = 72 + (size.columns - 1) * 90
-        val height = 76 + (size.rows - 1) * 100
-        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, width)
-        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, height)
-        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, width)
-        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, height)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, arrayListOf(SizeF(width.toFloat(), height.toFloat())))
-        }
+    /**
+     * Pinning extras must not contain host-owned sizing keys. Supplying a single min/max size
+     * makes Samsung Home treat the initially selected tile as the only permitted resize state.
+     * The provider XML and Samsung cell-size metadata are the authoritative resize contract.
+     */
+    private fun widgetOptions(toggleKind: ToggleKind?) = Bundle().apply {
         toggleKind?.let { putString(ToggleWidget.OPTION_TOGGLE_KIND, it.name) }
     }
 

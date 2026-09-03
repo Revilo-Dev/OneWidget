@@ -120,7 +120,12 @@ class ScaledWidgetPreview(
         // A preview has no live media session, so don't present a misleading fixed timestamp.
         root.findViewById<TextView>(R.id.media_time)?.visibility = View.GONE
         root.findViewById<ImageView>(R.id.media_progress)?.setImageBitmap(
-            WidgetProgressBarRenderer.renderMedia(54, 0xFF8E99FF.toInt())
+            WidgetProgressBarRenderer.renderMedia(
+                54,
+                0xFF8E99FF.toInt(),
+                (sourceWidth - dp(36)).coerceAtLeast(dp(40)),
+                dp(10)
+            )
         )
 
         root.findViewById<ImageView>(R.id.alarm_toggle)?.setImageResource(R.drawable.category_clock)

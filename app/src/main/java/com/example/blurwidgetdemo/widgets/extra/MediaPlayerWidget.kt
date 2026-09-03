@@ -15,6 +15,7 @@ import android.media.session.PlaybackState
 import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
+import android.util.LruCache
 import android.view.View
 import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
@@ -25,13 +26,20 @@ import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRend
 import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
 import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
 import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import kotlin.math.roundToInt
 
 /** Shows the active media session when notification-listener access has been enabled. */
 class MediaPlayerWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
-    override fun onDeleted(context: Context, ids: IntArray) =
+    override fun onDeleted(context: Context, ids: IntArray) {
         UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.MEDIA_PLAYER, ids)
+        val editor = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).edit()
+        ids.forEach { id ->
+            editor.remove(backgroundTrackKey(id))
+        }
+        editor.apply()
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -52,6 +60,9 @@ class MediaPlayerWidget : AppWidgetProvider() {
         private const val ACTION_PREVIOUS = "com.example.blurwidgetdemo.action.MEDIA_PREVIOUS"
         private const val ACTION_TOGGLE = "com.example.blurwidgetdemo.action.MEDIA_TOGGLE"
         private const val ACTION_NEXT = "com.example.blurwidgetdemo.action.MEDIA_NEXT"
+        private const val MEDIA_PROGRESS_HEIGHT_DP = 10f
+        private const val MEDIA_PROGRESS_RESERVED_WIDTH_DP = 106
+        private const val MAX_PROGRESS_BITMAP_WIDTH = 1_200
 
         fun updateAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
@@ -64,15 +75,25 @@ class MediaPlayerWidget : AppWidgetProvider() {
             val state = controller?.playbackState
             val metadata = controller?.metadata
             val isPlaying = state?.state == PlaybackState.STATE_PLAYING
-            val large = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) > 100
+            val options = manager.getAppWidgetOptions(id)
+            val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
+            val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80)
+            val singleCell = width <= 100 && height <= 100
+            val large = height > 100
             val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "No media"
             val artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "Nothing is playing"
             val art = artwork(metadata)
             val hasMedia = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) != null
             val duration = duration(metadata)
+            val (progressWidth, progressHeight) = progressBitmapSize(
+                width,
+                context.resources.displayMetrics.density
+            )
             val progressBitmap = WidgetProgressBarRenderer.renderMedia(
                 progress(state, metadata),
-                artworkColour(art)
+                artworkColour(art),
+                progressWidth,
+                progressHeight
             )
             val previousAction = command(context, id, ACTION_PREVIOUS, 0)
             val toggleAction = command(context, id, ACTION_TOGGLE, 1)
@@ -122,21 +143,19 @@ class MediaPlayerWidget : AppWidgetProvider() {
             )
             val views = promoted ?: RemoteViews(
                 context.packageName,
-                if (large) R.layout.widget_media_large else R.layout.widget_media_compact
+                when {
+                    singleCell -> R.layout.widget_media_square
+                    large -> R.layout.widget_media_large
+                    else -> R.layout.widget_media_compact
+                }
             ).apply {
                 BlurWidget.applySurfaceTint(this, prefs, id)
                 setTextViewText(R.id.media_title, title)
                 setTextViewText(R.id.media_artist, artist)
                 setViewVisibility(R.id.media_artist, if (large) View.VISIBLE else View.GONE)
-                art?.let {
-                    setImageViewBitmap(R.id.media_art, it)
-                    setViewVisibility(R.id.media_art, View.VISIBLE)
-                    setViewVisibility(R.id.media_idle_icon, View.GONE)
-                } ?: run {
-                    setViewVisibility(R.id.media_art, View.GONE)
-                    setImageViewResource(R.id.media_idle_icon, R.drawable.music_idle_bob)
-                    setViewVisibility(R.id.media_idle_icon, View.VISIBLE)
-                }
+                bindAnimatedBackground(this, prefs, id, metadata, art)
+                setImageViewResource(R.id.media_idle_icon, R.drawable.music_idle_bob)
+                setViewVisibility(R.id.media_idle_icon, if (art == null) View.VISIBLE else View.GONE)
                 setImageViewResource(R.id.media_previous, R.drawable.control_previous)
                 setImageViewResource(R.id.media_play_pause, if (isPlaying) R.drawable.control_pause else R.drawable.control_play)
                 setImageViewResource(R.id.media_next, R.drawable.control_next)
@@ -151,6 +170,62 @@ class MediaPlayerWidget : AppWidgetProvider() {
             }
             manager.updateAppWidget(id, views)
         }
+
+        private fun bindAnimatedBackground(
+            views: RemoteViews,
+            prefs: android.content.SharedPreferences,
+            appWidgetId: Int,
+            metadata: MediaMetadata?,
+            art: Bitmap?
+        ) {
+            val trackKey = trackKey(metadata)
+            val previousTrackKey = prefs.getString(backgroundTrackKey(appWidgetId), null)
+            // RemoteViews starts with child zero on every update. Keep that child populated
+            // so progress updates cannot replay a ViewFlipper transition or flash the surface.
+            if (art == null) {
+                views.setImageViewResource(R.id.media_art, 0)
+                views.setImageViewResource(R.id.media_art_next, 0)
+            } else {
+                views.setImageViewBitmap(R.id.media_art, art)
+                views.setImageViewBitmap(R.id.media_art_next, art)
+                val previousArt = previousTrackKey?.let(backgroundArtworkCache::get)
+                if (previousTrackKey != null && previousTrackKey != trackKey && previousArt != null) {
+                    views.setImageViewBitmap(R.id.media_art, previousArt)
+                    views.setDisplayedChild(R.id.media_background, 1)
+                }
+                backgroundArtworkCache.put(trackKey, art)
+            }
+            if (previousTrackKey != trackKey) {
+                prefs.edit().putString(backgroundTrackKey(appWidgetId), trackKey).apply()
+            }
+        }
+
+        private fun trackKey(metadata: MediaMetadata?): String = if (metadata == null) {
+            "no-media"
+        } else {
+            listOf(
+                metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID),
+                metadata.getString(MediaMetadata.METADATA_KEY_TITLE),
+                metadata.getString(MediaMetadata.METADATA_KEY_ARTIST),
+                metadata.getString(MediaMetadata.METADATA_KEY_ALBUM),
+                duration(metadata).toString()
+            ).joinToString("\u001F")
+        }
+
+        private fun progressBitmapSize(widgetWidthDp: Int, density: Float): Pair<Int, Int> {
+            val progressWidthDp = (widgetWidthDp - MEDIA_PROGRESS_RESERVED_WIDTH_DP).coerceAtLeast(40)
+            val ratio = progressWidthDp / MEDIA_PROGRESS_HEIGHT_DP
+            var height = (MEDIA_PROGRESS_HEIGHT_DP * density).roundToInt().coerceIn(10, 48)
+            var width = (height * ratio).roundToInt().coerceAtLeast(1)
+            if (width > MAX_PROGRESS_BITMAP_WIDTH) {
+                width = MAX_PROGRESS_BITMAP_WIDTH
+                height = (width / ratio).roundToInt().coerceAtLeast(2)
+            }
+            return width to height
+        }
+
+        private fun backgroundTrackKey(appWidgetId: Int) = "media_background_track_$appWidgetId"
+        private val backgroundArtworkCache = object : LruCache<String, Bitmap>(6) {}
 
         private fun activeController(context: Context): MediaController? = runCatching {
             context.getSystemService(MediaSessionManager::class.java)

@@ -307,9 +307,16 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun setupToggleOptions() {
         if (!isToggleWidget()) return
         findViewById<View>(R.id.toggle_options_section).visibility = View.VISIBLE
+        fun select(kind: ToggleKind) {
+            toggleKind = kind
+            if (kind == ToggleKind.TORCH && checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST)
+            }
+        }
+        select(toggleKind)
         findViewById<CardItemView>(R.id.toggle_type).apply {
             summary = toggleKind.label
-            setOnClickListener { AlertDialog.Builder(this@WidgetConfigActivity).setItems(ToggleKind.entries.map { it.label }.toTypedArray()) { _, which -> toggleKind = ToggleKind.entries[which]; summary = toggleKind.label; updatePreview() }.show() }
+            setOnClickListener { AlertDialog.Builder(this@WidgetConfigActivity).setItems(ToggleKind.entries.map { it.label }.toTypedArray()) { _, which -> select(ToggleKind.entries[which]); summary = toggleKind.label; updatePreview() }.show() }
         }
         val item = findViewById<CardItemView>(R.id.toggle_accent_colour)
         fun refresh() { item.summary = "#${toggleAccentColor.toUInt().toString(16).uppercase().takeLast(6)}" }
@@ -1080,6 +1087,7 @@ class WidgetConfigActivity : AppCompatActivity() {
         private const val CALENDAR_PERMISSION_REQUEST = 101
         private const val WEATHER_PERMISSION_REQUEST = 102
         private const val BLUETOOTH_PERMISSION_REQUEST = 103
+        private const val CAMERA_PERMISSION_REQUEST = 104
         private const val MIN_BLUR_ALPHA = 1
         private const val MAX_BLUR_ALPHA = 254
         private const val MAX_RECENT_COLORS = 6

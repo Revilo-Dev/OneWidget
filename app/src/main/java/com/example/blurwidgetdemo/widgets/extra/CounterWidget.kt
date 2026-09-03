@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
@@ -58,8 +59,11 @@ class CounterWidget : AppWidgetProvider() {
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
             val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
             val value = currentValue(prefs, id)
-            val compact = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
+            val options = manager.getAppWidgetOptions(id)
+            val compact = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
+            val singleCell = compact && options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180) <= 100
             val reset = "Clears ${formatReset(prefs.getInt("counter_hour_$id", 0), prefs.getInt("counter_minute_$id", 0))}"
+            val showClearText = prefs.getBoolean("counter_show_clear_$id", true)
             val minusAction = action(context, id, ACTION_REMOVE, 0)
             val plusAction = action(context, id, ACTION_ADD, 1)
             val rootAction = PendingIntent.getActivity(
@@ -78,7 +82,7 @@ class CounterWidget : AppWidgetProvider() {
                         "universal.minus" to UniversalElementContent(imageResId = R.drawable.minus),
                         "universal.value" to UniversalElementContent(text = value.toString()),
                         "universal.plus" to UniversalElementContent(imageResId = R.drawable.plus),
-                        "universal.reset" to UniversalElementContent(text = reset)
+                        "universal.reset" to UniversalElementContent(text = reset, visible = showClearText)
                     )
                 ),
                 UniversalWidgetActions(
@@ -91,12 +95,16 @@ class CounterWidget : AppWidgetProvider() {
             )
             val views = promoted ?: RemoteViews(
                 context.packageName,
-                if (compact) R.layout.widget_counter_compact else R.layout.widget_counter_large
+                when {
+                    singleCell -> R.layout.widget_counter_square
+                    compact -> R.layout.widget_counter_compact
+                    else -> R.layout.widget_counter_large
+                }
             ).apply {
                 BlurWidget.applySurfaceTint(this, prefs, id)
                 setTextViewText(R.id.counter_value, value.toString())
                 setTextViewText(R.id.counter_reset, reset)
-                setViewVisibility(R.id.counter_reset, if (compact) View.GONE else View.VISIBLE)
+                setViewVisibility(R.id.counter_reset, if (!compact && showClearText) View.VISIBLE else View.GONE)
                 setImageViewResource(R.id.counter_minus, R.drawable.minus)
                 setImageViewResource(R.id.counter_plus, R.drawable.plus)
                 setOnClickPendingIntent(R.id.counter_minus, minusAction)
@@ -165,18 +173,49 @@ class CounterConfigActivity : AppCompatActivity() {
         setResult(RESULT_CANCELED)
         id = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
         if (id == AppWidgetManager.INVALID_APPWIDGET_ID) { finish(); return }
-        val now = Calendar.getInstance()
-        TimePickerDialog(this, { _, hour, minute ->
-            CounterWidget.saveResetTime(this, id, hour, minute)
-            com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-                .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.COUNTER, id)
-            CounterWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
-            setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
-            finish()
-        }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false).apply {
-            setTitle("Choose daily clear time")
-            setOnCancelListener { finish() }
-            show()
-        }
+        showSettings()
+    }
+
+    private fun showSettings() {
+        val prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
+        val hour = prefs.getInt("counter_hour_$id", 0)
+        val minute = prefs.getInt("counter_minute_$id", 0)
+        val showClearText = prefs.getBoolean("counter_show_clear_$id", true)
+        AlertDialog.Builder(this)
+            .setTitle("Counter settings")
+            .setItems(arrayOf(
+                "Daily clear time · ${formatTime(hour, minute)}",
+                "Show clear-at text · ${if (showClearText) "On" else "Off"}",
+                "Done"
+            )) { _, which ->
+                when (which) {
+                    0 -> TimePickerDialog(this, { _, selectedHour, selectedMinute ->
+                        CounterWidget.saveResetTime(this, id, selectedHour, selectedMinute)
+                        updateWidget(); showSettings()
+                    }, hour, minute, false).show()
+                    1 -> {
+                        prefs.edit().putBoolean("counter_show_clear_$id", !showClearText).apply()
+                        updateWidget(); showSettings()
+                    }
+                    else -> finishConfiguration()
+                }
+            }
+            .setOnCancelListener { finish() }
+            .show()
+    }
+
+    private fun updateWidget() = CounterWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
+
+    private fun finishConfiguration() {
+        com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
+            .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.COUNTER, id)
+        updateWidget()
+        setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
+        finish()
+    }
+
+    private fun formatTime(hour: Int, minute: Int) = Calendar.getInstance().run {
+        set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute)
+        SimpleDateFormat("h:mm a", Locale.getDefault()).format(time)
     }
 }

@@ -13,6 +13,7 @@ import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
 import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
 import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
 import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import com.example.blurwidgetdemo.widgets.WidgetAppearance
 
 class BlurWidget : AppWidgetProvider() {
 
@@ -134,6 +135,15 @@ class BlurWidget : AppWidgetProvider() {
 
         /** Keeps the rounded XML drawable in place while the glass colour changes. */
         fun applySurfaceTint(views: RemoteViews, prefs: SharedPreferences, appWidgetId: Int) {
+            views.setInt(
+                android.R.id.background,
+                "setBackgroundResource",
+                if (WidgetAppearance.bordersEnabled(prefs)) {
+                    R.drawable.widget_clock_background
+                } else {
+                    R.drawable.widget_clock_background_no_border
+                }
+            )
             applySurfaceColor(views, tintColor(prefs, appWidgetId))
         }
 

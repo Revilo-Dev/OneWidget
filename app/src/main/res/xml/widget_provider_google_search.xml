@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Search stays one launcher row high but can be widened horizontally. -->
+<!-- Search adapts from an icon-sized tile through multi-row search cards. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:initialLayout="@layout/widget_google_search" android:previewLayout="@layout/widget_google_search"
     android:minWidth="72dp" android:minHeight="76dp" android:minResizeWidth="72dp" android:minResizeHeight="76dp"
-    android:maxResizeWidth="1000dp" android:maxResizeHeight="76dp" android:resizeMode="horizontal"
+    android:maxResizeWidth="1000dp" android:maxResizeHeight="1000dp" android:resizeMode="horizontal|vertical"
     android:targetCellWidth="1" android:targetCellHeight="1" android:widgetCategory="home_screen"
     android:configure="com.example.blurwidgetdemo.WidgetConfigActivity" android:widgetFeatures="reconfigurable"
-    app:previewLayoutSmall="@layout/widget_google_search" app:previewLayoutWideSmall="@layout/widget_google_search"
-    app:widgetStyle="colorful" app:widgetSize="small|wideSmall" />
+    app:previewLayoutSmall="@layout/widget_google_search" app:previewLayoutWideSmall="@layout/widget_google_search" app:previewLayoutMedium="@layout/widget_google_search" app:previewLayoutLarge="@layout/widget_google_search"
+    app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large" />

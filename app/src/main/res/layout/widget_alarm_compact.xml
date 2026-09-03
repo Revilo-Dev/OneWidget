@@ -5,5 +5,5 @@
         <TextView android:id="@+id/alarm_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFFFF" android:textSize="23sp" android:textStyle="bold" />
         <TextView android:id="@+id/alarm_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#E6FFFFFF" android:textSize="12sp" />
     </LinearLayout>
-    <TextView android:id="@+id/alarm_snooze" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <ImageView android:id="@+id/alarm_snooze_compact" android:layout_width="34dp" android:layout_height="34dp" android:layout_marginStart="8dp" android:background="@drawable/widget_round_button" android:contentDescription="Snooze for today" android:padding="7dp" android:visibility="gone" />
 </LinearLayout>
