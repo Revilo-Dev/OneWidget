@@ -117,6 +117,64 @@
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
         </LinearLayout>
 
+        <LinearLayout android:id="@+id/open_app_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Open app" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/open_app_choose_app" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="App" app:summary="Choose an app" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/open_app_label" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Label" app:summary="Use app name" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/open_app_background_image" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Background image" app:summary="None" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/open_app_icon_image" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Icon image" app:summary="Use app icon" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/text_widget_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Text widget" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/text_widget_content" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text" app:summary="Text" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/text_widget_icon" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Icon" app:summary="Default icon" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/text_widget_background_image" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Background image" app:summary="None" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/alarm_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Alarm" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/alarm_time" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Daily alarm" app:summary="Not set" app:showTopDivider="false" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/hydration_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Hydration" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/hydration_clear_time" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Daily clear time" app:summary="12:00 AM" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/hydration_goal" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Daily goal" app:summary="8 glasses" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/hydration_show_goal" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show daily goal" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/counter_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Counter" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/counter_clear_time" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Daily clear time" app:summary="12:00 AM" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/counter_show_clear" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show clear-at text" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/todo_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="To do" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/todo_items" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Items" app:summary="No items" app:showTopDivider="false" />
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/todo_clear_time" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Clear automatically" app:summary="Off" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/steps_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Step counter" />
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">
+                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/steps_permission" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Activity access" app:summary="Required to count steps" app:showTopDivider="false" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+        </LinearLayout>
+
         <LinearLayout android:id="@+id/storage_options_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
             <dev.oneuiproject.oneui.widget.Separator android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Storage" />
             <dev.oneuiproject.oneui.widget.RoundedLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:colorBackground" android:orientation="vertical">

@@ -98,12 +98,12 @@ object CalendarRemoteViewsRenderer {
     ) = with(views) {
         setTextViewText(R.id.widget_primary, content.title)
         setTextViewText(R.id.widget_secondary, content.details)
-        setViewVisibility(R.id.widget_secondary, if (compact) View.GONE else View.VISIBLE)
+        setViewVisibility(R.id.widget_secondary, View.VISIBLE)
         setTextColor(R.id.widget_primary, configuration.textColor)
-        setTextColor(R.id.widget_secondary, configuration.textColor)
+        setTextColor(R.id.widget_secondary, if (compact) 0xFFA8A8A8.toInt() else configuration.textColor)
         setInt(R.id.widget_primary, "setGravity", configuration.alignment.gravity)
         setInt(R.id.widget_secondary, "setGravity", configuration.alignment.gravity)
-        setFloat(R.id.widget_primary, "setTextSize", 23f * configuration.textScalePercent / 100f)
+        setFloat(R.id.widget_primary, "setTextSize", (if (compact) 18f else 23f) * configuration.textScalePercent / 100f)
     }
 
     private fun applyStudio(

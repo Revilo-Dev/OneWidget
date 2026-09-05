@@ -25,13 +25,13 @@ import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 
 enum class ToggleKind(val label: String, val icon: Int) {
     DATA("Mobile data", R.drawable.network_storage), DARK_MODE("Dark mode", R.drawable.dark), WIFI("Wi-Fi", R.drawable.wifi_2),
-    DO_NOT_DISTURB("Do not disturb", R.drawable.do_not_disturb), BLUETOOTH("Bluetooth", R.drawable.devices), LOCATION("Location", R.drawable.location),
-    HOTSPOT("Mobile hotspot", R.drawable.wifi_2), CAMERA("Camera", R.drawable.image), TORCH("Torch", R.drawable.flashlight);
+    DO_NOT_DISTURB("Do not disturb", R.drawable.do_not_disturb), BLUETOOTH("Bluetooth", R.drawable.bluetooth), LOCATION("Location", R.drawable.location),
+    HOTSPOT("Mobile hotspot", R.drawable.wifi_2), CAMERA("Camera", R.drawable.camera_new), TORCH("Torch", R.drawable.flashlight);
     companion object { fun from(value: String?) = entries.firstOrNull { it.name == value } ?: WIFI }
 }
 
-/** One configurable toggle widget. Resize it between the 1×1 and 1×2 variants. */
-class ToggleWidget : AppWidgetProvider() {
+/** One configurable toggle widget. Resize it horizontally between the 1×1 and 2×1 variants. */
+open class ToggleWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { render(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = render(context, manager, id)
     override fun onDeleted(context: Context, ids: IntArray) =
@@ -50,11 +50,16 @@ class ToggleWidget : AppWidgetProvider() {
         val options = manager.getAppWidgetOptions(id)
         val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 40)
         val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 40)
+        // One UI can report its physical 1x1 cell as wider than 100dp on dense home grids.
+        // The exact provider identity is authoritative when deciding circle versus pill.
+        val exactOneByOne = manager.getAppWidgetInfo(id)?.provider?.className
+            ?.endsWith(".widgets.variants.Toggle1x1Widget") == true
+        val singleCell = exactOneByOne || (width <= 100 && height <= 100)
         val kind = ToggleKind.from(prefs.getString("toggle_kind_$id", options.getString(OPTION_TOGGLE_KIND)))
-        val layout = if (width <= 100 && height <= 100) R.layout.widget_toggle_square else R.layout.widget_toggle
+        val layout = if (singleCell) R.layout.widget_toggle_square else R.layout.widget_toggle
         val enabled = isEnabled(context, id, kind)
+        val displayIcon = if (kind == ToggleKind.BLUETOOTH && !enabled) R.drawable.bluetooth_off else kind.icon
         val accent = prefs.getInt("toggle_accent_$id", 0xFF387AFF.toInt())
-        val singleCell = width <= 100 && height <= 100
         val overlay = if (singleCell) {
             ToggleOverlayRenderer.renderCircle(width, height, if (enabled) accent else 0x667F8798)
         } else {
@@ -63,7 +68,7 @@ class ToggleWidget : AppWidgetProvider() {
         val rootAction = PendingIntent.getBroadcast(
             context,
             id,
-            Intent(context, ToggleWidget::class.java).setAction(ACTION_TOGGLE)
+            Intent(context, this::class.java).setAction(ACTION_TOGGLE)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -75,20 +80,25 @@ class ToggleWidget : AppWidgetProvider() {
             UniversalWidgetContent(
                 mapOf(
                     "universal.state" to UniversalElementContent(bitmap = overlay, visible = enabled),
-                    "universal.icon" to UniversalElementContent(imageResId = kind.icon)
+                    "universal.icon" to UniversalElementContent(imageResId = displayIcon)
                 )
             ),
             UniversalWidgetActions(root = rootAction)
         )
         val views = promoted ?: RemoteViews(context.packageName, layout).apply {
-            if (singleCell) {
-                setInt(android.R.id.background, "setBackgroundResource", android.R.color.transparent)
-            } else {
-                BlurWidget.applySurfaceTint(this, prefs, id)
-            }
+            if (!singleCell) BlurWidget.applySurfaceTint(
+                this,
+                prefs,
+                id,
+                if (com.example.blurwidgetdemo.widgets.WidgetAppearance.bordersEnabled(prefs)) {
+                    R.drawable.widget_clock_background_fully_rounded
+                } else {
+                    R.drawable.widget_clock_background_fully_rounded_no_border
+                }
+            )
             setViewVisibility(R.id.toggle_circle, View.VISIBLE)
             setImageViewBitmap(R.id.toggle_circle, overlay)
-            setImageViewResource(R.id.toggle_icon, kind.icon)
+            setImageViewResource(R.id.toggle_icon, displayIcon)
             setOnClickPendingIntent(android.R.id.background, rootAction)
         }
         manager.updateAppWidget(id, views)
@@ -180,3 +190,9 @@ class ToggleWidget : AppWidgetProvider() {
         const val OPTION_TOGGLE_KIND = "com.example.blurwidgetdemo.option.TOGGLE_KIND"
     }
 }
+
+/** Legacy provider identity retained for existing V2 widgets. */
+class ToggleWidgetV2 : ToggleWidget()
+
+/** Fresh provider identity makes One UI reload the corrected tiny/small size contract. */
+class ToggleWidgetV3 : ToggleWidget()

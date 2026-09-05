@@ -14,6 +14,33 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class UniversalWidgetStudioCatalogTest {
+    @Test fun `provider lookup resolves current media and toggle aliases`() {
+        assertEquals(
+            UniversalWidgetIds.MEDIA_PLAYER,
+            UniversalWidgetStudioCatalog.definitionForProvider(
+                "com.example.blurwidgetdemo.widgets.extra.MediaPlayer3x2Widget"
+            )?.widgetId
+        )
+        assertEquals(
+            UniversalWidgetIds.TOGGLE,
+            UniversalWidgetStudioCatalog.definitionForProvider(
+                "com.example.blurwidgetdemo.widgets.extra.ToggleWidgetV3"
+            )?.widgetId
+        )
+        assertEquals(
+            UniversalWidgetIds.TOGGLE,
+            UniversalWidgetStudioCatalog.definitionForProvider(
+                "com.example.blurwidgetdemo.widgets.variants.Toggle1x1Widget"
+            )?.widgetId
+        )
+        assertEquals(
+            UniversalWidgetIds.WEATHER,
+            UniversalWidgetStudioCatalog.definitionForProvider(
+                "com.example.blurwidgetdemo.widgets.variants.Weather3x1Widget"
+            )?.widgetId
+        )
+    }
+
     @Test fun `catalog covers every remaining home and system ui widget family`() {
         assertEquals(16, UniversalWidgetStudioCatalog.definitions.size)
         assertEquals(16, UniversalWidgetStudioCatalog.widgetIds.size)

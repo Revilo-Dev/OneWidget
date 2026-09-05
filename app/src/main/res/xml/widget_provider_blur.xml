@@ -18,7 +18,7 @@
     android:description="@string/widget_description"
     android:widgetCategory="home_screen"
     android:configure="com.example.blurwidgetdemo.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable"
+    android:widgetFeatures="reconfigurable|hide_from_picker"
     app:previewLayoutSmall="@layout/widget_preview_strip"
     app:previewLayoutWideSmall="@layout/widget_preview_strip"
     app:previewLayoutMedium="@layout/widget_preview_square"

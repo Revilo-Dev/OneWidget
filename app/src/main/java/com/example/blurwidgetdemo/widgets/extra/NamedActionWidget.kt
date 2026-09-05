@@ -27,6 +27,7 @@ abstract class NamedActionWidget : AppWidgetProvider() {
     protected open fun startLabelPadding(context: Context) = 0
     protected open fun iconBitmap(context: Context, id: Int): Bitmap? = null
     protected open val layoutResource = R.layout.widget_action
+    protected open fun backgroundResource(): Int? = null
     protected open fun layoutResource(context: Context, manager: AppWidgetManager, id: Int) = layoutResource
     protected open fun applyContent(views: RemoteViews, context: Context, id: Int) {
         iconBitmap(context, id)?.let { views.setImageViewBitmap(R.id.action_icon, it) } ?: views.setImageViewResource(R.id.action_icon, icon)
@@ -53,7 +54,9 @@ abstract class NamedActionWidget : AppWidgetProvider() {
 
     private fun render(context: Context, manager: AppWidgetManager, id: Int) {
         val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
-        val iconOnly = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 80) <= 100 && manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
+        val options = manager.getAppWidgetOptions(id)
+        val iconOnly = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 80) <= 100 && options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
+        val oneRow = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
         val action = PendingIntent.getActivity(
             context,
             id,
@@ -69,7 +72,12 @@ abstract class NamedActionWidget : AppWidgetProvider() {
             actions = UniversalWidgetActions(root = action)
         )
         val views = promoted ?: RemoteViews(context.packageName, layoutResource(context, manager, id)).apply {
-            BlurWidget.applySurfaceTint(this, prefs, id)
+            BlurWidget.applySurfaceTint(
+                this,
+                prefs,
+                id,
+                backgroundResource() ?: if (oneRow) R.drawable.widget_clock_background_fully_rounded else null
+            )
             applyContent(this, context, id)
             setViewVisibility(R.id.action_label, if (iconOnly) View.GONE else View.VISIBLE)
             setTextColor(R.id.action_label, textColor(prefs, id))

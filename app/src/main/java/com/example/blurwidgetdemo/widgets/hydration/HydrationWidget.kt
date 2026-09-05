@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.WidgetConfigActivity
 import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
 import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
 import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
@@ -26,7 +27,7 @@ import java.util.Calendar
 import java.util.Locale
 
 /** Daily water counter with a per-widget scheduled clear time (midnight by default). */
-class HydrationWidget : AppWidgetProvider() {
+open class HydrationWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
 
@@ -154,7 +155,7 @@ class HydrationWidget : AppWidgetProvider() {
         private fun settingsAction(context: Context, id: Int) = PendingIntent.getActivity(
             context,
             id,
-            Intent(context, HydrationConfigActivity::class.java)
+            Intent(context, WidgetConfigActivity::class.java)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

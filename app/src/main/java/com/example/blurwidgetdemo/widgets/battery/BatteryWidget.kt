@@ -22,8 +22,9 @@ import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
 import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
+import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
 
-class BatteryWidget : AppWidgetProvider() {
+open class BatteryWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         ids.forEach { updateWidget(context, manager, it) }
         scheduleRefresh(context)
@@ -39,7 +40,11 @@ class BatteryWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         if (intent.action == ACTION_REFRESH || intent.action == Intent.ACTION_BATTERY_CHANGED || intent.action == Intent.ACTION_POWER_CONNECTED || intent.action == Intent.ACTION_POWER_DISCONNECTED || intent.action == android.bluetooth.BluetoothDevice.ACTION_ACL_CONNECTED || intent.action == android.bluetooth.BluetoothDevice.ACTION_ACL_DISCONNECTED) {
             val manager = AppWidgetManager.getInstance(context)
-            onUpdate(context, manager, manager.getAppWidgetIds(ComponentName(context, BatteryWidget::class.java)))
+            val ids = ExactWidgetVariants.providersFor(BatteryWidget::class.java)
+                .flatMap { provider -> manager.getAppWidgetIds(ComponentName(context, provider)).toList() }
+                .distinct()
+                .toIntArray()
+            onUpdate(context, manager, ids)
         }
     }
 

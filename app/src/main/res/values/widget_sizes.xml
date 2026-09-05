@@ -62,7 +62,6 @@
         <item>5x1</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_glass">
-        <item>1x1</item>
         <item>2x1</item>
         <item>2x2</item>
         <item>4x2</item>
@@ -74,13 +73,11 @@
         <item>4x2</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_counter">
-        <item>1x1</item>
         <item>2x1</item>
         <item>2x2</item>
         <item>4x2</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_alarm">
-        <item>1x1</item>
         <item>2x1</item>
         <item>3x2</item>
         <item>4x2</item>
@@ -89,9 +86,61 @@
         <item>4x1</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_media">
-        <item>2x1</item>
+        <item>3x1</item>
         <item>2x2</item>
         <item>3x2</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_toggle">
+        <item>1x1</item>
+        <item>2x1</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_weather">
+        <item>2x1</item>
+        <item>3x1</item>
+        <item>4x1</item>
+        <item>4x2</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_clock">
+        <item>2x1</item>
+        <item>3x2</item>
+        <item>4x2</item>
+        <item>4x4</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_battery">
+        <item>4x1</item>
+        <item>2x2</item>
+        <item>4x2</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_next_event">
+        <item>2x1</item>
+        <item>3x1</item>
+        <item>4x1</item>
+        <item>2x2</item>
+        <item>4x2</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_storage">
+        <item>4x1</item>
+        <item>2x2</item>
+        <item>4x2</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_hydration">
+        <item>2x1</item>
+        <item>3x1</item>
+        <item>4x1</item>
+        <item>4x2</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_steps">
+        <item>2x1</item>
+        <item>3x1</item>
+        <item>4x1</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_action">
+        <item>2x1</item>
+        <item>2x2</item>
+        <item>4x2</item>
+    </string-array>
+    <string-array name="widget_support_cell_sizes_todo">
+        <item>2x2</item>
         <item>4x2</item>
     </string-array>
 </resources>

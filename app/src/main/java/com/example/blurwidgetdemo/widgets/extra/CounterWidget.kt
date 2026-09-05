@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.WidgetConfigActivity
 import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
 import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
 import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
@@ -25,7 +26,7 @@ import java.util.Date
 import java.util.Locale
 
 /** A plain plus/minus counter that clears at a user-selected local time each day. */
-class CounterWidget : AppWidgetProvider() {
+open class CounterWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
 
@@ -69,7 +70,7 @@ class CounterWidget : AppWidgetProvider() {
             val rootAction = PendingIntent.getActivity(
                 context,
                 id,
-                Intent(context, CounterConfigActivity::class.java).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
+                Intent(context, WidgetConfigActivity::class.java).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             val promoted = UniversalProductionWidgetRenderer.buildIfPromoted(

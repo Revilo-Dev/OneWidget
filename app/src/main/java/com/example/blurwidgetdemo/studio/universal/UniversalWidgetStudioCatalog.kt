@@ -15,6 +15,7 @@ import com.example.blurwidgetdemo.studio.model.WidgetVariantSpec
 import com.example.blurwidgetdemo.studio.registry.StudioElementDescriptor
 import com.example.blurwidgetdemo.studio.registry.StudioElementVisualType
 import com.example.blurwidgetdemo.studio.registry.StudioWidgetDescriptor
+import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
 
 enum class UniversalSizeProfile { ADAPTIVE, ROW, GRID, FIXED_SMALL, FIXED_WIDE }
 
@@ -258,8 +259,18 @@ object UniversalWidgetStudioCatalog {
 
     fun definitionForProvider(className: String?): UniversalWidgetDefinition? {
         if (className == null) return null
+        val providerAliases = mapOf(
+            ".widgets.extra.MediaPlayer3x1Widget" to UniversalWidgetIds.MEDIA_PLAYER,
+            ".widgets.extra.MediaPlayer2x2Widget" to UniversalWidgetIds.MEDIA_PLAYER,
+            ".widgets.extra.MediaPlayer3x2Widget" to UniversalWidgetIds.MEDIA_PLAYER,
+            ".widgets.extra.ToggleWidgetV2" to UniversalWidgetIds.TOGGLE,
+            ".widgets.extra.ToggleWidgetV3" to UniversalWidgetIds.TOGGLE
+        )
+        providerAliases.entries.firstOrNull { (suffix, _) -> className.endsWith(suffix) }
+            ?.let { (_, widgetId) -> return definition(widgetId) }
+        val normalizedClassName = ExactWidgetVariants.baseClassName(className) ?: return null
         return definitions.firstOrNull { definition ->
-            definition.providerClassNames.any { suffix -> className.endsWith(suffix) }
+            definition.providerClassNames.any { suffix -> normalizedClassName.endsWith(suffix) }
         }
     }
 

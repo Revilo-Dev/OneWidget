@@ -100,7 +100,7 @@ object BatteryRemoteViewsRenderer {
         BlurWidget.applySurfaceColor(views, configuration.surfaceColor)
         if (design == null) {
             if (plan.compact) applyCompact(views, configuration, runtimeData)
-            else applyLarge(views, configuration, runtimeData)
+            else applyLarge(views, configuration, runtimeData, hideLastRow = plan.size.widthDp >= 300f)
         } else {
             require(design.widgetId == BatteryStudioDescriptor.WIDGET_ID) {
                 "Battery renderer received design for ${design.widgetId}"
@@ -129,7 +129,8 @@ object BatteryRemoteViewsRenderer {
     private fun applyLarge(
         views: RemoteViews,
         configuration: BatteryWidgetConfiguration,
-        runtimeData: BatteryRuntimeData
+        runtimeData: BatteryRuntimeData,
+        hideLastRow: Boolean
     ) = with(views) {
         val rows = intArrayOf(R.id.battery_row_1, R.id.battery_row_2, R.id.battery_row_3, R.id.battery_row_4)
         val labels = intArrayOf(R.id.battery_label_1, R.id.battery_label_2, R.id.battery_label_3, R.id.battery_label_4)
@@ -137,7 +138,7 @@ object BatteryRemoteViewsRenderer {
         val icons = intArrayOf(R.id.battery_icon_1, R.id.battery_icon_2, R.id.battery_icon_3, R.id.battery_icon_4)
         rows.indices.forEach { index ->
             val device = runtimeData.devices.getOrNull(index)
-            setViewVisibility(rows[index], if (device == null) View.GONE else View.VISIBLE)
+            setViewVisibility(rows[index], if (device == null || (hideLastRow && index == rows.lastIndex)) View.GONE else View.VISIBLE)
             if (device != null) {
                 setTextViewText(labels[index], "${device.label}  ${percentageText(device)}")
                 setTextColor(labels[index], configuration.textColor)

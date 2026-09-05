@@ -21,7 +21,8 @@ object ToggleOverlayRenderer {
         val width = widthDp.coerceAtLeast(1) * 4
         val height = heightDp.coerceAtLeast(1) * 4
         return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bitmap ->
-            val radius = height / 2f + 3f
+            // A radius at least as large as the height remains a capsule after host scaling.
+            val radius = height.toFloat()
             Canvas(bitmap).apply {
                 drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
                 drawRoundRect(-3f, -3f, width + 3f, height + 3f, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = colour })

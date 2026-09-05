@@ -196,6 +196,7 @@
     <string name="location_toggle_widget_label">Location</string>
     <string name="hotspot_toggle_widget_label">Mobile hotspot</string>
     <string name="camera_toggle_widget_label">Camera</string>
+    <string name="todo_widget_label">To do list</string>
     <string name="torch_toggle_widget_label">Torch</string>
     <string name="step_counter_widget_label">Step counter</string>
     <string name="text_widget_label">Text</string>

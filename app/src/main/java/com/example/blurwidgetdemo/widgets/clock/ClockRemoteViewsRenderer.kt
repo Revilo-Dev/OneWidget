@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.RemoteViews
 import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.R
+import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
 import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
 import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
 
@@ -146,6 +147,7 @@ object ClockRemoteViewsRenderer {
             ?: plan.timePatterns.format24Hour
         setCharSequence(R.id.clock_time, "setFormat12Hour", time12)
         setCharSequence(R.id.clock_time, "setFormat24Hour", time24)
+        applyTypefaceSafeClockFace(context, views, configuration, plan, snapshot?.time)
         snapshot?.let { sample ->
             val datePattern = ClockSnapshotSamples.literalPattern(sample.date)
             val dayPattern = ClockSnapshotSamples.literalPattern(sample.day)
@@ -167,6 +169,13 @@ object ClockRemoteViewsRenderer {
                 ?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
                 ?.takeIf { it in 0..100 } ?: 0
             setTextViewText(R.id.clock_battery_percent, "$percentage%")
+            setImageViewBitmap(
+                R.id.clock_battery_bar,
+                WidgetProgressBarRenderer.render(
+                    percentage,
+                    intArrayOf(0xFF3BCE8E.toInt(), 0xFF87FA6A.toInt(), 0xFF3ACD8C.toInt())
+                )
+            )
         }
         val scale = configuration.textScalePercent / 100f
         setTextViewTextSize(
@@ -195,6 +204,53 @@ object ClockRemoteViewsRenderer {
             14f * scale
         )
         setViewVisibility(R.id.clock_debug_marker, View.GONE)
+    }
+
+    private fun applyTypefaceSafeClockFace(
+        context: Context,
+        views: RemoteViews,
+        configuration: ClockWidgetConfiguration,
+        plan: ClockRenderPlan,
+        sampleTime: String?
+    ) {
+        if (plan.appliedLayoutResId !in BITMAP_CLOCK_LAYOUTS) return
+        if (configuration.font == ClockFont.SYSTEM) {
+            views.setViewVisibility(R.id.clock_time_font_bitmap, View.GONE)
+            views.setViewVisibility(R.id.clock_time, View.VISIBLE)
+            return
+        }
+        val timePattern = when (configuration.timeFormat) {
+            ClockTimeFormat.TWENTY_FOUR_HOUR -> if (configuration.showSeconds) "HH:mm:ss" else "HH:mm"
+            ClockTimeFormat.TWELVE_HOUR -> if (configuration.showSeconds) {
+                if (configuration.showAmPm) "h:mm:ss a" else "h:mm:ss"
+            } else if (configuration.showAmPm) "h:mm a" else "h:mm"
+            ClockTimeFormat.SYSTEM -> when {
+                configuration.showSeconds && configuration.showAmPm -> "h:mm:ss a"
+                configuration.showSeconds -> "h:mm:ss"
+                configuration.showAmPm -> "h:mm a"
+                else -> "h:mm"
+            }
+        }
+        val rowHeight = when (plan.category) {
+            ClockWidgetLayout.Category.COMPACT -> 42f
+            ClockWidgetLayout.Category.MEDIUM -> 60f
+            ClockWidgetLayout.Category.LARGE -> 76f
+        }
+        views.setImageViewBitmap(
+            R.id.clock_time_font_bitmap,
+            ClockFontBitmapRenderer.render(
+                context = context,
+                font = configuration.font,
+                pattern = timePattern,
+                widthDp = plan.size.widthDp,
+                heightDp = rowHeight,
+                textScalePercent = configuration.textScalePercent,
+                textColor = configuration.textColor,
+                sample = sampleTime
+            )
+        )
+        views.setViewVisibility(R.id.clock_time, View.GONE)
+        views.setViewVisibility(R.id.clock_time_font_bitmap, View.VISIBLE)
     }
 
     private fun applyProductionLayout(
@@ -353,5 +409,11 @@ object ClockRemoteViewsRenderer {
         R.id.clock_content,
         R.id.clock_time,
         R.id.clock_date
+    )
+
+    private val BITMAP_CLOCK_LAYOUTS = setOf(
+        R.layout.widget_digital_clock_compact,
+        R.layout.widget_digital_clock_medium,
+        R.layout.widget_digital_clock_large
     )
 }

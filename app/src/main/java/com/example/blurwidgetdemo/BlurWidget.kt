@@ -15,7 +15,7 @@ import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
 import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 import com.example.blurwidgetdemo.widgets.WidgetAppearance
 
-class BlurWidget : AppWidgetProvider() {
+open class BlurWidget : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         for (appWidgetId in appWidgetIds) {
@@ -134,11 +134,23 @@ class BlurWidget : AppWidgetProvider() {
             )
 
         /** Keeps the rounded XML drawable in place while the glass colour changes. */
-        fun applySurfaceTint(views: RemoteViews, prefs: SharedPreferences, appWidgetId: Int) {
+        /** ABI-compatible entry point for providers that may remain loaded during an update. */
+        fun applySurfaceTint(
+            views: RemoteViews,
+            prefs: SharedPreferences,
+            appWidgetId: Int
+        ) = applySurfaceTint(views, prefs, appWidgetId, backgroundResource = null)
+
+        fun applySurfaceTint(
+            views: RemoteViews,
+            prefs: SharedPreferences,
+            appWidgetId: Int,
+            backgroundResource: Int?
+        ) {
             views.setInt(
                 android.R.id.background,
                 "setBackgroundResource",
-                if (WidgetAppearance.bordersEnabled(prefs)) {
+                backgroundResource ?: if (WidgetAppearance.bordersEnabled(prefs)) {
                     R.drawable.widget_clock_background
                 } else {
                     R.drawable.widget_clock_background_no_border
@@ -148,8 +160,18 @@ class BlurWidget : AppWidgetProvider() {
         }
 
         /** Media artwork is clipped by its own matching outline, so it must not add a second edge stroke. */
-        fun applyMediaSurfaceTint(views: RemoteViews, prefs: SharedPreferences, appWidgetId: Int) {
-            views.setInt(android.R.id.background, "setBackgroundResource", R.drawable.widget_clock_background_no_border)
+        fun applyMediaSurfaceTint(
+            views: RemoteViews,
+            prefs: SharedPreferences,
+            appWidgetId: Int,
+            fullyRounded: Boolean
+        ) {
+            views.setInt(
+                android.R.id.background,
+                "setBackgroundResource",
+                if (fullyRounded) R.drawable.widget_clock_background_fully_rounded_no_border
+                else R.drawable.widget_clock_background_no_border
+            )
             applySurfaceColor(views, tintColor(prefs, appWidgetId))
         }
 

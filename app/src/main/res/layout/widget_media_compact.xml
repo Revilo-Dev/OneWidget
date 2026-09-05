@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_clock_background" android:clipToOutline="true">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_clock_background_fully_rounded_no_border" android:clipToOutline="true">
     <ViewFlipper android:id="@+id/media_background" android:layout_width="match_parent" android:layout_height="match_parent" android:animateFirstView="false" android:inAnimation="@anim/media_background_fade_in" android:outAnimation="@anim/media_background_fade_out">
         <ImageView android:id="@+id/media_art" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:contentDescription="@null" />
         <ImageView android:id="@+id/media_art_next" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:contentDescription="@null" />

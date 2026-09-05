@@ -27,7 +27,7 @@ import java.net.URL
 import java.util.Locale
 
 /** Current local conditions from Open-Meteo. Tapping the widget opens Samsung Weather. */
-class WeatherWidget : AppWidgetProvider() {
+open class WeatherWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         ids.forEach { render(context, manager, it) }
         val result = goAsync()

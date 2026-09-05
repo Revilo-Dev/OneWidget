@@ -2,6 +2,6 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:initialLayout="@layout/widget_steps_compact" android:previewLayout="@layout/widget_steps_compact"
     android:minWidth="72dp" android:minHeight="76dp" android:minResizeWidth="72dp" android:minResizeHeight="76dp" android:maxResizeWidth="500dp" android:maxResizeHeight="76dp"
-    android:resizeMode="horizontal" android:targetCellWidth="1" android:targetCellHeight="1" android:widgetCategory="home_screen" android:configure="com.example.blurwidgetdemo.widgets.extra.StepCounterConfigActivity" android:widgetFeatures="reconfigurable"
+    android:resizeMode="horizontal" android:targetCellWidth="1" android:targetCellHeight="1" android:widgetCategory="home_screen" android:configure="com.example.blurwidgetdemo.WidgetConfigActivity" android:widgetFeatures="reconfigurable|hide_from_picker"
     app:previewLayoutSmall="@layout/widget_steps_compact" app:previewLayoutWideSmall="@layout/widget_steps_compact" app:previewLayoutMedium="@layout/widget_steps_large" app:previewLayoutLarge="@layout/widget_steps_large" app:previewLayoutExtraLarge="@layout/widget_steps_large"
     app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large|extraLarge" />

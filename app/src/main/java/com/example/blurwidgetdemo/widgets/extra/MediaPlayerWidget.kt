@@ -29,7 +29,7 @@ import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
 import kotlin.math.roundToInt
 
 /** Shows the active media session when notification-listener access has been enabled. */
-class MediaPlayerWidget : AppWidgetProvider() {
+open class MediaPlayerWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
     override fun onDeleted(context: Context, ids: IntArray) {
@@ -66,7 +66,10 @@ class MediaPlayerWidget : AppWidgetProvider() {
 
         fun updateAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
-            manager.getAppWidgetIds(ComponentName(context, MediaPlayerWidget::class.java)).forEach { updateWidget(context, manager, it) }
+            MediaWidgetVariants.providerClasses.forEach { provider ->
+                manager.getAppWidgetIds(ComponentName(context, provider))
+                    .forEach { updateWidget(context, manager, it) }
+            }
         }
 
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
@@ -149,7 +152,7 @@ class MediaPlayerWidget : AppWidgetProvider() {
                     else -> R.layout.widget_media_compact
                 }
             ).apply {
-                BlurWidget.applyMediaSurfaceTint(this, prefs, id)
+                BlurWidget.applyMediaSurfaceTint(this, prefs, id, fullyRounded = !large)
                 setTextViewText(R.id.media_title, title)
                 setTextViewText(R.id.media_artist, artist)
                 setViewVisibility(R.id.media_artist, if (large) View.VISIBLE else View.GONE)

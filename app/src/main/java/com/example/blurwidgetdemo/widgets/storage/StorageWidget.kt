@@ -15,9 +15,10 @@ import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
 import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
+import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
 import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
 
-class StorageWidget : AppWidgetProvider() {
+open class StorageWidget : AppWidgetProvider() {
     enum class DetailMode(val label: String) {
         BOTH("Percentage and amount"),
         PERCENT("Percentage only"),
@@ -58,11 +59,11 @@ class StorageWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         if (intent.action == ACTION_REFRESH) {
             val manager = AppWidgetManager.getInstance(context)
-            onUpdate(
-                context,
-                manager,
-                manager.getAppWidgetIds(ComponentName(context, StorageWidget::class.java))
-            )
+            val ids = ExactWidgetVariants.providersFor(StorageWidget::class.java)
+                .flatMap { provider -> manager.getAppWidgetIds(ComponentName(context, provider)).toList() }
+                .distinct()
+                .toIntArray()
+            onUpdate(context, manager, ids)
         }
     }
 

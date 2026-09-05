@@ -2,6 +2,8 @@ package com.example.blurwidgetdemo.widgets.clock
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.ComponentName
 import android.content.Intent
@@ -14,9 +16,11 @@ import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignReposi
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
 import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
 
-class DigitalClockWidget : AppWidgetProvider() {
-    override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) =
+open class DigitalClockWidget : AppWidgetProvider() {
+    override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         ids.forEach { updateWidget(context, manager, it, "PROVIDER_UPDATE") }
+        scheduleTypefaceRefresh(context)
+    }
 
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) {
         updateWidget(context, manager, id, "RESIZE")
@@ -26,10 +30,13 @@ class DigitalClockWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_DATE_CHANGED, Intent.ACTION_LOCALE_CHANGED,
-            Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_TIME_CHANGED -> {
+            Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_TIME_CHANGED, ACTION_TYPEFACE_REFRESH -> {
                 val manager = AppWidgetManager.getInstance(context)
-                val ids = manager.getAppWidgetIds(ComponentName(context, DigitalClockWidget::class.java))
+                val ids = ClockWidgetVariants.providerClasses.flatMap { provider ->
+                    manager.getAppWidgetIds(ComponentName(context, provider)).asList()
+                }.toIntArray()
                 ids.forEach { updateWidget(context, manager, it, intent.action ?: "BROADCAST") }
+                scheduleTypefaceRefresh(context)
             }
         }
     }
@@ -44,6 +51,7 @@ class DigitalClockWidget : AppWidgetProvider() {
     }
 
     companion object {
+        private const val ACTION_TYPEFACE_REFRESH = "com.example.blurwidgetdemo.action.CLOCK_TYPEFACE_REFRESH"
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int, reason: String = "UPDATE") {
             val options = manager.getAppWidgetOptions(id)
             val renderSize = ClockWidgetSizeResolver.fromOptions(options)
@@ -88,6 +96,23 @@ class DigitalClockWidget : AppWidgetProvider() {
             }
             manager.updateAppWidget(id, result.remoteViews)
             if (debug) Log.d("ClockFontDebug", "updateAppWidget dispatched id=$id layout=$layoutName visibleTime=${R.id.clock_time}")
+        }
+
+        /** Bitmap font faces require a provider refresh; seconds request the next exact second. */
+        private fun scheduleTypefaceRefresh(context: Context) {
+            val manager = AppWidgetManager.getInstance(context)
+            val ids = ClockWidgetVariants.providerClasses.flatMap { provider ->
+                manager.getAppWidgetIds(ComponentName(context, provider)).asList()
+            }
+            val everySecond = ids.any { ClockWidgetConfigurationRepository.load(context, it).showSeconds }
+            val interval = if (everySecond) 1_000L else 60_000L
+            val nextRefresh = (System.currentTimeMillis() / interval + 1L) * interval
+            val intent = Intent(context, DigitalClockWidget::class.java).setAction(ACTION_TYPEFACE_REFRESH)
+            val pending = PendingIntent.getBroadcast(
+                context, 9472, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            context.getSystemService(AlarmManager::class.java)
+                .setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextRefresh + 40L, pending)
         }
     }
 }

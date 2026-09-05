@@ -21,7 +21,7 @@ import java.text.DateFormatSymbols
 import java.util.Calendar
 
 /** A One UI-inspired week view, designed to sit beside the compact next-event widget. */
-class CalendarDisplayWidget : AppWidgetProvider() {
+open class CalendarDisplayWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = updateWidget(context, manager, id)
     override fun onDeleted(context: Context, ids: IntArray) =

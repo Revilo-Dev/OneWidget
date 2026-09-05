@@ -82,7 +82,10 @@ object ClockTimeFormatResolver {
     ): ClockTimePatterns {
         val seconds = if (showSeconds) ":ss" else ""
         return when (format) {
-            ClockTimeFormat.SYSTEM -> ClockTimePatterns("h:mm${seconds} a", "HH:mm$seconds")
+            ClockTimeFormat.SYSTEM -> ClockTimePatterns(
+                if (showAmPm) "h:mm${seconds} a" else "h:mm$seconds",
+                "HH:mm$seconds"
+            )
             ClockTimeFormat.TWELVE_HOUR -> {
                 val pattern = if (showAmPm) "h:mm${seconds} a" else "h:mm$seconds"
                 ClockTimePatterns(pattern, pattern)

@@ -37,10 +37,13 @@ import com.example.blurwidgetdemo.widgets.extra.SamsungBrowserSearchWidget
 import com.example.blurwidgetdemo.widgets.extra.StepCounterWidget
 import com.example.blurwidgetdemo.widgets.extra.TextWidget
 import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
+import com.example.blurwidgetdemo.widgets.extra.ToggleWidgetV2
+import com.example.blurwidgetdemo.widgets.extra.ToggleWidgetV3
 import com.example.blurwidgetdemo.widgets.extra.YouTubeSearchWidget
 import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
 import com.example.blurwidgetdemo.widgets.storage.StorageWidget
 import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
+import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
 import dev.oneuiproject.oneui.widget.CardItemView
 import dev.oneuiproject.oneui.widget.SwitchItemView
 
@@ -242,13 +245,10 @@ class AppearanceSettingsActivity : AppCompatActivity() {
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private companion object {
-        val widgetProviders: List<Class<out AppWidgetProvider>> = listOf(
-            BlurWidget::class.java, DigitalClockWidget::class.java, BatteryWidget::class.java,
-            WeatherWidget::class.java, CalendarWidget::class.java, CalendarDisplayWidget::class.java,
-            StorageWidget::class.java, HydrationWidget::class.java, GoogleSearchWidget::class.java,
-            SamsungBrowserSearchWidget::class.java, YouTubeSearchWidget::class.java, ToggleWidget::class.java,
-            StepCounterWidget::class.java, TextWidget::class.java, OpenAppWidget::class.java,
-            AlarmWidget::class.java, CounterWidget::class.java, MediaPlayerWidget::class.java
-        )
+        val widgetProviders: List<Class<out AppWidgetProvider>> =
+            (ExactWidgetVariants.allProviderClasses + listOf(
+                ToggleWidgetV2::class.java,
+                ToggleWidgetV3::class.java
+            )).distinct()
     }
 }

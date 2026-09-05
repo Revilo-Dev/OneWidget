@@ -23,7 +23,7 @@ android {
         applicationId = "com.example.blurwidgetdemo"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
+        versionCode = 4
         versionName = "1.1.1-clock-ui"
     }
 

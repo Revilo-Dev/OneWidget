@@ -27,7 +27,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
-class StepCounterWidget : NamedActionWidget() {
+open class StepCounterWidget : NamedActionWidget() {
     override val title = "Steps"
     override val icon = R.drawable.running
     override val studioWidgetId = UniversalWidgetIds.STEP_COUNTER
@@ -84,7 +84,9 @@ class StepCounterWidget : NamedActionWidget() {
         if (!hasActivityPermission(context)) return
         val sensorManager = context.getSystemService(SensorManager::class.java)
         val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) ?: return
-        val result = goAsync()
+        // A receiver may be invoked after Android has already completed the broadcast.
+        // Do not keep a nullable PendingResult and crash later on the sensor callback.
+        val result = goAsync() ?: return
         val completed = AtomicBoolean(false)
         val handler = Handler(Looper.getMainLooper())
         val listener = object : SensorEventListener {

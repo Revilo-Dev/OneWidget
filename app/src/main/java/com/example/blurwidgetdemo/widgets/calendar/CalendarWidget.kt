@@ -9,7 +9,7 @@ import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignReposi
 import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
 import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
 
-class CalendarWidget : AppWidgetProvider() {
+open class CalendarWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) =
         ids.forEach { updateWidget(context, manager, it) }
 

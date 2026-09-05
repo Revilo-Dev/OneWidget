@@ -23,7 +23,7 @@ import java.util.Calendar
 import java.util.Locale
 
 /** Widget-local daily alarm controls. Android does not expose other apps' alarms for toggling. */
-class AlarmWidget : AppWidgetProvider() {
+open class AlarmWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
 

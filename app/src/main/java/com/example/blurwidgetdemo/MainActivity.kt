@@ -49,6 +49,7 @@ import com.example.blurwidgetdemo.widgets.extra.MediaPlayerWidget
 import com.example.blurwidgetdemo.widgets.extra.OpenAppWidget
 import com.example.blurwidgetdemo.widgets.extra.StepCounterWidget
 import com.example.blurwidgetdemo.widgets.extra.TextWidget
+import com.example.blurwidgetdemo.widgets.extra.TodoWidget
 import com.example.blurwidgetdemo.widgets.extra.SamsungBrowserSearchWidget
 import com.example.blurwidgetdemo.widgets.extra.ToggleKind
 import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
@@ -57,6 +58,7 @@ import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
 import com.example.blurwidgetdemo.widgets.storage.StorageWidget
 import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
 import com.example.blurwidgetdemo.widgets.WidgetInitialSizeSpec
+import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
 import dev.oneuiproject.oneui.widget.RoundedLinearLayout
 
 /** A launcher-like list that previews the same layouts supplied to the widget host. */
@@ -139,8 +141,7 @@ class MainActivity : AppCompatActivity() {
         )),
         PickerCategory("Battery", R.drawable.category_battery, listOf(widget(
             "Battery", R.drawable.battery, BatteryWidget::class.java,
-            sizes("2 × 1" to R.layout.widget_battery_compact,
-                "3 × 1" to R.layout.widget_battery_compact, "4 × 1" to R.layout.widget_battery_compact,
+            sizes("4 × 1" to R.layout.widget_battery_compact,
                 "2 × 2" to R.layout.widget_battery_large, "4 × 2" to R.layout.widget_battery_large),
             studioWidgetId = BatteryStudioDescriptor.WIDGET_ID
         ))),
@@ -148,7 +149,7 @@ class MainActivity : AppCompatActivity() {
             "Weather", R.drawable.weather_sunny, WeatherWidget::class.java,
             sizes("2 × 1" to R.layout.widget_weather_compact,
                 "3 × 1" to R.layout.widget_weather_compact, "4 × 1" to R.layout.widget_weather_compact,
-                "2 × 2" to R.layout.widget_weather_large, "4 × 2" to R.layout.widget_weather_large),
+                "4 × 2" to R.layout.widget_weather_large),
             studioWidgetId = UniversalWidgetIds.WEATHER
         ))),
         PickerCategory("Calendar", R.drawable.category_calander, listOf(
@@ -163,8 +164,7 @@ class MainActivity : AppCompatActivity() {
         )),
         PickerCategory("Storage", R.drawable.category_storage, listOf(widget(
             "Storage", R.drawable.manage_storage, StorageWidget::class.java,
-            sizes("2 × 1" to R.layout.widget_storage_compact,
-                "3 × 1" to R.layout.widget_storage_compact, "4 × 1" to R.layout.widget_storage_compact,
+            sizes("4 × 1" to R.layout.widget_storage_compact,
                 "2 × 2" to R.layout.widget_storage_large, "4 × 2" to R.layout.widget_storage_large),
             studioWidgetId = StorageStudioDescriptor.WIDGET_ID
         ))),
@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity() {
             widget("Hydration", R.drawable.water_drop, HydrationWidget::class.java,
                 sizes("2 × 1" to R.layout.widget_hydration_compact,
                     "3 × 1" to R.layout.widget_hydration_compact, "4 × 1" to R.layout.widget_hydration_compact,
-                    "2 × 2" to R.layout.widget_hydration_large, "4 × 2" to R.layout.widget_hydration_large),
+                    "4 × 2" to R.layout.widget_hydration_large),
                 studioWidgetId = UniversalWidgetIds.HYDRATION)
         )),
         PickerCategory("Search", R.drawable.category_search, listOf(
@@ -186,13 +186,16 @@ class MainActivity : AppCompatActivity() {
         )),
         PickerCategory("Media player", R.drawable.category_media, listOf(
             widget("Media player", R.drawable.music_alt, MediaPlayerWidget::class.java,
-                sizes("2 × 1" to R.layout.widget_media_compact, "2 × 2" to R.layout.widget_media_large,
-                    "3 × 2" to R.layout.widget_media_large, "4 × 2" to R.layout.widget_media_large),
+                sizes("3 × 1" to R.layout.widget_media_compact, "2 × 2" to R.layout.widget_media_large,
+                    "3 × 2" to R.layout.widget_media_large),
                 studioWidgetId = UniversalWidgetIds.MEDIA_PLAYER)
         )),
         PickerCategory("Other", R.drawable.category_more, listOf(
             actionWidget("Open app", R.drawable.phone, OpenAppWidget::class.java, 4, UniversalWidgetIds.OPEN_APP),
             actionWidget("Text", R.drawable.text_check_on, TextWidget::class.java, 4, UniversalWidgetIds.TEXT),
+            widget("To do list", R.drawable.checkbox_unchecked, TodoWidget::class.java,
+                sizes("2 × 2" to R.layout.widget_todo, "4 × 2" to R.layout.widget_todo),
+                studioWidgetId = "todo_list"),
             widget("Counter", R.drawable.list_add, CounterWidget::class.java,
                 sizes("2 × 1" to R.layout.widget_counter_compact, "2 × 2" to R.layout.widget_counter_large,
                     "4 × 2" to R.layout.widget_counter_large),
@@ -226,8 +229,7 @@ class MainActivity : AppCompatActivity() {
         sizes(
             "2 × 1" to R.layout.widget_steps_compact,
             "3 × 1" to R.layout.widget_steps_compact,
-            "4 × 1" to R.layout.widget_steps_compact,
-            "5 × 1" to R.layout.widget_steps_compact
+            "4 × 1" to R.layout.widget_steps_compact
         ),
         studioWidgetId = UniversalWidgetIds.STEP_COUNTER
     )
@@ -480,19 +482,21 @@ class MainActivity : AppCompatActivity() {
         // Runtime permissions are requested by the launcher configuration activity.
         // Keeping them there avoids duplicate prompts and still allows explicit
         // permission-required widget states when access is denied.
-        requestWidgetPin(item.provider, size, item.toggleKind)
+        val provider = ExactWidgetVariants.providerFor(item.provider, size.columns, size.rows)
+        requestWidgetPin(provider, size, item.toggleKind)
     }
 
     private fun requestWidgetPin(provider: Class<out AppWidgetProvider>, size: WidgetSize, toggleKind: ToggleKind? = null) {
         val manager = getSystemService(AppWidgetManager::class.java)
         if (manager.isRequestPinAppWidgetSupported) {
-            val studioWidgetId = when (provider) {
+            val baseProvider = ExactWidgetVariants.baseFor(provider)
+            val studioWidgetId = when (baseProvider) {
                 DigitalClockWidget::class.java -> ClockStudioDescriptor.WIDGET_ID
                 BatteryWidget::class.java -> BatteryStudioDescriptor.WIDGET_ID
                 StorageWidget::class.java -> StorageStudioDescriptor.WIDGET_ID
                 CalendarWidget::class.java -> CalendarStudioDescriptor.WIDGET_ID
                 else -> com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
-                    .definitionForProvider(provider.name)?.widgetId
+                    .definitionForProvider(baseProvider.name)?.widgetId
             }
             val successCallback = studioWidgetId?.let { widgetId ->
                 PendingIntent.getBroadcast(
@@ -502,7 +506,8 @@ class MainActivity : AppCompatActivity() {
                         .putExtra(WidgetPinResultReceiver.EXTRA_STUDIO_WIDGET_ID, widgetId)
                         .putExtra(WidgetPinResultReceiver.EXTRA_PROVIDER_CLASS_NAME, provider.name)
                         .putExtra(WidgetInitialSizeSpec.EXTRA_COLUMNS, size.spec.columns)
-                        .putExtra(WidgetInitialSizeSpec.EXTRA_ROWS, size.spec.rows),
+                        .putExtra(WidgetInitialSizeSpec.EXTRA_ROWS, size.spec.rows)
+                        .putExtra(WidgetPinResultReceiver.EXTRA_TOGGLE_KIND, toggleKind?.name),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 )
             }
@@ -519,11 +524,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Pinning extras must not contain host-owned sizing keys. Supplying a single min/max size
-     * makes Samsung Home treat the initially selected tile as the only permitted resize state.
-     * The provider XML and Samsung cell-size metadata are the authoritative resize contract.
-     */
+    /** Request extras belonging to the app, not host-owned widget option keys. */
     private fun widgetOptions(toggleKind: ToggleKind?) = Bundle().apply {
         toggleKind?.let { putString(ToggleWidget.OPTION_TOGGLE_KIND, it.name) }
     }
@@ -532,7 +533,7 @@ class MainActivity : AppCompatActivity() {
         addView(View(this@MainActivity).apply {
             background = android.graphics.drawable.GradientDrawable().apply {
                 cornerRadius = dp(1).toFloat()
-                setColor(if (isDarkTheme()) 0x66FFFFFF else 0x22000000)
+                setColor(if (isDarkTheme()) 0x33FFFFFF else 0x11000000)
             }
         }, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1), Gravity.CENTER_VERTICAL))
         layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)

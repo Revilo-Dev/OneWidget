@@ -9,6 +9,7 @@ import com.example.blurwidgetdemo.BlurWidget
 import com.example.blurwidgetdemo.studio.registry.DefaultWidgetStudioRegistry
 import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
 import com.example.blurwidgetdemo.widgets.WidgetInitialSizeSpec
+import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
 
 /** Initializes production mode at the launcher-confirmed creation boundary. */
 class WidgetPinResultReceiver : BroadcastReceiver() {
@@ -34,6 +35,10 @@ class WidgetPinResultReceiver : BroadcastReceiver() {
                 .putString("requested_size_$appWidgetId", "${requestedColumns}x${requestedRows}")
                 .apply()
         }
+        intent.getStringExtra(EXTRA_TOGGLE_KIND)?.let { toggleKind ->
+            context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
+                .edit().putString("toggle_kind_$appWidgetId", toggleKind).apply()
+        }
         if (providerClassName?.startsWith(context.packageName) == true) {
             context.sendBroadcast(
                 Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
@@ -46,5 +51,6 @@ class WidgetPinResultReceiver : BroadcastReceiver() {
     companion object {
         const val EXTRA_STUDIO_WIDGET_ID = "studio_widget_id"
         const val EXTRA_PROVIDER_CLASS_NAME = "provider_class_name"
+        const val EXTRA_TOGGLE_KIND = "toggle_kind"
     }
 }
