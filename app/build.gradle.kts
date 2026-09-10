@@ -16,15 +16,15 @@ fun signingValue(propKey: String, envKey: String): String? =
 val releaseStoreFile: String? = signingValue("storeFile", "RELEASE_STORE_FILE")
 
 android {
-    namespace = "com.example.blurwidgetdemo"
+    namespace = "dev.revilodev.onewidget"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.blurwidgetdemo"
+        applicationId = "dev.revilodev.onewidget"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 4
-        versionName = "1.1.1-clock-ui"
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0-beta"
     }
 
     signingConfigs {

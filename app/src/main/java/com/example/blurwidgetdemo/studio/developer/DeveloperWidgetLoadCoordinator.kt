@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.studio.developer
+package dev.revilodev.onewidget.studio.developer
 
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 
 data class DeveloperWidgetLoadResult(
     val activeSpec: ActiveDeveloperWidgetSpec,

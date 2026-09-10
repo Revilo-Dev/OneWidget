@@ -1,16 +1,16 @@
-package com.example.blurwidgetdemo.studio.storage
+package dev.revilodev.onewidget.studio.storage
 
 import android.content.Context
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.rendering.StudioPreviewRenderResult
-import com.example.blurwidgetdemo.studio.rendering.StudioRemoteViewsRenderer
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
-import com.example.blurwidgetdemo.widgets.storage.StorageRemoteViewsRenderer
-import com.example.blurwidgetdemo.widgets.storage.StorageRenderMode
-import com.example.blurwidgetdemo.widgets.storage.StorageRenderSize
-import com.example.blurwidgetdemo.widgets.storage.StorageSamples
-import com.example.blurwidgetdemo.widgets.storage.StorageWidgetConfigurationRepository
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.rendering.StudioPreviewRenderResult
+import dev.revilodev.onewidget.studio.rendering.StudioRemoteViewsRenderer
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.widgets.storage.StorageRemoteViewsRenderer
+import dev.revilodev.onewidget.widgets.storage.StorageRenderMode
+import dev.revilodev.onewidget.widgets.storage.StorageRenderSize
+import dev.revilodev.onewidget.widgets.storage.StorageSamples
+import dev.revilodev.onewidget.widgets.storage.StorageWidgetConfigurationRepository
 
 object StorageStudioRemoteViewsRenderer : StudioRemoteViewsRenderer {
     override fun buildForDeveloperWidget(

@@ -1,15 +1,15 @@
-package com.example.blurwidgetdemo.studio.production
+package dev.revilodev.onewidget.studio.production
 
 import android.content.Context
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryError
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryErrorKind
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotLookupResult
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotScope
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotStatus
-import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotMetadata
-import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotRepository
+import dev.revilodev.onewidget.studio.data.StudioRepositoryError
+import dev.revilodev.onewidget.studio.data.StudioRepositoryErrorKind
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.snapshot.SnapshotLookupResult
+import dev.revilodev.onewidget.studio.snapshot.SnapshotScope
+import dev.revilodev.onewidget.studio.snapshot.SnapshotStatus
+import dev.revilodev.onewidget.studio.snapshot.WidgetSnapshotMetadata
+import dev.revilodev.onewidget.studio.snapshot.WidgetSnapshotRepository
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -58,7 +58,7 @@ class ProductionWidgetSnapshotRepository(
 
     private fun copy(source: SnapshotLookupResult.Available): StudioRepositoryResult<WidgetSnapshotMetadata> {
         val sourceMetadata = source.metadata
-        val destinationName = com.example.blurwidgetdemo.studio.snapshot.SnapshotFileNames.image(
+        val destinationName = dev.revilodev.onewidget.studio.snapshot.SnapshotFileNames.image(
             sourceMetadata.widgetId,
             sourceMetadata.variantId,
             sourceMetadata.designRevision

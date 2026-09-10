@@ -1,10 +1,10 @@
-package com.example.blurwidgetdemo.widgets.calendar
+package dev.revilodev.onewidget.widgets.calendar
 
 import android.os.Build
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

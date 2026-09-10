@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 /** Maps unsaved configuration controls to renderer input without touching widget preferences. */
 object ClockConfigPreviewMapper {

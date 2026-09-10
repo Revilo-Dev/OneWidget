@@ -1,14 +1,14 @@
-package com.example.blurwidgetdemo.studio.battery
+package dev.revilodev.onewidget.studio.battery
 
-import com.example.blurwidgetdemo.studio.editor.EditorActionResult
-import com.example.blurwidgetdemo.studio.editor.WidgetStudioEditCommand
-import com.example.blurwidgetdemo.studio.editor.WidgetStudioEditorController
-import com.example.blurwidgetdemo.studio.model.ElementCapability
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryError
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryErrorKind
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.editor.EditorActionResult
+import dev.revilodev.onewidget.studio.editor.WidgetStudioEditCommand
+import dev.revilodev.onewidget.studio.editor.WidgetStudioEditorController
+import dev.revilodev.onewidget.studio.model.ElementCapability
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.data.StudioRepositoryError
+import dev.revilodev.onewidget.studio.data.StudioRepositoryErrorKind
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull

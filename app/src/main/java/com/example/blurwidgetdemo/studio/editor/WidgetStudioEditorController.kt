@@ -1,17 +1,17 @@
-package com.example.blurwidgetdemo.studio.editor
+package dev.revilodev.onewidget.studio.editor
 
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryErrorKind
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.model.DimensionMode
-import com.example.blurwidgetdemo.studio.model.ElementCapability
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.ValidationIssue
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetDesignValidator
-import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.registry.StudioWidgetDescriptor
+import dev.revilodev.onewidget.studio.data.StudioRepositoryErrorKind
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.model.DimensionMode
+import dev.revilodev.onewidget.studio.model.ElementCapability
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.ValidationIssue
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetDesignValidator
+import dev.revilodev.onewidget.studio.model.WidgetElementSpec
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.registry.StudioWidgetDescriptor
 import java.util.ArrayDeque
 
 class WidgetStudioEditorController(

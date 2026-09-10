@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio
+package dev.revilodev.onewidget.studio
 
 import android.annotation.SuppressLint
 import android.content.ClipData
@@ -22,74 +22,74 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.canvas.StudioPreviewMetrics
-import com.example.blurwidgetdemo.studio.canvas.StudioCanvasSize
-import com.example.blurwidgetdemo.studio.canvas.StudioCanvasSizeSource
-import com.example.blurwidgetdemo.studio.canvas.StudioCanvasSizingController
-import com.example.blurwidgetdemo.studio.canvas.StudioSnapMode
-import com.example.blurwidgetdemo.studio.canvas.WidgetStudioCanvasView
-import com.example.blurwidgetdemo.studio.data.WidgetDesignRepository
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.developer.DeveloperModeRepository
-import com.example.blurwidgetdemo.studio.developer.DeveloperStateResult
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetComponentController
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetLoadCoordinator
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetStateRepository
-import com.example.blurwidgetdemo.studio.editor.EditorActionResult
-import com.example.blurwidgetdemo.studio.editor.WidgetStudioEditCommand
-import com.example.blurwidgetdemo.studio.editor.WidgetStudioEditorController
-import com.example.blurwidgetdemo.studio.editor.WidgetStudioEditorState
-import com.example.blurwidgetdemo.studio.editor.StudioInspectorSections
-import com.example.blurwidgetdemo.studio.model.DesignDecodeResult
-import com.example.blurwidgetdemo.studio.model.DimensionMode
-import com.example.blurwidgetdemo.studio.model.ElementCapability
-import com.example.blurwidgetdemo.studio.model.HorizontalAlignment
-import com.example.blurwidgetdemo.studio.model.VerticalAlignment
-import com.example.blurwidgetdemo.studio.model.WidgetAnchor
-import com.example.blurwidgetdemo.studio.model.WidgetDesignJsonCodec
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetDesignValidator
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.preview.ActualRemoteViewsPreview
-import com.example.blurwidgetdemo.studio.production.ProductionSizeCategory
-import com.example.blurwidgetdemo.studio.production.ProductionVariantResolver
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetSnapshotRepository
-import com.example.blurwidgetdemo.studio.production.PromotionRequest
-import com.example.blurwidgetdemo.studio.production.PromotionResult
-import com.example.blurwidgetdemo.studio.production.PromotionSnapshotStatus
-import com.example.blurwidgetdemo.studio.production.WidgetDesignDiff
-import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
-import com.example.blurwidgetdemo.studio.production.WidgetPromotionCoordinator
-import com.example.blurwidgetdemo.studio.production.WidgetPromotionReviewer
-import com.example.blurwidgetdemo.studio.registry.DefaultWidgetStudioRegistry
-import com.example.blurwidgetdemo.studio.registry.StudioWidgetDescriptor
-import com.example.blurwidgetdemo.studio.gallery.SnapshotCacheKey
-import com.example.blurwidgetdemo.studio.gallery.WidgetGalleryBitmapCache
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotCaptureResult
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotLookupResult
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotRenderRequest
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotSaveResult
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotStatus
-import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotRenderer
-import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotRepository
-import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotStorage
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
-import com.example.blurwidgetdemo.widgets.developer.DeveloperWidgetProvider
-import com.example.blurwidgetdemo.studio.verification.DeviceTechnicalInfoCapture
-import com.example.blurwidgetdemo.studio.verification.VerificationRevisionStatus
-import com.example.blurwidgetdemo.studio.verification.WidgetParityVerification
-import com.example.blurwidgetdemo.studio.verification.WidgetParityVerificationPolicy
-import com.example.blurwidgetdemo.studio.verification.WidgetParityVerificationRepository
-import com.example.blurwidgetdemo.studio.verification.WidgetVerificationStatus
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.canvas.StudioPreviewMetrics
+import dev.revilodev.onewidget.studio.canvas.StudioCanvasSize
+import dev.revilodev.onewidget.studio.canvas.StudioCanvasSizeSource
+import dev.revilodev.onewidget.studio.canvas.StudioCanvasSizingController
+import dev.revilodev.onewidget.studio.canvas.StudioSnapMode
+import dev.revilodev.onewidget.studio.canvas.WidgetStudioCanvasView
+import dev.revilodev.onewidget.studio.data.WidgetDesignRepository
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.developer.DeveloperModeRepository
+import dev.revilodev.onewidget.studio.developer.DeveloperStateResult
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetComponentController
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetLoadCoordinator
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetStateRepository
+import dev.revilodev.onewidget.studio.editor.EditorActionResult
+import dev.revilodev.onewidget.studio.editor.WidgetStudioEditCommand
+import dev.revilodev.onewidget.studio.editor.WidgetStudioEditorController
+import dev.revilodev.onewidget.studio.editor.WidgetStudioEditorState
+import dev.revilodev.onewidget.studio.editor.StudioInspectorSections
+import dev.revilodev.onewidget.studio.model.DesignDecodeResult
+import dev.revilodev.onewidget.studio.model.DimensionMode
+import dev.revilodev.onewidget.studio.model.ElementCapability
+import dev.revilodev.onewidget.studio.model.HorizontalAlignment
+import dev.revilodev.onewidget.studio.model.VerticalAlignment
+import dev.revilodev.onewidget.studio.model.WidgetAnchor
+import dev.revilodev.onewidget.studio.model.WidgetDesignJsonCodec
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetDesignValidator
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.preview.ActualRemoteViewsPreview
+import dev.revilodev.onewidget.studio.production.ProductionSizeCategory
+import dev.revilodev.onewidget.studio.production.ProductionVariantResolver
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignRepository
+import dev.revilodev.onewidget.studio.production.ProductionWidgetSnapshotRepository
+import dev.revilodev.onewidget.studio.production.PromotionRequest
+import dev.revilodev.onewidget.studio.production.PromotionResult
+import dev.revilodev.onewidget.studio.production.PromotionSnapshotStatus
+import dev.revilodev.onewidget.studio.production.WidgetDesignDiff
+import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepository
+import dev.revilodev.onewidget.studio.production.WidgetPromotionCoordinator
+import dev.revilodev.onewidget.studio.production.WidgetPromotionReviewer
+import dev.revilodev.onewidget.studio.registry.DefaultWidgetStudioRegistry
+import dev.revilodev.onewidget.studio.registry.StudioWidgetDescriptor
+import dev.revilodev.onewidget.studio.gallery.SnapshotCacheKey
+import dev.revilodev.onewidget.studio.gallery.WidgetGalleryBitmapCache
+import dev.revilodev.onewidget.studio.snapshot.SnapshotCaptureResult
+import dev.revilodev.onewidget.studio.snapshot.SnapshotLookupResult
+import dev.revilodev.onewidget.studio.snapshot.SnapshotRenderRequest
+import dev.revilodev.onewidget.studio.snapshot.SnapshotSaveResult
+import dev.revilodev.onewidget.studio.snapshot.SnapshotStatus
+import dev.revilodev.onewidget.studio.snapshot.WidgetSnapshotRenderer
+import dev.revilodev.onewidget.studio.snapshot.WidgetSnapshotRepository
+import dev.revilodev.onewidget.studio.snapshot.WidgetSnapshotStorage
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetStudioCatalog
+import dev.revilodev.onewidget.widgets.developer.DeveloperWidgetProvider
+import dev.revilodev.onewidget.studio.verification.DeviceTechnicalInfoCapture
+import dev.revilodev.onewidget.studio.verification.VerificationRevisionStatus
+import dev.revilodev.onewidget.studio.verification.WidgetParityVerification
+import dev.revilodev.onewidget.studio.verification.WidgetParityVerificationPolicy
+import dev.revilodev.onewidget.studio.verification.WidgetParityVerificationRepository
+import dev.revilodev.onewidget.studio.verification.WidgetVerificationStatus
 import java.util.Locale
 import java.util.concurrent.Executors
 
 /** Developer-only Phase 2 editor. It does not participate in production widget rendering. */
 class WidgetStudioActivity : AppCompatActivity() {
     private lateinit var descriptor: StudioWidgetDescriptor
-    private lateinit var registry: com.example.blurwidgetdemo.studio.registry.WidgetStudioRegistry
+    private lateinit var registry: dev.revilodev.onewidget.studio.registry.WidgetStudioRegistry
     private lateinit var repository: WidgetDesignRepository
     private lateinit var controller: WidgetStudioEditorController
     private lateinit var developerWidgetStateRepository: DeveloperWidgetStateRepository
@@ -700,7 +700,7 @@ class WidgetStudioActivity : AppCompatActivity() {
         val result = renderer.buildForStudioPreview(
             context = this,
             design = design,
-            renderSize = com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize(
+            renderSize = dev.revilodev.onewidget.studio.rendering.WidgetRenderSize(
                 canvasSize.widthDp,
                 canvasSize.heightDp
             )
@@ -1040,7 +1040,7 @@ class WidgetStudioActivity : AppCompatActivity() {
             SnapshotStatus.Missing -> null
         }
 
-    private fun snapshotCacheKey(metadata: com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotMetadata) =
+    private fun snapshotCacheKey(metadata: dev.revilodev.onewidget.studio.snapshot.WidgetSnapshotMetadata) =
         SnapshotCacheKey(
             metadata.widgetId,
             metadata.variantId,
@@ -1322,13 +1322,13 @@ class WidgetStudioActivity : AppCompatActivity() {
         renderDeviceInfo(requireNotNull(verificationDraft))
 
         val progressWidget = descriptor.widgetId in setOf(
-            com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor.WIDGET_ID,
-            com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor.WIDGET_ID
+            dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor.WIDGET_ID,
+            dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor.WIDGET_ID
         ) || descriptor.widgetId in UniversalWidgetStudioCatalog.progressWidgetIds
         verifyProgress.visibility = if (progressWidget) View.VISIBLE else View.GONE
         verifyRadius.visibility = if (progressWidget) View.VISIBLE else View.GONE
         verifyContentStates.visibility = if (
-            descriptor.widgetId == com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor.WIDGET_ID ||
+            descriptor.widgetId == dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor.WIDGET_ID ||
             descriptor.widgetId in UniversalWidgetStudioCatalog.contentStateWidgetIds
         ) View.VISIBLE else View.GONE
         val systemUiWidget = descriptor.widgetId in UniversalWidgetStudioCatalog.systemUiWidgetIds

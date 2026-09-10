@@ -1,8 +1,8 @@
-package com.example.blurwidgetdemo.studio.rendering
+package dev.revilodev.onewidget.studio.rendering
 
 import android.content.Context
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
 
 data class WidgetRenderSize(
     val widthDp: Float,

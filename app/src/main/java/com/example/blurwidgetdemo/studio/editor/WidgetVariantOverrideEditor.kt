@@ -1,11 +1,11 @@
-package com.example.blurwidgetdemo.studio.editor
+package dev.revilodev.onewidget.studio.editor
 
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetElementOverride
-import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.model.WidgetVariantOverride
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetElementOverride
+import dev.revilodev.onewidget.studio.model.WidgetElementSpec
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.WidgetVariantOverride
 
 /** Maps resolved element edits back to normalized, sparse per-variant overrides. */
 object WidgetVariantOverrideEditor {

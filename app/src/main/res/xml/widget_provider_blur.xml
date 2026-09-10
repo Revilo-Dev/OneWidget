@@ -17,7 +17,7 @@
     android:updatePeriodMillis="1800000"
     android:description="@string/widget_description"
     android:widgetCategory="home_screen"
-    android:configure="com.example.blurwidgetdemo.WidgetConfigActivity"
+    android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
     android:widgetFeatures="reconfigurable|hide_from_picker"
     app:previewLayoutSmall="@layout/widget_preview_strip"
     app:previewLayoutWideSmall="@layout/widget_preview_strip"

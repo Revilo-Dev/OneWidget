@@ -45,7 +45,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
 
-            <com.example.blurwidgetdemo.studio.preview.RemoteViewsPreviewHost
+            <dev.revilodev.onewidget.studio.preview.RemoteViewsPreviewHost
                 android:id="@+id/preview_widget"
                 android:layout_width="200dp"
                 android:layout_height="126dp"

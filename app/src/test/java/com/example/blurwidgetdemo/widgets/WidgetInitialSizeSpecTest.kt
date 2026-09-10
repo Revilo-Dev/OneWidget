@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets
+package dev.revilodev.onewidget.widgets
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

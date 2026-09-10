@@ -1,10 +1,10 @@
-package com.example.blurwidgetdemo.studio.gallery
+package dev.revilodev.onewidget.studio.gallery
 
 import android.graphics.Bitmap
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotLookupResult
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotScope
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotStatus
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.snapshot.SnapshotLookupResult
+import dev.revilodev.onewidget.studio.snapshot.SnapshotScope
+import dev.revilodev.onewidget.studio.snapshot.SnapshotStatus
 
 data class GalleryPreviewRequest(
     val developerModeEnabled: Boolean,

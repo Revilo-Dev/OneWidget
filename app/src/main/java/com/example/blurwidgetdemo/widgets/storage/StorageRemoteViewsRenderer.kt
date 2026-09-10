@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.storage
+package dev.revilodev.onewidget.widgets.storage
 
 import android.app.PendingIntent
 import android.content.Context
@@ -7,11 +7,11 @@ import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
-import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.widgets.WidgetProgressBarRenderer
 import java.util.Locale
 
 data class StorageRenderPlan(

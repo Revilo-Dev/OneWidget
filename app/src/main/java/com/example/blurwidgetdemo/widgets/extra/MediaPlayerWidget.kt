@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.extra
+package dev.revilodev.onewidget.widgets.extra
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -18,14 +18,14 @@ import android.provider.Settings
 import android.util.LruCache
 import android.view.View
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
-import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
-import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.widgets.WidgetProgressBarRenderer
+import dev.revilodev.onewidget.studio.universal.UniversalElementContent
+import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetActions
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetContent
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 import kotlin.math.roundToInt
 
 /** Shows the active media session when notification-listener access has been enabled. */
@@ -57,9 +57,9 @@ open class MediaPlayerWidget : AppWidgetProvider() {
     }
 
     companion object {
-        private const val ACTION_PREVIOUS = "com.example.blurwidgetdemo.action.MEDIA_PREVIOUS"
-        private const val ACTION_TOGGLE = "com.example.blurwidgetdemo.action.MEDIA_TOGGLE"
-        private const val ACTION_NEXT = "com.example.blurwidgetdemo.action.MEDIA_NEXT"
+        private const val ACTION_PREVIOUS = "dev.revilodev.onewidget.action.MEDIA_PREVIOUS"
+        private const val ACTION_TOGGLE = "dev.revilodev.onewidget.action.MEDIA_TOGGLE"
+        private const val ACTION_NEXT = "dev.revilodev.onewidget.action.MEDIA_NEXT"
         private const val MEDIA_PROGRESS_HEIGHT_DP = 10f
         private const val MEDIA_PROGRESS_RESERVED_WIDTH_DP = 106
         private const val MAX_PROGRESS_BITMAP_WIDTH = 1_200

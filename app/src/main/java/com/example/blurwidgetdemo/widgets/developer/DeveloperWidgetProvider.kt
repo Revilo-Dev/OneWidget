@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.developer
+package dev.revilodev.onewidget.widgets.developer
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -9,17 +9,17 @@ import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.data.WidgetDesignRepository
-import com.example.blurwidgetdemo.studio.developer.DeveloperStateResult
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetHostSizeResolver
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetMeasurement
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetRenderResolution
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetRenderResolver
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetStateRepository
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetUpdateReason
-import com.example.blurwidgetdemo.studio.registry.DefaultWidgetStudioRegistry
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.data.WidgetDesignRepository
+import dev.revilodev.onewidget.studio.developer.DeveloperStateResult
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetHostSizeResolver
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetMeasurement
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetRenderResolution
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetRenderResolver
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetStateRepository
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetUpdateReason
+import dev.revilodev.onewidget.studio.registry.DefaultWidgetStudioRegistry
 
 /** Generic, developer-only launcher host for the active Widget Studio design. */
 class DeveloperWidgetProvider : AppWidgetProvider() {
@@ -161,7 +161,7 @@ class DeveloperWidgetProvider : AppWidgetProvider() {
             context: Context,
             appWidgetId: Int,
             resolution: DeveloperWidgetRenderResolution,
-            hostSize: com.example.blurwidgetdemo.studio.developer.DeveloperWidgetHostSize,
+            hostSize: dev.revilodev.onewidget.studio.developer.DeveloperWidgetHostSize,
             reason: DeveloperWidgetUpdateReason
         ) {
             if (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) return

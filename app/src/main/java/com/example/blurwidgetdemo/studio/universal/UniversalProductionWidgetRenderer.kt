@@ -1,17 +1,17 @@
-package com.example.blurwidgetdemo.studio.universal
+package dev.revilodev.onewidget.studio.universal
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.production.ProductionVariantResolver
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
-import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.production.ProductionVariantResolver
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignRepository
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignResolver
+import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepository
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.widgets.WidgetAppearance
 
 object UniversalProductionWidgetRenderer {
     fun buildIfPromoted(

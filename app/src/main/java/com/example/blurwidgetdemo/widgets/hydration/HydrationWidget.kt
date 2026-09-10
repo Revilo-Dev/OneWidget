@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.hydration
+package dev.revilodev.onewidget.widgets.hydration
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -14,14 +14,14 @@ import android.widget.EditText
 import android.widget.RemoteViews
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.WidgetConfigActivity
-import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
-import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.WidgetConfigActivity
+import dev.revilodev.onewidget.studio.universal.UniversalElementContent
+import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetActions
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetContent
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -55,9 +55,9 @@ open class HydrationWidget : AppWidgetProvider() {
     }
 
     companion object {
-        private const val ACTION_ADD_WATER = "com.example.blurwidgetdemo.action.ADD_WATER"
-        private const val ACTION_REMOVE_WATER = "com.example.blurwidgetdemo.action.REMOVE_WATER"
-        private const val ACTION_RESET = "com.example.blurwidgetdemo.action.RESET_HYDRATION"
+        private const val ACTION_ADD_WATER = "dev.revilodev.onewidget.action.ADD_WATER"
+        private const val ACTION_REMOVE_WATER = "dev.revilodev.onewidget.action.REMOVE_WATER"
+        private const val ACTION_RESET = "dev.revilodev.onewidget.action.RESET_HYDRATION"
         private const val DEFAULT_DAILY_GOAL = 8
 
         fun saveResetTime(context: Context, id: Int, hour: Int, minute: Int) {
@@ -232,8 +232,8 @@ class HydrationConfigActivity : AppCompatActivity() {
     private fun updateWidget() = HydrationWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
 
     private fun finishConfiguration() {
-        com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-            .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.HYDRATION, id)
+        dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+            .initializeConfiguredWidget(this, dev.revilodev.onewidget.studio.universal.UniversalWidgetIds.HYDRATION, id)
         updateWidget()
         setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
         finish()

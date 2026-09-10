@@ -1,9 +1,9 @@
-package com.example.blurwidgetdemo.widgets.extra
+package dev.revilodev.onewidget.widgets.extra
 
 import android.content.Context
 import android.content.Intent
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 
 open class GoogleSearchWidget : NamedActionWidget() {
     override val title = "Search"

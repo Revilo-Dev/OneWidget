@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo
+package dev.revilodev.onewidget
 
 import android.annotation.SuppressLint
 import android.app.TimePickerDialog
@@ -38,66 +38,66 @@ import dev.oneuiproject.oneui.widget.CardItemView
 import dev.oneuiproject.oneui.widget.SwitchItemView
 import kotlin.math.min
 import kotlin.math.roundToInt
-import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
-import com.example.blurwidgetdemo.widgets.clock.ClockWidgetVariants
-import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
-import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
-import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
-import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStyle
-import com.example.blurwidgetdemo.widgets.clock.ClockWidgetPreferences
-import com.example.blurwidgetdemo.widgets.clock.ClockTimeFormat
-import com.example.blurwidgetdemo.widgets.clock.ClockTextAlignment
-import com.example.blurwidgetdemo.widgets.clock.ClockTapAction
-import com.example.blurwidgetdemo.widgets.clock.ClockFont
-import com.example.blurwidgetdemo.widgets.clock.ClockWidgetLayout
-import com.example.blurwidgetdemo.widgets.clock.ClockConfigPreviewMapper
-import com.example.blurwidgetdemo.widgets.clock.ClockRemoteViewsRenderer
-import com.example.blurwidgetdemo.widgets.clock.ClockRenderMode
-import com.example.blurwidgetdemo.widgets.clock.ClockRenderSize
-import com.example.blurwidgetdemo.widgets.battery.BatteryConfigPreviewMapper
-import com.example.blurwidgetdemo.widgets.battery.BatteryRemoteViewsRenderer
-import com.example.blurwidgetdemo.widgets.battery.BatteryRenderMode
-import com.example.blurwidgetdemo.widgets.battery.BatteryRenderSize
-import com.example.blurwidgetdemo.widgets.battery.BatteryWidgetConfigurationRepository
-import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
-import com.example.blurwidgetdemo.studio.preview.RemoteViewsPreviewHost
-import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
-import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
-import com.example.blurwidgetdemo.widgets.calendar.CalendarConfigPreviewMapper
-import com.example.blurwidgetdemo.widgets.calendar.CalendarRemoteViewsRenderer
-import com.example.blurwidgetdemo.widgets.calendar.CalendarRenderMode
-import com.example.blurwidgetdemo.widgets.calendar.CalendarRenderSize
-import com.example.blurwidgetdemo.widgets.calendar.CalendarSamples
-import com.example.blurwidgetdemo.widgets.calendar.CalendarWidgetConfigurationRepository
-import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
-import com.example.blurwidgetdemo.widgets.storage.StorageWidget
-import com.example.blurwidgetdemo.widgets.storage.StorageConfigPreviewMapper
-import com.example.blurwidgetdemo.widgets.storage.StorageRemoteViewsRenderer
-import com.example.blurwidgetdemo.widgets.storage.StorageRenderMode
-import com.example.blurwidgetdemo.widgets.storage.StorageRenderSize
-import com.example.blurwidgetdemo.widgets.storage.StorageWidgetConfigurationRepository
-import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
-import com.example.blurwidgetdemo.widgets.extra.ToggleKind
-import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.ToggleWidgetV2
-import com.example.blurwidgetdemo.widgets.extra.ToggleWidgetV3
-import com.example.blurwidgetdemo.widgets.extra.AlarmWidget
-import com.example.blurwidgetdemo.widgets.extra.CounterWidget
-import com.example.blurwidgetdemo.widgets.extra.OpenAppWidget
-import com.example.blurwidgetdemo.widgets.extra.StepCounterWidget
-import com.example.blurwidgetdemo.widgets.extra.TextWidget
-import com.example.blurwidgetdemo.widgets.extra.TodoItem
-import com.example.blurwidgetdemo.widgets.extra.TodoWidget
-import com.example.blurwidgetdemo.widgets.extra.WidgetAssetBitmaps
-import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
+import dev.revilodev.onewidget.widgets.clock.DigitalClockWidget
+import dev.revilodev.onewidget.widgets.clock.ClockWidgetVariants
+import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignRepository
+import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepository
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetStudioCatalog
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetStyle
+import dev.revilodev.onewidget.widgets.clock.ClockWidgetPreferences
+import dev.revilodev.onewidget.widgets.clock.ClockTimeFormat
+import dev.revilodev.onewidget.widgets.clock.ClockTextAlignment
+import dev.revilodev.onewidget.widgets.clock.ClockTapAction
+import dev.revilodev.onewidget.widgets.clock.ClockFont
+import dev.revilodev.onewidget.widgets.clock.ClockWidgetLayout
+import dev.revilodev.onewidget.widgets.clock.ClockConfigPreviewMapper
+import dev.revilodev.onewidget.widgets.clock.ClockRemoteViewsRenderer
+import dev.revilodev.onewidget.widgets.clock.ClockRenderMode
+import dev.revilodev.onewidget.widgets.clock.ClockRenderSize
+import dev.revilodev.onewidget.widgets.battery.BatteryConfigPreviewMapper
+import dev.revilodev.onewidget.widgets.battery.BatteryRemoteViewsRenderer
+import dev.revilodev.onewidget.widgets.battery.BatteryRenderMode
+import dev.revilodev.onewidget.widgets.battery.BatteryRenderSize
+import dev.revilodev.onewidget.widgets.battery.BatteryWidgetConfigurationRepository
+import dev.revilodev.onewidget.widgets.battery.BatteryWidget
+import dev.revilodev.onewidget.studio.preview.RemoteViewsPreviewHost
+import dev.revilodev.onewidget.widgets.weather.WeatherWidget
+import dev.revilodev.onewidget.widgets.WidgetAppearance
+import dev.revilodev.onewidget.widgets.calendar.CalendarWidget
+import dev.revilodev.onewidget.widgets.calendar.CalendarConfigPreviewMapper
+import dev.revilodev.onewidget.widgets.calendar.CalendarRemoteViewsRenderer
+import dev.revilodev.onewidget.widgets.calendar.CalendarRenderMode
+import dev.revilodev.onewidget.widgets.calendar.CalendarRenderSize
+import dev.revilodev.onewidget.widgets.calendar.CalendarSamples
+import dev.revilodev.onewidget.widgets.calendar.CalendarWidgetConfigurationRepository
+import dev.revilodev.onewidget.widgets.calendar.CalendarDisplayWidget
+import dev.revilodev.onewidget.widgets.storage.StorageWidget
+import dev.revilodev.onewidget.widgets.storage.StorageConfigPreviewMapper
+import dev.revilodev.onewidget.widgets.storage.StorageRemoteViewsRenderer
+import dev.revilodev.onewidget.widgets.storage.StorageRenderMode
+import dev.revilodev.onewidget.widgets.storage.StorageRenderSize
+import dev.revilodev.onewidget.widgets.storage.StorageWidgetConfigurationRepository
+import dev.revilodev.onewidget.widgets.hydration.HydrationWidget
+import dev.revilodev.onewidget.widgets.extra.ToggleKind
+import dev.revilodev.onewidget.widgets.extra.ToggleWidget
+import dev.revilodev.onewidget.widgets.extra.ToggleWidgetV2
+import dev.revilodev.onewidget.widgets.extra.ToggleWidgetV3
+import dev.revilodev.onewidget.widgets.extra.AlarmWidget
+import dev.revilodev.onewidget.widgets.extra.CounterWidget
+import dev.revilodev.onewidget.widgets.extra.OpenAppWidget
+import dev.revilodev.onewidget.widgets.extra.StepCounterWidget
+import dev.revilodev.onewidget.widgets.extra.TextWidget
+import dev.revilodev.onewidget.widgets.extra.TodoItem
+import dev.revilodev.onewidget.widgets.extra.TodoWidget
+import dev.revilodev.onewidget.widgets.extra.WidgetAssetBitmaps
+import dev.revilodev.onewidget.widgets.variants.ExactWidgetVariants
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SeslSeekBar
 import java.text.SimpleDateFormat
@@ -144,7 +144,7 @@ class WidgetConfigActivity : AppCompatActivity() {
     ))
     private var colorPickerDialog: SeslColorPickerDialog? = null
     private var previewWallpaper: Drawable? = null
-    private var clockSettings: com.example.blurwidgetdemo.widgets.clock.ClockWidgetSettings? = null
+    private var clockSettings: dev.revilodev.onewidget.widgets.clock.ClockWidgetSettings? = null
     private var currentTextScale = 100
     private var currentTextColor = Color.WHITE
     private var currentTextAlignment = WidgetAppearance.Alignment.CENTRE
@@ -320,9 +320,9 @@ class WidgetConfigActivity : AppCompatActivity() {
     private fun isStepCounterWidget(): Boolean = baseProviderClassName() == StepCounterWidget::class.java.name
     private fun isSearchWidget(): Boolean = baseProviderClassName()?.let {
         it in setOf(
-            com.example.blurwidgetdemo.widgets.extra.GoogleSearchWidget::class.java.name,
-            com.example.blurwidgetdemo.widgets.extra.SamsungBrowserSearchWidget::class.java.name,
-            com.example.blurwidgetdemo.widgets.extra.YouTubeSearchWidget::class.java.name
+            dev.revilodev.onewidget.widgets.extra.GoogleSearchWidget::class.java.name,
+            dev.revilodev.onewidget.widgets.extra.SamsungBrowserSearchWidget::class.java.name,
+            dev.revilodev.onewidget.widgets.extra.YouTubeSearchWidget::class.java.name
         )
     } == true
     private fun isToggleWidget(): Boolean = providerClassName()?.let { provider ->

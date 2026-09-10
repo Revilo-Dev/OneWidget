@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.studio.canvas
+package dev.revilodev.onewidget.studio.canvas
 
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 import kotlin.math.round
 
 data class StudioCanvasSize(val widthDp: Float, val heightDp: Float)

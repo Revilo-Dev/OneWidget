@@ -1,25 +1,25 @@
-package com.example.blurwidgetdemo.studio.model
+package dev.revilodev.onewidget.studio.model
 
-import com.example.blurwidgetdemo.studio.json.JsonArrayValue
-import com.example.blurwidgetdemo.studio.json.JsonObjectValue
-import com.example.blurwidgetdemo.studio.json.JsonParseException
-import com.example.blurwidgetdemo.studio.json.JsonValue
-import com.example.blurwidgetdemo.studio.json.JsonValueException
-import com.example.blurwidgetdemo.studio.json.SimpleJson
-import com.example.blurwidgetdemo.studio.json.asArray
-import com.example.blurwidgetdemo.studio.json.asBoolean
-import com.example.blurwidgetdemo.studio.json.asFloat
-import com.example.blurwidgetdemo.studio.json.asInt
-import com.example.blurwidgetdemo.studio.json.asLong
-import com.example.blurwidgetdemo.studio.json.asObject
-import com.example.blurwidgetdemo.studio.json.asString
-import com.example.blurwidgetdemo.studio.json.jsonArray
-import com.example.blurwidgetdemo.studio.json.jsonBoolean
-import com.example.blurwidgetdemo.studio.json.jsonNumber
-import com.example.blurwidgetdemo.studio.json.jsonObject
-import com.example.blurwidgetdemo.studio.json.jsonString
-import com.example.blurwidgetdemo.studio.json.optional
-import com.example.blurwidgetdemo.studio.json.required
+import dev.revilodev.onewidget.studio.json.JsonArrayValue
+import dev.revilodev.onewidget.studio.json.JsonObjectValue
+import dev.revilodev.onewidget.studio.json.JsonParseException
+import dev.revilodev.onewidget.studio.json.JsonValue
+import dev.revilodev.onewidget.studio.json.JsonValueException
+import dev.revilodev.onewidget.studio.json.SimpleJson
+import dev.revilodev.onewidget.studio.json.asArray
+import dev.revilodev.onewidget.studio.json.asBoolean
+import dev.revilodev.onewidget.studio.json.asFloat
+import dev.revilodev.onewidget.studio.json.asInt
+import dev.revilodev.onewidget.studio.json.asLong
+import dev.revilodev.onewidget.studio.json.asObject
+import dev.revilodev.onewidget.studio.json.asString
+import dev.revilodev.onewidget.studio.json.jsonArray
+import dev.revilodev.onewidget.studio.json.jsonBoolean
+import dev.revilodev.onewidget.studio.json.jsonNumber
+import dev.revilodev.onewidget.studio.json.jsonObject
+import dev.revilodev.onewidget.studio.json.jsonString
+import dev.revilodev.onewidget.studio.json.optional
+import dev.revilodev.onewidget.studio.json.required
 
 enum class DesignDecodeErrorKind {
     MALFORMED_JSON,

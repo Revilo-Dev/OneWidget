@@ -1,12 +1,12 @@
-package com.example.blurwidgetdemo.studio.data
+package dev.revilodev.onewidget.studio.data
 
 import android.content.Context
-import com.example.blurwidgetdemo.studio.model.DesignDecodeErrorKind
-import com.example.blurwidgetdemo.studio.model.DesignDecodeResult
-import com.example.blurwidgetdemo.studio.model.WidgetDesignJsonCodec
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetDesignValidator
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.DesignDecodeErrorKind
+import dev.revilodev.onewidget.studio.model.DesignDecodeResult
+import dev.revilodev.onewidget.studio.model.WidgetDesignJsonCodec
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetDesignValidator
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 import java.io.File
 import java.io.IOException
 

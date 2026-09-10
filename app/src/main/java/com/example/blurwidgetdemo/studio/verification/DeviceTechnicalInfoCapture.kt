@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.verification
+package dev.revilodev.onewidget.studio.verification
 
 import android.content.Context
 import android.content.pm.PackageManager

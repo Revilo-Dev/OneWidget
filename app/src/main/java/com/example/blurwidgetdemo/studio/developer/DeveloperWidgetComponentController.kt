@@ -1,9 +1,9 @@
-package com.example.blurwidgetdemo.studio.developer
+package dev.revilodev.onewidget.studio.developer
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import com.example.blurwidgetdemo.widgets.developer.DeveloperWidgetProvider
+import dev.revilodev.onewidget.widgets.developer.DeveloperWidgetProvider
 
 interface DeveloperWidgetComponentGateway {
     fun isEnabled(): Boolean

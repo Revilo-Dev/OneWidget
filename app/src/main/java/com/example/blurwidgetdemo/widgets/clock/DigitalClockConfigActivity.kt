@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 import android.appwidget.AppWidgetManager
 import android.annotation.SuppressLint
@@ -17,8 +17,8 @@ import android.widget.TextView
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.picker3.app.SeslColorPickerDialog
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
 
 class DigitalClockConfigActivity : AppCompatActivity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID

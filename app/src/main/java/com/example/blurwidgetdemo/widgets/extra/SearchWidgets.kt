@@ -1,10 +1,10 @@
-package com.example.blurwidgetdemo.widgets.extra
+package dev.revilodev.onewidget.widgets.extra
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 
 open class SamsungBrowserSearchWidget : NamedActionWidget() {
     override val title = "Search"

@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.weather
+package dev.revilodev.onewidget.widgets.weather
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -13,14 +13,14 @@ import android.os.Bundle
 import android.view.View
 import android.view.Gravity
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
-import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
-import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.widgets.WidgetAppearance
+import dev.revilodev.onewidget.studio.universal.UniversalElementContent
+import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetActions
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetContent
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL

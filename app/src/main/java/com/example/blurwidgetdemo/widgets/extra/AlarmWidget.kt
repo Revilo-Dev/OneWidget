@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.extra
+package dev.revilodev.onewidget.widgets.extra
 
 import android.app.PendingIntent
 import android.app.TimePickerDialog
@@ -11,13 +11,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
-import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.universal.UniversalElementContent
+import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetActions
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetContent
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -47,8 +47,8 @@ open class AlarmWidget : AppWidgetProvider() {
     }
 
     companion object {
-        const val ACTION_TOGGLE = "com.example.blurwidgetdemo.action.TOGGLE_ALARM"
-        const val ACTION_SNOOZE = "com.example.blurwidgetdemo.action.SNOOZE_ALARM"
+        const val ACTION_TOGGLE = "dev.revilodev.onewidget.action.TOGGLE_ALARM"
+        const val ACTION_SNOOZE = "dev.revilodev.onewidget.action.SNOOZE_ALARM"
 
         fun saveSelection(context: Context, id: Int, hour: Int, minute: Int) {
             context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).edit()
@@ -164,8 +164,8 @@ class AlarmWidgetConfigActivity : AppCompatActivity() {
         val now = Calendar.getInstance()
         TimePickerDialog(this, { _, hour, minute ->
             AlarmWidget.saveSelection(this, id, hour, minute)
-            com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-                .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.ALARM, id)
+            dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+                .initializeConfiguredWidget(this, dev.revilodev.onewidget.studio.universal.UniversalWidgetIds.ALARM, id)
             AlarmWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
             setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
             finish()

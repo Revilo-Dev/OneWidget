@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 /** Size policy shared by the provider and unit tests; adjust thresholds here only. */
 object ClockWidgetLayout {

@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 import android.os.Build
 import android.util.TypedValue
@@ -6,14 +6,14 @@ import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.editor.AnchorPositioning
-import com.example.blurwidgetdemo.studio.model.DimensionMode
-import com.example.blurwidgetdemo.studio.model.HorizontalAlignment
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.VerticalAlignment
-import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.editor.AnchorPositioning
+import dev.revilodev.onewidget.studio.model.DimensionMode
+import dev.revilodev.onewidget.studio.model.HorizontalAlignment
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.VerticalAlignment
+import dev.revilodev.onewidget.studio.model.WidgetElementSpec
 
 data class ClockElementViewBinding(
     val elementId: String,

@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.calendar
+package dev.revilodev.onewidget.widgets.calendar
 
 import android.Manifest
 import android.appwidget.AppWidgetManager
@@ -6,8 +6,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.CalendarContract
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.widgets.WidgetAppearance
 import java.text.DateFormat
 import java.util.Date
 

@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.canvas
+package dev.revilodev.onewidget.studio.canvas
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,13 +12,13 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
-import com.example.blurwidgetdemo.studio.editor.AnchorPositioning
-import com.example.blurwidgetdemo.studio.model.DimensionMode
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.registry.StudioWidgetDescriptor
-import com.example.blurwidgetdemo.studio.registry.StudioElementVisualType
+import dev.revilodev.onewidget.studio.editor.AnchorPositioning
+import dev.revilodev.onewidget.studio.model.DimensionMode
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.WidgetElementSpec
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.registry.StudioWidgetDescriptor
+import dev.revilodev.onewidget.studio.registry.StudioElementVisualType
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min

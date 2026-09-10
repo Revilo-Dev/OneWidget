@@ -1,16 +1,16 @@
-package com.example.blurwidgetdemo.studio.calendar
+package dev.revilodev.onewidget.studio.calendar
 
 import android.content.Context
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.rendering.StudioPreviewRenderResult
-import com.example.blurwidgetdemo.studio.rendering.StudioRemoteViewsRenderer
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
-import com.example.blurwidgetdemo.widgets.calendar.CalendarRemoteViewsRenderer
-import com.example.blurwidgetdemo.widgets.calendar.CalendarRenderMode
-import com.example.blurwidgetdemo.widgets.calendar.CalendarRenderSize
-import com.example.blurwidgetdemo.widgets.calendar.CalendarSamples
-import com.example.blurwidgetdemo.widgets.calendar.CalendarWidgetConfigurationRepository
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.rendering.StudioPreviewRenderResult
+import dev.revilodev.onewidget.studio.rendering.StudioRemoteViewsRenderer
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.widgets.calendar.CalendarRemoteViewsRenderer
+import dev.revilodev.onewidget.widgets.calendar.CalendarRenderMode
+import dev.revilodev.onewidget.widgets.calendar.CalendarRenderSize
+import dev.revilodev.onewidget.widgets.calendar.CalendarSamples
+import dev.revilodev.onewidget.widgets.calendar.CalendarWidgetConfigurationRepository
 
 object CalendarStudioRemoteViewsRenderer : StudioRemoteViewsRenderer {
     override fun buildForDeveloperWidget(

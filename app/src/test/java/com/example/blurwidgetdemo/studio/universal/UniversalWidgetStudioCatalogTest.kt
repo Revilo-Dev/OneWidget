@@ -1,12 +1,12 @@
-package com.example.blurwidgetdemo.studio.universal
+package dev.revilodev.onewidget.studio.universal
 
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetDesignValidator
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.production.ProductionSizeCategory
-import com.example.blurwidgetdemo.studio.production.ProductionVariantResolver
-import com.example.blurwidgetdemo.studio.registry.StudioElementVisualType
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetDesignValidator
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.production.ProductionSizeCategory
+import dev.revilodev.onewidget.studio.production.ProductionVariantResolver
+import dev.revilodev.onewidget.studio.registry.StudioElementVisualType
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -18,25 +18,25 @@ class UniversalWidgetStudioCatalogTest {
         assertEquals(
             UniversalWidgetIds.MEDIA_PLAYER,
             UniversalWidgetStudioCatalog.definitionForProvider(
-                "com.example.blurwidgetdemo.widgets.extra.MediaPlayer3x2Widget"
+                "dev.revilodev.onewidget.widgets.extra.MediaPlayer3x2Widget"
             )?.widgetId
         )
         assertEquals(
             UniversalWidgetIds.TOGGLE,
             UniversalWidgetStudioCatalog.definitionForProvider(
-                "com.example.blurwidgetdemo.widgets.extra.ToggleWidgetV3"
+                "dev.revilodev.onewidget.widgets.extra.ToggleWidgetV3"
             )?.widgetId
         )
         assertEquals(
             UniversalWidgetIds.TOGGLE,
             UniversalWidgetStudioCatalog.definitionForProvider(
-                "com.example.blurwidgetdemo.widgets.variants.Toggle1x1Widget"
+                "dev.revilodev.onewidget.widgets.variants.Toggle1x1Widget"
             )?.widgetId
         )
         assertEquals(
             UniversalWidgetIds.WEATHER,
             UniversalWidgetStudioCatalog.definitionForProvider(
-                "com.example.blurwidgetdemo.widgets.variants.Weather3x1Widget"
+                "dev.revilodev.onewidget.widgets.variants.Weather3x1Widget"
             )?.widgetId
         )
     }
@@ -48,13 +48,13 @@ class UniversalWidgetStudioCatalogTest {
         assertEquals(
             UniversalWidgetIds.WEATHER,
             UniversalWidgetStudioCatalog.definitionForProvider(
-                "com.example.blurwidgetdemo.widgets.weather.WeatherWidget"
+                "dev.revilodev.onewidget.widgets.weather.WeatherWidget"
             )?.widgetId
         )
         assertEquals(
             UniversalWidgetIds.GLASS,
             UniversalWidgetStudioCatalog.definitionForProvider(
-                "com.example.blurwidgetdemo.BlurWidget"
+                "dev.revilodev.onewidget.BlurWidget"
             )?.widgetId
         )
     }

@@ -1,21 +1,21 @@
-package com.example.blurwidgetdemo.studio.universal
+package dev.revilodev.onewidget.studio.universal
 
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.model.DimensionMode
-import com.example.blurwidgetdemo.studio.model.ElementCapability
-import com.example.blurwidgetdemo.studio.model.HorizontalAlignment
-import com.example.blurwidgetdemo.studio.model.VerticalAlignment
-import com.example.blurwidgetdemo.studio.model.WidgetAnchor
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetElementOverride
-import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.model.WidgetVariantOverride
-import com.example.blurwidgetdemo.studio.model.WidgetVariantSpec
-import com.example.blurwidgetdemo.studio.registry.StudioElementDescriptor
-import com.example.blurwidgetdemo.studio.registry.StudioElementVisualType
-import com.example.blurwidgetdemo.studio.registry.StudioWidgetDescriptor
-import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.model.DimensionMode
+import dev.revilodev.onewidget.studio.model.ElementCapability
+import dev.revilodev.onewidget.studio.model.HorizontalAlignment
+import dev.revilodev.onewidget.studio.model.VerticalAlignment
+import dev.revilodev.onewidget.studio.model.WidgetAnchor
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetElementOverride
+import dev.revilodev.onewidget.studio.model.WidgetElementSpec
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.WidgetVariantOverride
+import dev.revilodev.onewidget.studio.model.WidgetVariantSpec
+import dev.revilodev.onewidget.studio.registry.StudioElementDescriptor
+import dev.revilodev.onewidget.studio.registry.StudioElementVisualType
+import dev.revilodev.onewidget.studio.registry.StudioWidgetDescriptor
+import dev.revilodev.onewidget.widgets.variants.ExactWidgetVariants
 
 enum class UniversalSizeProfile { ADAPTIVE, ROW, GRID, FIXED_SMALL, FIXED_WIDE }
 

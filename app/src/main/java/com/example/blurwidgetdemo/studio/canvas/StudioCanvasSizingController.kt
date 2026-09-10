@@ -1,7 +1,7 @@
-package com.example.blurwidgetdemo.studio.canvas
+package dev.revilodev.onewidget.studio.canvas
 
-import com.example.blurwidgetdemo.studio.developer.DeveloperWidgetHostSize
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.developer.DeveloperWidgetHostSize
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 
 enum class StudioCanvasSizeSource {
     APPROXIMATE_GRID,

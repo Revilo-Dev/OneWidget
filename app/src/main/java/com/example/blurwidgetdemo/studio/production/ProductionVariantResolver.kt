@@ -1,19 +1,19 @@
-package com.example.blurwidgetdemo.studio.production
+package dev.revilodev.onewidget.studio.production
 
-import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
-import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
-import com.example.blurwidgetdemo.studio.universal.UniversalSizeProfile
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.widgets.battery.BatteryRenderSize
-import com.example.blurwidgetdemo.widgets.clock.ClockWidgetLayout
-import com.example.blurwidgetdemo.widgets.storage.StorageRenderSize
-import com.example.blurwidgetdemo.widgets.calendar.CalendarRenderSize
+import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor
+import dev.revilodev.onewidget.studio.universal.UniversalSizeProfile
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetStudioCatalog
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.widgets.battery.BatteryRenderSize
+import dev.revilodev.onewidget.widgets.clock.ClockWidgetLayout
+import dev.revilodev.onewidget.widgets.storage.StorageRenderSize
+import dev.revilodev.onewidget.widgets.calendar.CalendarRenderSize
 
 enum class ProductionSizeCategory { COMPACT, MEDIUM, LARGE }
 

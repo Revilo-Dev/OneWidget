@@ -1,9 +1,9 @@
-package com.example.blurwidgetdemo.studio.production
+package dev.revilodev.onewidget.studio.production
 
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryErrorKind
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.studioTestDesign
-import com.example.blurwidgetdemo.studio.verification.WidgetVerificationStatus
+import dev.revilodev.onewidget.studio.data.StudioRepositoryErrorKind
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.studioTestDesign
+import dev.revilodev.onewidget.studio.verification.WidgetVerificationStatus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

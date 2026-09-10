@@ -1,11 +1,11 @@
-package com.example.blurwidgetdemo.widgets.battery
+package dev.revilodev.onewidget.widgets.battery
 
 import android.os.Build
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.rendering.RemoteViewsGeometryCompat
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.rendering.RemoteViewsGeometryCompat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

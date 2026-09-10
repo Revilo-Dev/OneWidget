@@ -1,13 +1,13 @@
-package com.example.blurwidgetdemo.studio.developer
+package dev.revilodev.onewidget.studio.developer
 
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryErrorKind
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.registry.StudioWidgetDescriptor
-import com.example.blurwidgetdemo.studio.registry.WidgetStudioRegistry
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.studio.data.StudioRepositoryErrorKind
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.registry.StudioWidgetDescriptor
+import dev.revilodev.onewidget.studio.registry.WidgetStudioRegistry
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
 
 sealed class DeveloperWidgetRenderResolution {
     data object NoActiveDesign : DeveloperWidgetRenderResolution()

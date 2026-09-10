@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.model
+package dev.revilodev.onewidget.studio.model
 
 /** A stable design variant identity. Grid dimensions do not imply a fixed dp canvas size. */
 sealed class WidgetVariantId {

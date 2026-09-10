@@ -1,9 +1,9 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 import android.content.SharedPreferences
 import android.graphics.Color
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.BlurWidget
 
 enum class ClockTimeFormat { SYSTEM, TWELVE_HOUR, TWENTY_FOUR_HOUR }
 enum class ClockTextAlignment { START, CENTER, END }

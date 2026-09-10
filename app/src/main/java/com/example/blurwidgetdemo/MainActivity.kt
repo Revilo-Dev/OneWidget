@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo
+package dev.revilodev.onewidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -20,45 +20,45 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.blurwidgetdemo.widgets.battery.BatteryWidget
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
-import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.data.WidgetDesignRepository
-import com.example.blurwidgetdemo.studio.developer.DeveloperModeRepository
-import com.example.blurwidgetdemo.studio.gallery.GalleryPreviewRequest
-import com.example.blurwidgetdemo.studio.gallery.GalleryPreviewSource
-import com.example.blurwidgetdemo.studio.gallery.SnapshotCacheKey
-import com.example.blurwidgetdemo.studio.gallery.WidgetGalleryBitmapCache
-import com.example.blurwidgetdemo.studio.gallery.WidgetGalleryPreviewResolver
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetSnapshotRepository
-import com.example.blurwidgetdemo.studio.production.WidgetPinResultReceiver
-import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotRepository
-import com.example.blurwidgetdemo.widgets.calendar.CalendarDisplayWidget
-import com.example.blurwidgetdemo.widgets.calendar.CalendarWidget
-import com.example.blurwidgetdemo.widgets.clock.DigitalClockWidget
-import com.example.blurwidgetdemo.widgets.extra.AlarmWidget
-import com.example.blurwidgetdemo.widgets.extra.CounterWidget
-import com.example.blurwidgetdemo.widgets.extra.GoogleSearchWidget
-import com.example.blurwidgetdemo.widgets.extra.MediaPlayerWidget
-import com.example.blurwidgetdemo.widgets.extra.OpenAppWidget
-import com.example.blurwidgetdemo.widgets.extra.StepCounterWidget
-import com.example.blurwidgetdemo.widgets.extra.TextWidget
-import com.example.blurwidgetdemo.widgets.extra.TodoWidget
-import com.example.blurwidgetdemo.widgets.extra.SamsungBrowserSearchWidget
-import com.example.blurwidgetdemo.widgets.extra.ToggleKind
-import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
-import com.example.blurwidgetdemo.widgets.extra.YouTubeSearchWidget
-import com.example.blurwidgetdemo.widgets.hydration.HydrationWidget
-import com.example.blurwidgetdemo.widgets.storage.StorageWidget
-import com.example.blurwidgetdemo.widgets.weather.WeatherWidget
-import com.example.blurwidgetdemo.widgets.WidgetInitialSizeSpec
-import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
+import dev.revilodev.onewidget.widgets.battery.BatteryWidget
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.data.WidgetDesignRepository
+import dev.revilodev.onewidget.studio.developer.DeveloperModeRepository
+import dev.revilodev.onewidget.studio.gallery.GalleryPreviewRequest
+import dev.revilodev.onewidget.studio.gallery.GalleryPreviewSource
+import dev.revilodev.onewidget.studio.gallery.SnapshotCacheKey
+import dev.revilodev.onewidget.studio.gallery.WidgetGalleryBitmapCache
+import dev.revilodev.onewidget.studio.gallery.WidgetGalleryPreviewResolver
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignRepository
+import dev.revilodev.onewidget.studio.production.ProductionWidgetSnapshotRepository
+import dev.revilodev.onewidget.studio.production.WidgetPinResultReceiver
+import dev.revilodev.onewidget.studio.snapshot.WidgetSnapshotRepository
+import dev.revilodev.onewidget.widgets.calendar.CalendarDisplayWidget
+import dev.revilodev.onewidget.widgets.calendar.CalendarWidget
+import dev.revilodev.onewidget.widgets.clock.DigitalClockWidget
+import dev.revilodev.onewidget.widgets.extra.AlarmWidget
+import dev.revilodev.onewidget.widgets.extra.CounterWidget
+import dev.revilodev.onewidget.widgets.extra.GoogleSearchWidget
+import dev.revilodev.onewidget.widgets.extra.MediaPlayerWidget
+import dev.revilodev.onewidget.widgets.extra.OpenAppWidget
+import dev.revilodev.onewidget.widgets.extra.StepCounterWidget
+import dev.revilodev.onewidget.widgets.extra.TextWidget
+import dev.revilodev.onewidget.widgets.extra.TodoWidget
+import dev.revilodev.onewidget.widgets.extra.SamsungBrowserSearchWidget
+import dev.revilodev.onewidget.widgets.extra.ToggleKind
+import dev.revilodev.onewidget.widgets.extra.ToggleWidget
+import dev.revilodev.onewidget.widgets.extra.YouTubeSearchWidget
+import dev.revilodev.onewidget.widgets.hydration.HydrationWidget
+import dev.revilodev.onewidget.widgets.storage.StorageWidget
+import dev.revilodev.onewidget.widgets.weather.WeatherWidget
+import dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec
+import dev.revilodev.onewidget.widgets.variants.ExactWidgetVariants
 import dev.oneuiproject.oneui.widget.RoundedLinearLayout
 
 /** A launcher-like list that previews the same layouts supplied to the widget host. */
@@ -495,7 +495,7 @@ class MainActivity : AppCompatActivity() {
                 BatteryWidget::class.java -> BatteryStudioDescriptor.WIDGET_ID
                 StorageWidget::class.java -> StorageStudioDescriptor.WIDGET_ID
                 CalendarWidget::class.java -> CalendarStudioDescriptor.WIDGET_ID
-                else -> com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
+                else -> dev.revilodev.onewidget.studio.universal.UniversalWidgetStudioCatalog
                     .definitionForProvider(baseProvider.name)?.widgetId
             }
             val successCallback = studioWidgetId?.let { widgetId ->

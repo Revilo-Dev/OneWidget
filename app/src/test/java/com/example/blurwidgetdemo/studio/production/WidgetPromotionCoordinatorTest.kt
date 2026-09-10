@@ -1,12 +1,12 @@
-package com.example.blurwidgetdemo.studio.production
+package dev.revilodev.onewidget.studio.production
 
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
-import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
-import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
-import com.example.blurwidgetdemo.studio.verification.WidgetVerificationStatus
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor
+import dev.revilodev.onewidget.studio.model.WidgetElementSpec
+import dev.revilodev.onewidget.studio.verification.WidgetVerificationStatus
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetStudioCatalog
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before

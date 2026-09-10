@@ -1,14 +1,14 @@
-package com.example.blurwidgetdemo.widgets.calendar
+package dev.revilodev.onewidget.widgets.calendar
 
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.view.View
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
 
 data class CalendarRenderPlan(
     val mode: CalendarRenderMode,

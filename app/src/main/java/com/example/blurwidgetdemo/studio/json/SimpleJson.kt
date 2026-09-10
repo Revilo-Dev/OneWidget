@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.json
+package dev.revilodev.onewidget.studio.json
 
 sealed class JsonValue
 data class JsonObjectValue(val values: LinkedHashMap<String, JsonValue>) : JsonValue()

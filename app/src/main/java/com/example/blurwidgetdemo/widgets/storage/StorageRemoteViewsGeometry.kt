@@ -1,18 +1,18 @@
-package com.example.blurwidgetdemo.widgets.storage
+package dev.revilodev.onewidget.widgets.storage
 
 import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.editor.AnchorPositioning
-import com.example.blurwidgetdemo.studio.model.DimensionMode
-import com.example.blurwidgetdemo.studio.model.HorizontalAlignment
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.VerticalAlignment
-import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
-import com.example.blurwidgetdemo.studio.rendering.RemoteViewsGeometryCompat
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.editor.AnchorPositioning
+import dev.revilodev.onewidget.studio.model.DimensionMode
+import dev.revilodev.onewidget.studio.model.HorizontalAlignment
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.VerticalAlignment
+import dev.revilodev.onewidget.studio.model.WidgetElementSpec
+import dev.revilodev.onewidget.studio.rendering.RemoteViewsGeometryCompat
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
 
 data class StorageElementViewBinding(
     val elementId: String,

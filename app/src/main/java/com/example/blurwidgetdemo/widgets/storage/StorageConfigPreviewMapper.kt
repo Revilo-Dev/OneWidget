@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.widgets.storage
+package dev.revilodev.onewidget.widgets.storage
 
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import dev.revilodev.onewidget.widgets.WidgetAppearance
 
 /** Maps unsaved Storage controls without writing production preferences. */
 object StorageConfigPreviewMapper {

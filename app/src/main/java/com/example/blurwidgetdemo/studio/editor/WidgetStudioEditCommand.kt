@@ -1,10 +1,10 @@
-package com.example.blurwidgetdemo.studio.editor
+package dev.revilodev.onewidget.studio.editor
 
-import com.example.blurwidgetdemo.studio.model.DimensionMode
-import com.example.blurwidgetdemo.studio.model.HorizontalAlignment
-import com.example.blurwidgetdemo.studio.model.VerticalAlignment
-import com.example.blurwidgetdemo.studio.model.WidgetAnchor
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.DimensionMode
+import dev.revilodev.onewidget.studio.model.HorizontalAlignment
+import dev.revilodev.onewidget.studio.model.VerticalAlignment
+import dev.revilodev.onewidget.studio.model.WidgetAnchor
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 
 sealed interface WidgetStudioEditCommand {
     val label: String

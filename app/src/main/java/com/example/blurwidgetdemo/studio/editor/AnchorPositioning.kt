@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.studio.editor
+package dev.revilodev.onewidget.studio.editor
 
-import com.example.blurwidgetdemo.studio.model.WidgetAnchor
+import dev.revilodev.onewidget.studio.model.WidgetAnchor
 
 data class StudioPoint(val x: Float, val y: Float)
 

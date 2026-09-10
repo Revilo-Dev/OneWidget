@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.developer
+package dev.revilodev.onewidget.studio.developer
 
 import android.annotation.SuppressLint
 import android.content.Context

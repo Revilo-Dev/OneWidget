@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo
+package dev.revilodev.onewidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider

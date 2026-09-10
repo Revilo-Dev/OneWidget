@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.battery
+package dev.revilodev.onewidget.widgets.battery
 
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
@@ -15,14 +15,14 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
-import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
-import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignRepository
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignResolver
+import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepository
+import dev.revilodev.onewidget.widgets.variants.ExactWidgetVariants
 
 open class BatteryWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
@@ -49,7 +49,7 @@ open class BatteryWidget : AppWidgetProvider() {
     }
 
     companion object {
-        private const val ACTION_REFRESH = "com.example.blurwidgetdemo.action.REFRESH_BATTERY_WIDGET"
+        private const val ACTION_REFRESH = "dev.revilodev.onewidget.action.REFRESH_BATTERY_WIDGET"
         data class Device(val key: String, val label: String, val level: Int?, val icon: Int, val charging: Boolean = false)
         const val PHONE = "phone"
         private const val RED = 0xFFF44336.toInt()

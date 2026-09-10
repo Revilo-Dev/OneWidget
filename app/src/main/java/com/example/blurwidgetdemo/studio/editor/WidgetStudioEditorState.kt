@@ -1,9 +1,9 @@
-package com.example.blurwidgetdemo.studio.editor
+package dev.revilodev.onewidget.studio.editor
 
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.ValidationIssue
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.ValidationIssue
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 
 data class WidgetStudioEditorState(
     val selectedWidgetId: String,

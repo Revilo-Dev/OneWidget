@@ -1,15 +1,15 @@
-package com.example.blurwidgetdemo.studio.clock
+package dev.revilodev.onewidget.studio.clock
 
 import android.content.Context
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.rendering.StudioRemoteViewsRenderer
-import com.example.blurwidgetdemo.studio.rendering.StudioPreviewRenderResult
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
-import com.example.blurwidgetdemo.widgets.clock.ClockRemoteViewsRenderer
-import com.example.blurwidgetdemo.widgets.clock.ClockRenderMode
-import com.example.blurwidgetdemo.widgets.clock.ClockRenderSize
-import com.example.blurwidgetdemo.widgets.clock.ClockWidgetConfigurationRepository
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.rendering.StudioRemoteViewsRenderer
+import dev.revilodev.onewidget.studio.rendering.StudioPreviewRenderResult
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.widgets.clock.ClockRemoteViewsRenderer
+import dev.revilodev.onewidget.widgets.clock.ClockRenderMode
+import dev.revilodev.onewidget.widgets.clock.ClockRenderSize
+import dev.revilodev.onewidget.widgets.clock.ClockWidgetConfigurationRepository
 
 object ClockStudioRemoteViewsRenderer : StudioRemoteViewsRenderer {
     override fun buildForStudioPreview(

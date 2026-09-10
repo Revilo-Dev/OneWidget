@@ -1,7 +1,7 @@
-package com.example.blurwidgetdemo.studio.snapshot
+package dev.revilodev.onewidget.studio.snapshot
 
 import android.graphics.Bitmap
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

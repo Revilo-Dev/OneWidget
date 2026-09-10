@@ -1,13 +1,13 @@
-package com.example.blurwidgetdemo.widgets.calendar
+package dev.revilodev.onewidget.widgets.calendar
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
-import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
+import dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignRepository
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignResolver
+import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepository
 
 open class CalendarWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) =

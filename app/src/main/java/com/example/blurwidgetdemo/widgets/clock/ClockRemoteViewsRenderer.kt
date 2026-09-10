@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -11,11 +11,11 @@ import android.provider.AlarmClock
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.widgets.WidgetProgressBarRenderer
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
 
 data class ClockRenderPlan(
     val mode: ClockRenderMode,

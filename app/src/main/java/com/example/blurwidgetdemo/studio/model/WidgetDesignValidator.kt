@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.model
+package dev.revilodev.onewidget.studio.model
 
 enum class ValidationSeverity { ERROR, WARNING }
 

@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 import android.content.SharedPreferences
 import org.junit.Assert.assertEquals

@@ -1,9 +1,9 @@
-package com.example.blurwidgetdemo.studio.gallery
+package dev.revilodev.onewidget.studio.gallery
 
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotLookupResult
-import com.example.blurwidgetdemo.studio.snapshot.SnapshotStatus
-import com.example.blurwidgetdemo.studio.snapshot.WidgetSnapshotMetadata
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.snapshot.SnapshotLookupResult
+import dev.revilodev.onewidget.studio.snapshot.SnapshotStatus
+import dev.revilodev.onewidget.studio.snapshot.WidgetSnapshotMetadata
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

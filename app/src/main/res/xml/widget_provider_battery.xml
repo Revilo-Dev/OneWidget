@@ -5,7 +5,7 @@
     android:maxResizeWidth="1000dp" android:maxResizeHeight="1000dp" android:resizeMode="horizontal|vertical"
     android:targetCellWidth="1" android:targetCellHeight="1" android:updatePeriodMillis="900000"
     android:description="@string/battery_widget_description" android:widgetCategory="home_screen"
-    android:configure="com.example.blurwidgetdemo.WidgetConfigActivity" android:widgetFeatures="reconfigurable|hide_from_picker"
+    android:configure="dev.revilodev.onewidget.WidgetConfigActivity" android:widgetFeatures="reconfigurable|hide_from_picker"
     app:previewLayoutSmall="@layout/widget_battery_compact" app:previewLayoutWideSmall="@layout/widget_battery_compact"
     app:previewLayoutMedium="@layout/widget_battery_large" app:previewLayoutLarge="@layout/widget_battery_large"
     app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large" />

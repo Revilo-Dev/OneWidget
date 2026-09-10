@@ -1,9 +1,9 @@
-package com.example.blurwidgetdemo.studio.production
+package dev.revilodev.onewidget.studio.production
 
-import com.example.blurwidgetdemo.studio.model.WidgetElementOverride
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.model.WidgetVariantOverride
-import com.example.blurwidgetdemo.studio.studioTestDesign
+import dev.revilodev.onewidget.studio.model.WidgetElementOverride
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.WidgetVariantOverride
+import dev.revilodev.onewidget.studio.studioTestDesign
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

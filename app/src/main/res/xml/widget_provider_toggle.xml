@@ -3,6 +3,6 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:initialLayout="@layout/widget_toggle_square" android:previewLayout="@layout/widget_toggle_square"
     android:minWidth="40dp" android:minHeight="40dp" android:minResizeWidth="40dp" android:minResizeHeight="40dp" android:maxResizeWidth="130dp" android:maxResizeHeight="51dp"
-    android:resizeMode="horizontal" android:targetCellWidth="1" android:targetCellHeight="1" android:updatePeriodMillis="1800000" android:widgetCategory="home_screen" android:configure="com.example.blurwidgetdemo.WidgetConfigActivity" android:widgetFeatures="reconfigurable|hide_from_picker"
+    android:resizeMode="horizontal" android:targetCellWidth="1" android:targetCellHeight="1" android:updatePeriodMillis="1800000" android:widgetCategory="home_screen" android:configure="dev.revilodev.onewidget.WidgetConfigActivity" android:widgetFeatures="reconfigurable|hide_from_picker"
     app:allowMultipleSizes="true" app:previewLayoutTiny="@layout/widget_toggle_square" app:previewLayoutSmall="@layout/widget_toggle"
     app:widgetStyle="colorful" app:widgetSize="tiny|small" />

@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.extra
+package dev.revilodev.onewidget.widgets.extra
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.blurwidgetdemo.R
+import dev.revilodev.onewidget.R
 
 class StepCounterConfigActivity : AppCompatActivity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID
@@ -32,8 +32,8 @@ class StepCounterConfigActivity : AppCompatActivity() {
         finishConfiguration()
     }
     private fun finishConfiguration() {
-        com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-            .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.STEP_COUNTER, widgetId)
+        dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+            .initializeConfiguredWidget(this, dev.revilodev.onewidget.studio.universal.UniversalWidgetIds.STEP_COUNTER, widgetId)
         StepCounterWidget().onUpdate(this, AppWidgetManager.getInstance(this), intArrayOf(widgetId))
         setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
         finish()

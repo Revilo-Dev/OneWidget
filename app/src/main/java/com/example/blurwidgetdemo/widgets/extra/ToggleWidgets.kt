@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.extra
+package dev.revilodev.onewidget.widgets.extra
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -15,13 +15,13 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
-import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetActions
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.universal.UniversalElementContent
+import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetActions
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetContent
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 
 enum class ToggleKind(val label: String, val icon: Int) {
     DATA("Mobile data", R.drawable.network_storage), DARK_MODE("Dark mode", R.drawable.dark), WIFI("Wi-Fi", R.drawable.wifi_2),
@@ -90,7 +90,7 @@ open class ToggleWidget : AppWidgetProvider() {
                 this,
                 prefs,
                 id,
-                if (com.example.blurwidgetdemo.widgets.WidgetAppearance.bordersEnabled(prefs)) {
+                if (dev.revilodev.onewidget.widgets.WidgetAppearance.bordersEnabled(prefs)) {
                     R.drawable.widget_clock_background_fully_rounded
                 } else {
                     R.drawable.widget_clock_background_fully_rounded_no_border
@@ -186,8 +186,8 @@ open class ToggleWidget : AppWidgetProvider() {
         }.getOrDefault(false)
     }
     companion object {
-        const val ACTION_TOGGLE = "com.example.blurwidgetdemo.action.TOGGLE"
-        const val OPTION_TOGGLE_KIND = "com.example.blurwidgetdemo.option.TOGGLE_KIND"
+        const val ACTION_TOGGLE = "dev.revilodev.onewidget.action.TOGGLE"
+        const val OPTION_TOGGLE_KIND = "dev.revilodev.onewidget.option.TOGGLE_KIND"
     }
 }
 

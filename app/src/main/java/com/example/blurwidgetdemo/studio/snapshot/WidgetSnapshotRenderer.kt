@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.snapshot
+package dev.revilodev.onewidget.studio.snapshot
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,12 +9,12 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
-import com.example.blurwidgetdemo.studio.registry.WidgetStudioRegistry
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.registry.WidgetStudioRegistry
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
 import kotlin.math.roundToInt
 
 data class SnapshotRenderRequest(

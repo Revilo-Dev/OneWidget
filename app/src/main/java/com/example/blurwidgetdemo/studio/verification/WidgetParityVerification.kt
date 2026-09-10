@@ -1,11 +1,11 @@
-package com.example.blurwidgetdemo.studio.verification
+package dev.revilodev.onewidget.studio.verification
 
-import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
-import com.example.blurwidgetdemo.studio.calendar.CalendarStudioDescriptor
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.studio.calendar.CalendarStudioDescriptor
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetStudioCatalog
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 
 const val PARITY_VERIFICATION_SCHEMA_VERSION = 3
 

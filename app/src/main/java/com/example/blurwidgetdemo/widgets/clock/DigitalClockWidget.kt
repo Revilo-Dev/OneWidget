@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -9,12 +9,12 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
-import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignRepository
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignResolver
+import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepository
 
 open class DigitalClockWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
@@ -51,7 +51,7 @@ open class DigitalClockWidget : AppWidgetProvider() {
     }
 
     companion object {
-        private const val ACTION_TYPEFACE_REFRESH = "com.example.blurwidgetdemo.action.CLOCK_TYPEFACE_REFRESH"
+        private const val ACTION_TYPEFACE_REFRESH = "dev.revilodev.onewidget.action.CLOCK_TYPEFACE_REFRESH"
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int, reason: String = "UPDATE") {
             val options = manager.getAppWidgetOptions(id)
             val renderSize = ClockWidgetSizeResolver.fromOptions(options)

@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.studio.snapshot
+package dev.revilodev.onewidget.studio.snapshot
 
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue

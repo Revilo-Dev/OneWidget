@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.studio.model
+package dev.revilodev.onewidget.studio.model
 
-import com.example.blurwidgetdemo.studio.studioTestDesign
+import dev.revilodev.onewidget.studio.studioTestDesign
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

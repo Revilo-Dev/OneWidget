@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.model
+package dev.revilodev.onewidget.studio.model
 
 const val WIDGET_DESIGN_SCHEMA_VERSION = 1
 

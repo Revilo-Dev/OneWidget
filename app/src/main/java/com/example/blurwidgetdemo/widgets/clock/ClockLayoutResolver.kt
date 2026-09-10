@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
-import com.example.blurwidgetdemo.R
+import dev.revilodev.onewidget.R
 
 /**
  * RemoteViews cannot receive a Typeface object. Each result is therefore a complete XML

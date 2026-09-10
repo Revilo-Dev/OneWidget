@@ -1,10 +1,10 @@
-package com.example.blurwidgetdemo.widgets.clock
+package dev.revilodev.onewidget.widgets.clock
 
 import android.os.Build
 import android.view.Gravity
-import com.example.blurwidgetdemo.studio.clock.ClockStudioDescriptor
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetVariantId
+import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetVariantId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -35,9 +35,9 @@ class ClockRemoteViewsRendererTest {
                 assertEquals(
                     setOf(
                         android.R.id.background,
-                        com.example.blurwidgetdemo.R.id.clock_content,
-                        com.example.blurwidgetdemo.R.id.clock_time,
-                        com.example.blurwidgetdemo.R.id.clock_date
+                        dev.revilodev.onewidget.R.id.clock_content,
+                        dev.revilodev.onewidget.R.id.clock_time,
+                        dev.revilodev.onewidget.R.id.clock_date
                     ),
                     plan.tapActionViewIds
                 )

@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets
+package dev.revilodev.onewidget.widgets
 
 import android.graphics.Bitmap
 import android.graphics.Canvas

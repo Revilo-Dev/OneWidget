@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.widgets.battery
+package dev.revilodev.onewidget.widgets.battery
 
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import dev.revilodev.onewidget.widgets.WidgetAppearance
 
 /** Maps unsaved Battery configuration controls without writing production preferences. */
 object BatteryConfigPreviewMapper {

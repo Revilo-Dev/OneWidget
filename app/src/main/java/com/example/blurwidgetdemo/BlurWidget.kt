@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo
+package dev.revilodev.onewidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -9,11 +9,11 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.studio.universal.UniversalElementContent
-import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetContent
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import dev.revilodev.onewidget.studio.universal.UniversalElementContent
+import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetContent
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
+import dev.revilodev.onewidget.widgets.WidgetAppearance
 
 open class BlurWidget : AppWidgetProvider() {
 

@@ -147,13 +147,13 @@
                 android:layout_height="360dp"
                 android:layout_marginTop="6dp">
 
-                <com.example.blurwidgetdemo.studio.canvas.WidgetStudioCanvasView
+                <dev.revilodev.onewidget.studio.canvas.WidgetStudioCanvasView
                     android:id="@+id/studio_canvas"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/studio_canvas_description" />
 
-                <com.example.blurwidgetdemo.studio.preview.ActualRemoteViewsPreview
+                <dev.revilodev.onewidget.studio.preview.ActualRemoteViewsPreview
                     android:id="@+id/studio_actual_preview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

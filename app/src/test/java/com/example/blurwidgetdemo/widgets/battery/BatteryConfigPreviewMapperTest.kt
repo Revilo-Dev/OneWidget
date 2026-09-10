@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.widgets.battery
+package dev.revilodev.onewidget.widgets.battery
 
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import dev.revilodev.onewidget.widgets.WidgetAppearance
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

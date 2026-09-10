@@ -1,17 +1,17 @@
-package com.example.blurwidgetdemo.studio.production
+package dev.revilodev.onewidget.studio.production
 
-import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.model.WidgetDesignResolver
-import com.example.blurwidgetdemo.studio.model.WidgetDesignSpec
-import com.example.blurwidgetdemo.studio.model.WidgetDesignValidator
-import com.example.blurwidgetdemo.studio.model.ElementCapability
-import com.example.blurwidgetdemo.studio.model.HorizontalAlignment
-import com.example.blurwidgetdemo.studio.model.VerticalAlignment
-import com.example.blurwidgetdemo.studio.registry.StudioWidgetDescriptor
-import com.example.blurwidgetdemo.studio.verification.WidgetVerificationStatus
-import com.example.blurwidgetdemo.studio.universal.UniversalWidgetStudioCatalog
+import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.model.WidgetDesignResolver
+import dev.revilodev.onewidget.studio.model.WidgetDesignSpec
+import dev.revilodev.onewidget.studio.model.WidgetDesignValidator
+import dev.revilodev.onewidget.studio.model.ElementCapability
+import dev.revilodev.onewidget.studio.model.HorizontalAlignment
+import dev.revilodev.onewidget.studio.model.VerticalAlignment
+import dev.revilodev.onewidget.studio.registry.StudioWidgetDescriptor
+import dev.revilodev.onewidget.studio.verification.WidgetVerificationStatus
+import dev.revilodev.onewidget.studio.universal.UniversalWidgetStudioCatalog
 
 enum class PromotionSnapshotStatus { CURRENT, MISSING, STALE }
 
@@ -20,7 +20,7 @@ data class PromotionReview(
     val revision: Long,
     val verificationStatus: WidgetVerificationStatus,
     val snapshotStatus: PromotionSnapshotStatus,
-    val mapping: Map<ProductionSizeCategory, com.example.blurwidgetdemo.studio.model.WidgetVariantId.Standard>,
+    val mapping: Map<ProductionSizeCategory, dev.revilodev.onewidget.studio.model.WidgetVariantId.Standard>,
     val differences: List<WidgetDesignDifference>,
     val blockingErrors: List<String>,
     val compatibilityWarnings: List<String>
@@ -48,7 +48,7 @@ object WidgetPromotionReviewer {
         )
         val mapping = ProductionVariantResolver.mappingFor(request.design.widgetId)
         val errors = mutableListOf<String>()
-        errors += validation.issues.filter { it.severity == com.example.blurwidgetdemo.studio.model.ValidationSeverity.ERROR }
+        errors += validation.issues.filter { it.severity == dev.revilodev.onewidget.studio.model.ValidationSeverity.ERROR }
             .map { "${it.field}: ${it.message}" }
         if (request.design.revision <= 0L) errors += "The current design must be saved before promotion."
         if (request.design.widgetId != request.descriptor.widgetId) errors += "Descriptor and design widget IDs do not match."

@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets
+package dev.revilodev.onewidget.widgets
 
 /**
  * App-owned record of a gallery selection. The launcher remains responsible for the eventual
@@ -16,8 +16,8 @@ data class WidgetInitialSizeSpec(
     val stableId: String = "${columns}x${rows}"
 
     companion object {
-        const val EXTRA_COLUMNS = "com.example.blurwidgetdemo.extra.REQUESTED_COLUMNS"
-        const val EXTRA_ROWS = "com.example.blurwidgetdemo.extra.REQUESTED_ROWS"
+        const val EXTRA_COLUMNS = "dev.revilodev.onewidget.extra.REQUESTED_COLUMNS"
+        const val EXTRA_ROWS = "dev.revilodev.onewidget.extra.REQUESTED_ROWS"
 
         fun grid(columns: Int, rows: Int): WidgetInitialSizeSpec {
             require(columns > 0 && rows > 0) { "Widget grid dimensions must be positive" }

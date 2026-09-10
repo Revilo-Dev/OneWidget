@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.model
+package dev.revilodev.onewidget.studio.model
 
 data class ResolutionIssue(
     val field: String,

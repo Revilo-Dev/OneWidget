@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.storage
+package dev.revilodev.onewidget.widgets.storage
 
 import android.app.ActivityManager
 import android.app.AlarmManager
@@ -10,13 +10,13 @@ import android.content.Context
 import android.content.Intent
 import android.net.TrafficStats
 import android.os.StatFs
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.studio.data.StudioRepositoryResult
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignRepository
-import com.example.blurwidgetdemo.studio.production.ProductionWidgetDesignResolver
-import com.example.blurwidgetdemo.studio.production.WidgetProductionDesignModeRepository
-import com.example.blurwidgetdemo.widgets.variants.ExactWidgetVariants
-import com.example.blurwidgetdemo.studio.storage.StorageStudioDescriptor
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.studio.data.StudioRepositoryResult
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignRepository
+import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignResolver
+import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepository
+import dev.revilodev.onewidget.widgets.variants.ExactWidgetVariants
+import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
 
 open class StorageWidget : AppWidgetProvider() {
     enum class DetailMode(val label: String) {
@@ -75,7 +75,7 @@ open class StorageWidget : AppWidgetProvider() {
     ) = updateWidget(context, manager, id)
 
     companion object {
-        private const val ACTION_REFRESH = "com.example.blurwidgetdemo.action.REFRESH_STORAGE_WIDGET"
+        private const val ACTION_REFRESH = "dev.revilodev.onewidget.action.REFRESH_STORAGE_WIDGET"
         private const val DEFAULT_STORAGE_COLOR = 0xFF08B0CE.toInt()
         private const val DEFAULT_MEMORY_COLOR = 0xFF1D79ED.toInt()
         private const val DEFAULT_DATA_COLOR = 0xFF5BD686.toInt()

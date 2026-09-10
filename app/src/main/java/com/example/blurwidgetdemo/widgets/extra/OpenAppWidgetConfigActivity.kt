@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets.extra
+package dev.revilodev.onewidget.widgets.extra
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
@@ -78,8 +78,8 @@ class OpenAppWidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun finishConfiguration() {
-        com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-            .initializeConfiguredWidget(this, com.example.blurwidgetdemo.studio.universal.UniversalWidgetIds.OPEN_APP, widgetId)
+        dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+            .initializeConfiguredWidget(this, dev.revilodev.onewidget.studio.universal.UniversalWidgetIds.OPEN_APP, widgetId)
         OpenAppWidget().onUpdate(this, AppWidgetManager.getInstance(this), intArrayOf(widgetId))
         setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
         finish()

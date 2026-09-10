@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo
+package dev.revilodev.onewidget
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,8 +7,8 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.LayoutRes
-import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
-import com.example.blurwidgetdemo.widgets.extra.ToggleOverlayRenderer
+import dev.revilodev.onewidget.widgets.WidgetProgressBarRenderer
+import dev.revilodev.onewidget.widgets.extra.ToggleOverlayRenderer
 import kotlin.math.min
 
 /**

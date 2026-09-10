@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.widgets.calendar
+package dev.revilodev.onewidget.widgets.calendar
 
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import dev.revilodev.onewidget.widgets.WidgetAppearance
 
 /** Maps unsaved Calendar controls without writing production preferences. */
 object CalendarConfigPreviewMapper {

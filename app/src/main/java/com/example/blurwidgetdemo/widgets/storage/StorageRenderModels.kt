@@ -1,10 +1,10 @@
-package com.example.blurwidgetdemo.widgets.storage
+package dev.revilodev.onewidget.widgets.storage
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Bundle
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.widgets.WidgetAppearance
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.widgets.WidgetAppearance
 
 enum class StorageRenderMode {
     PRODUCTION,

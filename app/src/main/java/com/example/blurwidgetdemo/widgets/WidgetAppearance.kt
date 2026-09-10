@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.widgets
+package dev.revilodev.onewidget.widgets
 
 import android.content.SharedPreferences
 import android.graphics.Color

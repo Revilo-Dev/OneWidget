@@ -1,15 +1,15 @@
-package com.example.blurwidgetdemo.studio.production
+package dev.revilodev.onewidget.studio.production
 
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.studio.registry.DefaultWidgetStudioRegistry
-import com.example.blurwidgetdemo.studio.universal.UniversalProductionWidgetRenderer
-import com.example.blurwidgetdemo.widgets.WidgetInitialSizeSpec
-import com.example.blurwidgetdemo.widgets.extra.ToggleWidget
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.studio.registry.DefaultWidgetStudioRegistry
+import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
+import dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec
+import dev.revilodev.onewidget.widgets.extra.ToggleWidget
 
 /** Initializes production mode at the launcher-confirmed creation boundary. */
 class WidgetPinResultReceiver : BroadcastReceiver() {

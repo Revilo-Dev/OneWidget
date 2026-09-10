@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.rendering
+package dev.revilodev.onewidget.studio.rendering
 
 import android.os.Build
 import android.util.TypedValue

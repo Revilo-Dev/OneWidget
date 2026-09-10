@@ -1,4 +1,4 @@
-package com.example.blurwidgetdemo.studio.universal
+package dev.revilodev.onewidget.studio.universal
 
 import android.app.PendingIntent
 import android.content.Context
@@ -10,19 +10,19 @@ import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.editor.AnchorPositioning
-import com.example.blurwidgetdemo.studio.model.DimensionMode
-import com.example.blurwidgetdemo.studio.model.HorizontalAlignment
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.model.VerticalAlignment
-import com.example.blurwidgetdemo.studio.model.WidgetElementSpec
-import com.example.blurwidgetdemo.studio.registry.StudioElementVisualType
-import com.example.blurwidgetdemo.studio.rendering.RemoteViewsGeometryCompat
-import com.example.blurwidgetdemo.studio.rendering.StudioPreviewRenderResult
-import com.example.blurwidgetdemo.studio.rendering.StudioRemoteViewsRenderer
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.editor.AnchorPositioning
+import dev.revilodev.onewidget.studio.model.DimensionMode
+import dev.revilodev.onewidget.studio.model.HorizontalAlignment
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.model.VerticalAlignment
+import dev.revilodev.onewidget.studio.model.WidgetElementSpec
+import dev.revilodev.onewidget.studio.registry.StudioElementVisualType
+import dev.revilodev.onewidget.studio.rendering.RemoteViewsGeometryCompat
+import dev.revilodev.onewidget.studio.rendering.StudioPreviewRenderResult
+import dev.revilodev.onewidget.studio.rendering.StudioRemoteViewsRenderer
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
 
 enum class UniversalRenderMode {
     CONFIG_PREVIEW,

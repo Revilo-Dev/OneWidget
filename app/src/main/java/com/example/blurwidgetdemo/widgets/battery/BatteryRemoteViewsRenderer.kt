@@ -1,12 +1,12 @@
-package com.example.blurwidgetdemo.widgets.battery
+package dev.revilodev.onewidget.widgets.battery
 
 import android.view.View
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.BlurWidget
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.battery.BatteryStudioDescriptor
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.widgets.WidgetProgressBarRenderer
+import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.widgets.WidgetProgressBarRenderer
 
 data class BatteryRenderPlan(
     val mode: BatteryRenderMode,

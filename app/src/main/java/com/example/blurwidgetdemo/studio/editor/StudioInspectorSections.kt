@@ -1,6 +1,6 @@
-package com.example.blurwidgetdemo.studio.editor
+package dev.revilodev.onewidget.studio.editor
 
-import com.example.blurwidgetdemo.studio.model.ElementCapability
+import dev.revilodev.onewidget.studio.model.ElementCapability
 
 data class StudioInspectorSections(
     val visibility: Boolean,

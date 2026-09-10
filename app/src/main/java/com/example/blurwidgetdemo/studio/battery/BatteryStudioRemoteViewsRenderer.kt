@@ -1,17 +1,17 @@
-package com.example.blurwidgetdemo.studio.battery
+package dev.revilodev.onewidget.studio.battery
 
 import android.content.Context
 import android.widget.RemoteViews
-import com.example.blurwidgetdemo.R
-import com.example.blurwidgetdemo.studio.model.ResolvedWidgetDesign
-import com.example.blurwidgetdemo.studio.rendering.StudioPreviewRenderResult
-import com.example.blurwidgetdemo.studio.rendering.StudioRemoteViewsRenderer
-import com.example.blurwidgetdemo.studio.rendering.WidgetRenderSize
-import com.example.blurwidgetdemo.widgets.battery.BatteryRemoteViewsRenderer
-import com.example.blurwidgetdemo.widgets.battery.BatteryRenderMode
-import com.example.blurwidgetdemo.widgets.battery.BatteryRenderSize
-import com.example.blurwidgetdemo.widgets.battery.BatterySamples
-import com.example.blurwidgetdemo.widgets.battery.BatteryWidgetConfigurationRepository
+import dev.revilodev.onewidget.R
+import dev.revilodev.onewidget.studio.model.ResolvedWidgetDesign
+import dev.revilodev.onewidget.studio.rendering.StudioPreviewRenderResult
+import dev.revilodev.onewidget.studio.rendering.StudioRemoteViewsRenderer
+import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
+import dev.revilodev.onewidget.widgets.battery.BatteryRemoteViewsRenderer
+import dev.revilodev.onewidget.widgets.battery.BatteryRenderMode
+import dev.revilodev.onewidget.widgets.battery.BatteryRenderSize
+import dev.revilodev.onewidget.widgets.battery.BatterySamples
+import dev.revilodev.onewidget.widgets.battery.BatteryWidgetConfigurationRepository
 
 object BatteryStudioRemoteViewsRenderer : StudioRemoteViewsRenderer {
     override fun buildForDeveloperWidget(
