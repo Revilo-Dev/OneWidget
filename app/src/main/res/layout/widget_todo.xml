@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_clock_background" android:orientation="vertical" android:padding="14dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="To do" android:textColor="#FFFFFFFF" android:textSize="18sp" android:textStyle="bold" />
+        <ImageView android:id="@+id/todo_add" android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/widget_round_button" android:contentDescription="Add todo" android:padding="7dp" android:src="@drawable/list_add" />
+    </LinearLayout>
+    <TextView android:id="@+id/todo_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center" android:text="Your to-dos will appear here." android:textColor="#B3FFFFFF" android:textSize="14sp" />
+    <ListView android:id="@+id/todo_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="4dp" android:layout_weight="1" android:divider="@android:color/transparent" android:dividerHeight="0dp" android:scrollbars="vertical" />
+</LinearLayout>
