@@ -19,6 +19,17 @@
         <flag name="extraLargeLong" value="0x40" />
     </attr>
 
+    <!-- Preview choices are separate from supported resize classes. -->
+    <attr name="previewSize" format="integer">
+        <flag name="tiny" value="0x1" />
+        <flag name="small" value="0x2" />
+        <flag name="wideSmall" value="0x4" />
+        <flag name="medium" value="0x8" />
+        <flag name="large" value="0x10" />
+        <flag name="extraLarge" value="0x20" />
+        <flag name="extraLargeLong" value="0x40" />
+    </attr>
+
     <!-- Per-size layouts read by Samsung's One UI widget picker. -->
     <attr name="initialLayoutTiny" format="reference" />
     <attr name="initialLayoutSmall" format="reference" />

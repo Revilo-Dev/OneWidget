@@ -38,6 +38,7 @@ class Alarm2x1Widget : AlarmWidget()
 class Alarm3x2Widget : AlarmWidget()
 class Alarm4x2Widget : AlarmWidget()
 
+class Battery2x1Widget : BatteryWidget()
 class Battery4x1Widget : BatteryWidget()
 class Battery2x2Widget : BatteryWidget()
 class Battery4x2Widget : BatteryWidget()
@@ -56,7 +57,6 @@ class NextEvent4x2Widget : CalendarWidget()
 class CalendarDisplay2x2Widget : CalendarDisplayWidget()
 class CalendarDisplay4x2Widget : CalendarDisplayWidget()
 
-class Storage4x1Widget : StorageWidget()
 class Storage2x2Widget : StorageWidget()
 class Storage4x2Widget : StorageWidget()
 
@@ -70,8 +70,20 @@ class StepCounter3x1Widget : StepCounterWidget()
 class StepCounter4x1Widget : StepCounterWidget()
 
 class GoogleSearch4x1Widget : GoogleSearchWidget()
+class GoogleSearch3x1Widget : GoogleSearchWidget()
+class GoogleSearch5x1Widget : GoogleSearchWidget()
+class GoogleSearch6x1Widget : GoogleSearchWidget()
+class GoogleSearch7x1Widget : GoogleSearchWidget()
 class SamsungBrowserSearch4x1Widget : SamsungBrowserSearchWidget()
+class SamsungBrowserSearch3x1Widget : SamsungBrowserSearchWidget()
+class SamsungBrowserSearch5x1Widget : SamsungBrowserSearchWidget()
+class SamsungBrowserSearch6x1Widget : SamsungBrowserSearchWidget()
+class SamsungBrowserSearch7x1Widget : SamsungBrowserSearchWidget()
 class YouTubeSearch4x1Widget : YouTubeSearchWidget()
+class YouTubeSearch3x1Widget : YouTubeSearchWidget()
+class YouTubeSearch5x1Widget : YouTubeSearchWidget()
+class YouTubeSearch6x1Widget : YouTubeSearchWidget()
+class YouTubeSearch7x1Widget : YouTubeSearchWidget()
 
 class OpenApp2x1Widget : OpenAppWidget()
 class OpenApp2x2Widget : OpenAppWidget()
@@ -116,6 +128,7 @@ object ExactWidgetVariants {
             (4 to 2) to Alarm4x2Widget::class.java
         ),
         BatteryWidget::class.java to mapOf(
+            (2 to 1) to Battery2x1Widget::class.java,
             (4 to 1) to Battery4x1Widget::class.java,
             (2 to 2) to Battery2x2Widget::class.java,
             (4 to 2) to Battery4x2Widget::class.java
@@ -138,7 +151,6 @@ object ExactWidgetVariants {
             (4 to 2) to CalendarDisplay4x2Widget::class.java
         ),
         StorageWidget::class.java to mapOf(
-            (4 to 1) to Storage4x1Widget::class.java,
             (2 to 2) to Storage2x2Widget::class.java,
             (4 to 2) to Storage4x2Widget::class.java
         ),
@@ -153,9 +165,27 @@ object ExactWidgetVariants {
             (3 to 1) to StepCounter3x1Widget::class.java,
             (4 to 1) to StepCounter4x1Widget::class.java
         ),
-        GoogleSearchWidget::class.java to mapOf((4 to 1) to GoogleSearch4x1Widget::class.java),
-        SamsungBrowserSearchWidget::class.java to mapOf((4 to 1) to SamsungBrowserSearch4x1Widget::class.java),
-        YouTubeSearchWidget::class.java to mapOf((4 to 1) to YouTubeSearch4x1Widget::class.java),
+        GoogleSearchWidget::class.java to mapOf(
+            (3 to 1) to GoogleSearch3x1Widget::class.java,
+            (4 to 1) to GoogleSearch4x1Widget::class.java,
+            (5 to 1) to GoogleSearch5x1Widget::class.java,
+            (6 to 1) to GoogleSearch6x1Widget::class.java,
+            (7 to 1) to GoogleSearch7x1Widget::class.java
+        ),
+        SamsungBrowserSearchWidget::class.java to mapOf(
+            (3 to 1) to SamsungBrowserSearch3x1Widget::class.java,
+            (4 to 1) to SamsungBrowserSearch4x1Widget::class.java,
+            (5 to 1) to SamsungBrowserSearch5x1Widget::class.java,
+            (6 to 1) to SamsungBrowserSearch6x1Widget::class.java,
+            (7 to 1) to SamsungBrowserSearch7x1Widget::class.java
+        ),
+        YouTubeSearchWidget::class.java to mapOf(
+            (3 to 1) to YouTubeSearch3x1Widget::class.java,
+            (4 to 1) to YouTubeSearch4x1Widget::class.java,
+            (5 to 1) to YouTubeSearch5x1Widget::class.java,
+            (6 to 1) to YouTubeSearch6x1Widget::class.java,
+            (7 to 1) to YouTubeSearch7x1Widget::class.java
+        ),
         MediaPlayerWidget::class.java to mapOf(
             (3 to 1) to MediaPlayer3x1Widget::class.java,
             (2 to 2) to MediaPlayer2x2Widget::class.java,
@@ -190,8 +220,9 @@ object ExactWidgetVariants {
         .flatMap { (base, variants) -> listOf(base) + variants.values }
         .distinct()
 
-    fun providerFor(base: Provider, columns: Int, rows: Int): Provider =
-        variantsByBase[base]?.get(columns to rows) ?: base
+    /** Returns only a registered size-specific provider; never silently falls back to a base widget. */
+    fun providerFor(base: Provider, columns: Int, rows: Int): Provider? =
+        variantsByBase[base]?.get(columns to rows)
 
     fun providersFor(base: Provider): List<Provider> =
         listOf(base) + variantsByBase[base].orEmpty().values

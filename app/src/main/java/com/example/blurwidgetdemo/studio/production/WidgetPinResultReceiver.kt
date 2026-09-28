@@ -20,13 +20,13 @@ class WidgetPinResultReceiver : BroadcastReceiver() {
         )
         val widgetId = intent.getStringExtra(EXTRA_STUDIO_WIDGET_ID)
         val providerClassName = intent.getStringExtra(EXTRA_PROVIDER_CLASS_NAME)
-        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID ||
-            widgetId == null ||
-            DefaultWidgetStudioRegistry.create().descriptor(widgetId) == null
-        ) {
-            return
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return
+        val hasStudioDescriptor = widgetId?.let {
+            DefaultWidgetStudioRegistry.create().descriptor(it) != null
+        } == true
+        if (widgetId != null && hasStudioDescriptor) {
+            UniversalProductionWidgetRenderer.initializeConfiguredWidget(context, widgetId, appWidgetId)
         }
-        UniversalProductionWidgetRenderer.initializeConfiguredWidget(context, widgetId, appWidgetId)
         val requestedColumns = intent.getIntExtra(WidgetInitialSizeSpec.EXTRA_COLUMNS, 0)
         val requestedRows = intent.getIntExtra(WidgetInitialSizeSpec.EXTRA_ROWS, 0)
         if (requestedColumns > 0 && requestedRows > 0) {

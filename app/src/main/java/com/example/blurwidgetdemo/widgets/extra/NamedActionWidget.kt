@@ -86,6 +86,7 @@ abstract class NamedActionWidget : AppWidgetProvider() {
             setViewPadding(R.id.action_label, padding, 0, 0, 0)
             setOnClickPendingIntent(android.R.id.background, action)
         }
+        dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, views)
         manager.updateAppWidget(id, views)
     }
 }

@@ -83,7 +83,11 @@
         <item>4x2</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_search">
+        <item>3x1</item>
         <item>4x1</item>
+        <item>5x1</item>
+        <item>6x1</item>
+        <item>7x1</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_media">
         <item>3x1</item>
@@ -107,6 +111,7 @@
         <item>4x4</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_battery">
+        <item>2x1</item>
         <item>4x1</item>
         <item>2x2</item>
         <item>4x2</item>
@@ -119,7 +124,6 @@
         <item>4x2</item>
     </string-array>
     <string-array name="widget_support_cell_sizes_storage">
-        <item>4x1</item>
         <item>2x2</item>
         <item>4x2</item>
     </string-array>

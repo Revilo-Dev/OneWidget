@@ -4,7 +4,7 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="?android:colorBackground" android:orientation="vertical">
 
-    <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+    <dev.revilodev.onewidget.ui.FlowScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" app:flowFadeBackground="?android:colorBackground">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingTop="28dp" android:paddingBottom="20dp">
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="To do list" android:textColor="?android:textColorPrimary" android:textSize="28sp" android:textStyle="bold" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Add, complete, and manage your tasks." android:textColor="?android:textColorSecondary" android:textSize="15sp" />
@@ -25,6 +25,6 @@
                 <TextView android:id="@+id/todo_editor_items" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top" android:lineSpacingExtra="10dp" android:minHeight="88dp" android:textColor="?android:textColorPrimary" android:textSize="16sp" />
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </dev.revilodev.onewidget.ui.FlowScrollView>
     <Button android:id="@+id/todo_editor_done" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginHorizontal="20dp" android:layout_marginBottom="18dp" android:text="Done" />
 </LinearLayout>

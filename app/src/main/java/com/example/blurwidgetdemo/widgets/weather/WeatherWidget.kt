@@ -97,6 +97,7 @@ open class WeatherWidget : AppWidgetProvider() {
                 val gravity = if (centred) Gravity.CENTER else Gravity.START or Gravity.CENTER_VERTICAL
                 intArrayOf(R.id.weather_temperature, R.id.weather_condition, R.id.weather_location).forEach { setInt(it, "setGravity", gravity) }
             }
+            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, views)
             manager.updateAppWidget(id, views)
         }
 

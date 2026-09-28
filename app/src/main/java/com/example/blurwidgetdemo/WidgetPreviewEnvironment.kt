@@ -14,11 +14,14 @@ object WidgetPreviewEnvironment {
      */
     fun apply(view: View) = apply(view, fullyRounded = false)
 
-    fun apply(view: View, fullyRounded: Boolean) {
+    fun apply(view: View, fullyRounded: Boolean) = apply(view, fullyRounded, columns = 0)
+
+    fun apply(view: View, fullyRounded: Boolean, columns: Int) {
         view.background = GradientDrawable().apply {
             setColor(0x66000000)
             setStroke((view.context.resources.displayMetrics.density * .25f).toInt().coerceAtLeast(1), 0x40FFFFFF.toInt())
-            cornerRadius = dp(view.context, if (fullyRounded) 1_000 else 28).toFloat()
+            cornerRadius = if (columns == 3) view.resources.getDimension(R.dimen.widget_three_column_corner_radius)
+                else dp(view.context, if (fullyRounded) 1_000 else 28).toFloat()
         }
     }
 

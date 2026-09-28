@@ -17,6 +17,5 @@
     android:description="@string/widget_description"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable"
-    app:widgetStyle="colorful" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutSmall="@layout/widget_preview_strip" app:previewSize="small" app:widgetStyle="colorful" app:widgetSize="small|medium|large|extraLarge|extraLargeLong" />
 

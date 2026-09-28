@@ -118,6 +118,7 @@ open class HydrationWidget : AppWidgetProvider() {
                 setOnClickPendingIntent(R.id.hydration_plus, plusAction)
                 setOnClickPendingIntent(android.R.id.background, rootAction)
             }
+            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, views)
             manager.updateAppWidget(id, views)
             scheduleReset(context, id)
         }

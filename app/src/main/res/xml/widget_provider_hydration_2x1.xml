@@ -16,6 +16,5 @@
     android:description="@string/hydration_widget_description"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable"
-    app:widgetStyle="colorful" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutSmall="@layout/widget_hydration_compact" app:previewSize="small" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large" />
 

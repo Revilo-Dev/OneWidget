@@ -21,6 +21,9 @@ class AboutActivity : AppCompatActivity() {
         setContentView(R.layout.activity_about)
         applySystemBarInsets()
         setupToolbar()
+        dev.revilodev.onewidget.ui.FlowToolbar.install(
+            findViewById(R.id.about_root), findViewById(R.id.about_app_bar), findViewById(R.id.about_toolbar)
+        )
         setupVersion()
         setupCollapsingContent()
 

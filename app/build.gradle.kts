@@ -22,7 +22,7 @@ android {
     defaultConfig {
         applicationId = "dev.revilodev.onewidget"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0-beta"
     }
@@ -42,7 +42,7 @@ android {
         release {
             isMinifyEnabled = false
             signingConfig = signingConfigs.findByName("release")
-        }
+         }
     }
 
     compileOptions {

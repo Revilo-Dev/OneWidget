@@ -68,7 +68,9 @@ open class ToggleWidget : AppWidgetProvider() {
         val rootAction = PendingIntent.getBroadcast(
             context,
             id,
-            Intent(context, this::class.java).setAction(ACTION_TOGGLE)
+            // Size-specific provider aliases do not declare the toggle action filter.
+            // Route clicks to the shared provider that owns the action filter instead.
+            Intent(context, ToggleWidgetV3::class.java).setAction(ACTION_TOGGLE)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

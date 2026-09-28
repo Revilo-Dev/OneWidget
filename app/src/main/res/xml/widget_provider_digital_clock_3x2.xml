@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:initialLayout="@layout/widget_digital_clock_medium_clock_stamp"
     android:previewLayout="@layout/widget_digital_clock_medium_clock_stamp"
-    android:minWidth="40dp" android:minHeight="40dp"
-    android:minResizeWidth="40dp" android:minResizeHeight="40dp"
-    android:resizeMode="horizontal|vertical" android:targetCellWidth="3" android:targetCellHeight="2"
+    android:minWidth="180dp" android:minHeight="110dp"
+    android:minResizeWidth="110dp" android:minResizeHeight="40dp"
+    android:maxResizeWidth="250dp" android:maxResizeHeight="250dp" android:resizeMode="horizontal|vertical" android:targetCellWidth="3" android:targetCellHeight="2"
     android:description="@string/digital_clock_widget_description" android:widgetCategory="home_screen"
-    android:configure="dev.revilodev.onewidget.WidgetConfigActivity" android:widgetFeatures="reconfigurable" />
+    android:configure="dev.revilodev.onewidget.WidgetConfigActivity" android:widgetFeatures="reconfigurable" app:previewLayoutLarge="@layout/widget_digital_clock_medium_clock_stamp" app:previewSize="large" app:widgetStyle="colorful" app:widgetSize="small|medium|large|extraLarge|extraLargeLong" />

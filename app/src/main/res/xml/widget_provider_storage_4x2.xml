@@ -7,16 +7,15 @@
     android:minWidth="250dp"
     android:minHeight="110dp"
     android:minResizeWidth="110dp"
-    android:minResizeHeight="40dp"
+    android:minResizeHeight="110dp"
     android:maxResizeWidth="250dp"
     android:maxResizeHeight="110dp"
-    android:resizeMode="horizontal|vertical"
+    android:resizeMode="horizontal"
     android:targetCellWidth="4"
     android:targetCellHeight="2"
     android:updatePeriodMillis="900000"
     android:description="@string/storage_widget_description"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable"
-    app:widgetStyle="colorful" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutLarge="@layout/widget_storage_large" app:previewSize="large" app:widgetStyle="colorful" app:widgetSize="medium|large" />
 

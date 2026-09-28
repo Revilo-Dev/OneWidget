@@ -9,8 +9,8 @@ class WidgetInitialSizeSpecTest {
         val spec = WidgetInitialSizeSpec.grid(4, 1)
 
         assertEquals("4x1", spec.stableId)
-        assertEquals(342, spec.minWidthDp)
-        assertEquals(76, spec.minHeightDp)
+        assertEquals(250, spec.minWidthDp)
+        assertEquals(40, spec.minHeightDp)
         assertEquals("wideSmall", spec.providerMetadataSize)
     }
 
@@ -20,7 +20,7 @@ class WidgetInitialSizeSpecTest {
 
         assertEquals(1, spec.targetCellWidth)
         assertEquals(1, spec.targetCellHeight)
-        assertEquals("small", spec.providerMetadataSize)
+        assertEquals("tiny", spec.providerMetadataSize)
     }
 
     @Test

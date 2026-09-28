@@ -16,6 +16,5 @@
     android:description="@string/calendar_display_description"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable"
-    app:widgetStyle="colorful" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutMedium="@layout/widget_calendar_display" app:previewSize="medium" app:widgetStyle="colorful" app:widgetSize="medium|large" />
 

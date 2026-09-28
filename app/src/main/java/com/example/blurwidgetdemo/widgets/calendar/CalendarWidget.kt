@@ -54,6 +54,7 @@ open class CalendarWidget : AppWidgetProvider() {
                 design = productionDesign,
                 mode = CalendarRenderMode.PRODUCTION
             )
+            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, rendered.remoteViews)
             manager.updateAppWidget(id, rendered.remoteViews)
         }
 

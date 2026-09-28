@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dev.oneuiproject.oneui.layout.ToolbarLayout
+<dev.revilodev.onewidget.ui.FlowToolbarLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -8,7 +8,7 @@
     app:toolbarGravity="top"
     app:title="@string/app_name">
 
-    <androidx.core.widget.NestedScrollView
+    <dev.revilodev.onewidget.ui.FlowScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -25,6 +25,6 @@
             android:paddingStart="10dp"
             android:paddingTop="16dp"
             android:paddingEnd="10dp" />
-    </androidx.core.widget.NestedScrollView>
+    </dev.revilodev.onewidget.ui.FlowScrollView>
 
-</dev.oneuiproject.oneui.layout.ToolbarLayout>
+</dev.revilodev.onewidget.ui.FlowToolbarLayout>

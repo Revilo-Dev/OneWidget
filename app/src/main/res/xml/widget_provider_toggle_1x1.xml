@@ -16,6 +16,5 @@
     android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable"
-    app:widgetStyle="colorful" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutTiny="@layout/widget_toggle_square" app:previewSize="tiny" app:widgetStyle="colorful" app:widgetSize="tiny|small" />
 

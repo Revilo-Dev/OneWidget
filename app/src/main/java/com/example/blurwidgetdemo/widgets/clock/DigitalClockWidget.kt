@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.os.Build
 import android.util.Log
 import dev.revilodev.onewidget.R
 import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
@@ -94,6 +95,7 @@ open class DigitalClockWidget : AppWidgetProvider() {
                         "path=ClockRemoteViewsRenderer"
                 )
             }
+            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, result.remoteViews)
             manager.updateAppWidget(id, result.remoteViews)
             if (debug) Log.d("ClockFontDebug", "updateAppWidget dispatched id=$id layout=$layoutName visibleTime=${R.id.clock_time}")
         }
@@ -111,8 +113,18 @@ open class DigitalClockWidget : AppWidgetProvider() {
             val pending = PendingIntent.getBroadcast(
                 context, 9472, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            context.getSystemService(AlarmManager::class.java)
-                .setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextRefresh + 40L, pending)
+            val alarmManager = context.getSystemService(AlarmManager::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                // Exact alarms are special app access on Android 12+. Never let a denied grant
+                // crash the widget receiver; minute updates continue on the inexact alarm path.
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextRefresh + 40L, pending)
+                return
+            }
+            runCatching {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextRefresh + 40L, pending)
+            }.onFailure {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextRefresh + 40L, pending)
+            }
         }
     }
 }

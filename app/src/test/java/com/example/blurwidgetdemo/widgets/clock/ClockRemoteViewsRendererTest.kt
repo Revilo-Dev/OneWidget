@@ -82,10 +82,18 @@ class ClockRemoteViewsRendererTest {
         assertTrue(plan.geometry?.elements?.isNotEmpty() == true)
     }
 
-    @Test fun `time format combinations match legacy renderer`() {
+    @Test fun `time format combinations honor AM PM and seconds preferences`() {
+        assertEquals(
+            ClockTimePatterns("h:mm", "HH:mm"),
+            ClockTimeFormatResolver.resolve(ClockTimeFormat.SYSTEM, showAmPm = false, showSeconds = false)
+        )
         assertEquals(
             ClockTimePatterns("h:mm a", "HH:mm"),
-            ClockTimeFormatResolver.resolve(ClockTimeFormat.SYSTEM, showAmPm = false, showSeconds = false)
+            ClockTimeFormatResolver.resolve(ClockTimeFormat.SYSTEM, showAmPm = true, showSeconds = false)
+        )
+        assertEquals(
+            ClockTimePatterns("h:mm:ss", "HH:mm:ss"),
+            ClockTimeFormatResolver.resolve(ClockTimeFormat.SYSTEM, showAmPm = false, showSeconds = true)
         )
         assertEquals(
             ClockTimePatterns("h:mm:ss a", "HH:mm:ss"),

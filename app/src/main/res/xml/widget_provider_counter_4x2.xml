@@ -15,6 +15,5 @@
     android:targetCellHeight="2"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable"
-    app:widgetStyle="colorful" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutLarge="@layout/widget_counter_large" app:previewSize="large" app:widgetStyle="colorful" app:widgetSize="small|medium|large" />
 

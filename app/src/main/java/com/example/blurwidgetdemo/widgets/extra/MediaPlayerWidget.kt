@@ -171,6 +171,7 @@ open class MediaPlayerWidget : AppWidgetProvider() {
                 setOnClickPendingIntent(R.id.media_next, nextAction)
                 setOnClickPendingIntent(android.R.id.background, rootAction)
             }
+            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, views)
             manager.updateAppWidget(id, views)
         }
 

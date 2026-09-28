@@ -14,6 +14,7 @@ import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRendere
 import dev.revilodev.onewidget.studio.universal.UniversalWidgetContent
 import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 import dev.revilodev.onewidget.widgets.WidgetAppearance
+import dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec
 
 open class BlurWidget : AppWidgetProvider() {
 
@@ -59,10 +60,14 @@ open class BlurWidget : AppWidgetProvider() {
 
         fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             val prefs = context.getSharedPreferences(WIDGET_PREFS, Context.MODE_PRIVATE)
-            val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-            val minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 360)
-            val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 260)
-            val layoutResource = when (layoutMode(minWidth, minHeight)) {
+            val (minWidth, minHeight) = WidgetInitialSizeSpec.resolvedBounds(
+                appWidgetManager,
+                appWidgetId,
+                fallbackWidthDp = 180,
+                fallbackHeightDp = 80
+            )
+            val mode = layoutMode(minWidth, minHeight)
+            val layoutResource = when (mode) {
                 LAYOUT_MODE_COMPACT_STRIP -> R.layout.widget_compact_strip
                 LAYOUT_MODE_COMPACT_SQUARE -> R.layout.widget_compact_square
                 else -> R.layout.widget_blur

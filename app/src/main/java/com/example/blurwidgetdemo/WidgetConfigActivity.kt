@@ -70,6 +70,7 @@ import dev.revilodev.onewidget.widgets.battery.BatteryWidget
 import dev.revilodev.onewidget.studio.preview.RemoteViewsPreviewHost
 import dev.revilodev.onewidget.widgets.weather.WeatherWidget
 import dev.revilodev.onewidget.widgets.WidgetAppearance
+import dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec
 import dev.revilodev.onewidget.widgets.calendar.CalendarWidget
 import dev.revilodev.onewidget.widgets.calendar.CalendarConfigPreviewMapper
 import dev.revilodev.onewidget.widgets.calendar.CalendarRemoteViewsRenderer
@@ -1051,17 +1052,12 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun currentPreviewSpec(): PreviewSpec {
-        val options = runCatching {
-            AppWidgetManager.getInstance(this).getAppWidgetOptions(appWidgetId)
-        }.getOrNull()
-        val minWidth = options
-            ?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0)
-            ?.takeIf { it > 0 }
-            ?: 360
-        val minHeight = options
-            ?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
-            ?.takeIf { it > 0 }
-            ?: 260
+        val (minWidth, minHeight) = WidgetInitialSizeSpec.resolvedBounds(
+            AppWidgetManager.getInstance(this),
+            appWidgetId,
+            fallbackWidthDp = 180,
+            fallbackHeightDp = 80
+        )
         return PreviewSpec(minWidth, minHeight, BlurWidget.layoutMode(minWidth, minHeight))
     }
 
@@ -1191,6 +1187,7 @@ class WidgetConfigActivity : AppCompatActivity() {
                     )
                 )
             }
+            dev.revilodev.onewidget.widgets.WidgetCorners.apply(this, providerClassName(), remoteViews)
             val applyResult = previewWidget.show(remoteViews)
             val status = findViewById<TextView>(R.id.config_preview_status)
             if (applyResult.successful) {

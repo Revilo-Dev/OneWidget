@@ -12,6 +12,7 @@ import dev.revilodev.onewidget.studio.production.ProductionWidgetDesignResolver
 import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepository
 import dev.revilodev.onewidget.studio.rendering.WidgetRenderSize
 import dev.revilodev.onewidget.widgets.WidgetAppearance
+import dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec
 
 object UniversalProductionWidgetRenderer {
     fun buildIfPromoted(
@@ -99,10 +100,15 @@ object UniversalProductionWidgetRenderer {
     }
 
     fun renderSize(manager: AppWidgetManager, appWidgetId: Int): WidgetRenderSize {
-        val options = manager.getAppWidgetOptions(appWidgetId)
+        val (width, height) = WidgetInitialSizeSpec.resolvedBounds(
+            manager,
+            appWidgetId,
+            fallbackWidthDp = 180,
+            fallbackHeightDp = 80
+        )
         return WidgetRenderSize(
-            options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180).coerceAtLeast(1).toFloat(),
-            options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80).coerceAtLeast(1).toFloat()
+            width.coerceAtLeast(1).toFloat(),
+            height.coerceAtLeast(1).toFloat()
         )
     }
 

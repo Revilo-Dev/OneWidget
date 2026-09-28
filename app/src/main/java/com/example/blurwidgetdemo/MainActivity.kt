@@ -141,7 +141,8 @@ class MainActivity : AppCompatActivity() {
         )),
         PickerCategory("Battery", R.drawable.category_battery, listOf(widget(
             "Battery", R.drawable.battery, BatteryWidget::class.java,
-            sizes("4 × 1" to R.layout.widget_battery_compact,
+            sizes("2 × 1" to R.layout.widget_battery_compact,
+                "4 × 1" to R.layout.widget_battery_compact,
                 "2 × 2" to R.layout.widget_battery_large, "4 × 2" to R.layout.widget_battery_large),
             studioWidgetId = BatteryStudioDescriptor.WIDGET_ID
         ))),
@@ -164,8 +165,7 @@ class MainActivity : AppCompatActivity() {
         )),
         PickerCategory("Storage", R.drawable.category_storage, listOf(widget(
             "Storage", R.drawable.manage_storage, StorageWidget::class.java,
-            sizes("4 × 1" to R.layout.widget_storage_compact,
-                "2 × 2" to R.layout.widget_storage_large, "4 × 2" to R.layout.widget_storage_large),
+            sizes("2 × 2" to R.layout.widget_storage_large, "4 × 2" to R.layout.widget_storage_large),
             studioWidgetId = StorageStudioDescriptor.WIDGET_ID
         ))),
         PickerCategory("Health", R.drawable.category_health, listOf(
@@ -178,11 +178,17 @@ class MainActivity : AppCompatActivity() {
         )),
         PickerCategory("Search", R.drawable.category_search, listOf(
             widget("Google Search", R.drawable.google, GoogleSearchWidget::class.java,
-                sizes("4 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.GOOGLE_SEARCH),
+                sizes("3 × 1" to R.layout.widget_google_search, "4 × 1" to R.layout.widget_google_search,
+                    "5 × 1" to R.layout.widget_google_search, "6 × 1" to R.layout.widget_google_search,
+                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.GOOGLE_SEARCH),
             widget("Samsung Browser search", R.drawable.samsung_browser, SamsungBrowserSearchWidget::class.java,
-                sizes("4 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH),
+                sizes("3 × 1" to R.layout.widget_google_search, "4 × 1" to R.layout.widget_google_search,
+                    "5 × 1" to R.layout.widget_google_search, "6 × 1" to R.layout.widget_google_search,
+                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH),
             widget("YouTube search", R.drawable.youtube, YouTubeSearchWidget::class.java,
-                sizes("4 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.YOUTUBE_SEARCH)
+                sizes("3 × 1" to R.layout.widget_google_search, "4 × 1" to R.layout.widget_google_search,
+                    "5 × 1" to R.layout.widget_google_search, "6 × 1" to R.layout.widget_google_search,
+                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.YOUTUBE_SEARCH)
         )),
         PickerCategory("Media player", R.drawable.category_media, listOf(
             widget("Media player", R.drawable.music_alt, MediaPlayerWidget::class.java,
@@ -483,14 +489,26 @@ class MainActivity : AppCompatActivity() {
         // Keeping them there avoids duplicate prompts and still allows explicit
         // permission-required widget states when access is denied.
         val provider = ExactWidgetVariants.providerFor(item.provider, size.columns, size.rows)
-        requestWidgetPin(provider, size, item.toggleKind)
+        if (provider == null) {
+            AlertDialog.Builder(this)
+                .setMessage("This widget size is not available.")
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+            return
+        }
+        requestWidgetPin(provider, size, item.toggleKind, item.studioWidgetId)
     }
 
-    private fun requestWidgetPin(provider: Class<out AppWidgetProvider>, size: WidgetSize, toggleKind: ToggleKind? = null) {
+    private fun requestWidgetPin(
+        provider: Class<out AppWidgetProvider>,
+        size: WidgetSize,
+        toggleKind: ToggleKind? = null,
+        selectedStudioWidgetId: String? = null
+    ) {
         val manager = getSystemService(AppWidgetManager::class.java)
         if (manager.isRequestPinAppWidgetSupported) {
             val baseProvider = ExactWidgetVariants.baseFor(provider)
-            val studioWidgetId = when (baseProvider) {
+            val studioWidgetId = selectedStudioWidgetId ?: when (baseProvider) {
                 DigitalClockWidget::class.java -> ClockStudioDescriptor.WIDGET_ID
                 BatteryWidget::class.java -> BatteryStudioDescriptor.WIDGET_ID
                 StorageWidget::class.java -> StorageStudioDescriptor.WIDGET_ID
