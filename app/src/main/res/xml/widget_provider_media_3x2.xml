@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:initialLayout="@layout/widget_media_large" android:previewLayout="@layout/widget_media_large"
-    android:minWidth="180dp" android:minHeight="110dp" android:minResizeWidth="110dp" android:minResizeHeight="40dp" android:maxResizeWidth="180dp" android:maxResizeHeight="110dp"
+    android:minWidth="180dp" android:minHeight="110dp" android:minResizeWidth="110dp" android:minResizeHeight="40dp" android:maxResizeWidth="1000dp" android:maxResizeHeight="1000dp"
     android:resizeMode="horizontal|vertical" android:targetCellWidth="3" android:targetCellHeight="2"
     android:widgetCategory="home_screen" android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable" app:previewLayoutLarge="@layout/widget_media_large" app:previewSize="large" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutLarge="@layout/widget_media_large" app:previewSize="large" app:allowMultipleSizes="true" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large|extraLarge|extraLargeLong" />

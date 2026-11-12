@@ -34,7 +34,9 @@ data class StorageRemoteViewsRenderResult(
 object StorageContentFormatter {
     private const val GB = 1_073_741_824L
 
-    fun amount(value: StorageMetricValue): String = String.format(
+    fun amount(value: StorageMetricValue): String = if (value.usedBytes < 0) "Unavailable"
+    else if (value.totalBytes <= 0) String.format(Locale.getDefault(), "%.1fGB since restart", value.usedBytes.toDouble() / GB)
+    else String.format(
         Locale.getDefault(),
         "%.0fGB/%.0fGB",
         value.usedBytes.toDouble() / GB,
@@ -48,7 +50,7 @@ object StorageContentFormatter {
         detailMode: StorageWidget.DetailMode
     ): String = listOfNotNull(
         title.takeIf { showTitle },
-        when (detailMode) {
+        if (value.totalBytes <= 0) amount(value) else when (detailMode) {
             StorageWidget.DetailMode.BOTH -> "${value.percent}% • ${amount(value)}"
             StorageWidget.DetailMode.PERCENT -> "${value.percent}%"
             StorageWidget.DetailMode.AMOUNT -> amount(value)
@@ -107,6 +109,10 @@ object StorageRemoteViewsRenderer {
                 "Storage renderer received design for ${design.widgetId}"
             }
             applyStudio(context, views, configuration, runtimeData, plan)
+        }
+        views.setViewVisibility(R.id.data_bar, if (runtimeData.data.totalBytes > 0) View.VISIBLE else View.GONE)
+        if (configuration.compactMetric == StorageWidget.CompactMetric.DATA) {
+            views.setViewVisibility(R.id.compact_progress, if (runtimeData.data.totalBytes > 0) View.VISIBLE else View.GONE)
         }
         return StorageRemoteViewsRenderResult(views, plan, tapActionsApplied)
     }

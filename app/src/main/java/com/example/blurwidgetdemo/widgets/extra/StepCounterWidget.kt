@@ -38,7 +38,7 @@ open class StepCounterWidget : NamedActionWidget() {
             Intent(context, MainActivity::class.java)
         }
     override fun layoutResource(context: Context, manager: AppWidgetManager, id: Int): Int {
-        val options = manager.getAppWidgetOptions(id)
+        val options = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id)
         return if (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 40) > 100) R.layout.widget_steps_large
         else R.layout.widget_steps_compact
     }

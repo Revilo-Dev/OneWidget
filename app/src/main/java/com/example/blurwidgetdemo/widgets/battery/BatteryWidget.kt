@@ -3,8 +3,6 @@ package dev.revilodev.onewidget.widgets.battery
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.ComponentName
@@ -30,8 +28,9 @@ open class BatteryWidget : AppWidgetProvider() {
         scheduleRefresh(context)
     }
     override fun onEnabled(context: Context) = scheduleRefresh(context)
-    override fun onDisabled(context: Context) = context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context))
+    override fun onDisabled(context: Context) = dev.revilodev.onewidget.widgets.WidgetUpdates.ensureScheduled(context, force = true)
     override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
         val designModes = WidgetProductionDesignModeRepository(context)
         ids.forEach { designModes.delete(BatteryStudioDescriptor.WIDGET_ID, it) }
     }
@@ -77,7 +76,7 @@ open class BatteryWidget : AppWidgetProvider() {
         }
 
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
-            val options = manager.getAppWidgetOptions(id)
+            val options = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id)
             val renderSize = BatteryWidgetSizeResolver.fromOptions(options)
             val mode = WidgetProductionDesignModeRepository(context).mode(
                 BatteryStudioDescriptor.WIDGET_ID,
@@ -105,13 +104,11 @@ open class BatteryWidget : AppWidgetProvider() {
                 design = productionDesign,
                 mode = BatteryRenderMode.PRODUCTION
             )
-            manager.updateAppWidget(id, rendered.remoteViews)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, rendered.remoteViews)
         }
 
-        private fun refreshIntent(context: Context) = PendingIntent.getBroadcast(context, 7001,
-            Intent(context, BatteryWidget::class.java).setAction(ACTION_REFRESH), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         private fun scheduleRefresh(context: Context) {
-            context.getSystemService(AlarmManager::class.java).setAndAllowWhileIdle(AlarmManager.RTC, System.currentTimeMillis() + 15_000L, refreshIntent(context))
+            dev.revilodev.onewidget.widgets.WidgetUpdates.ensureScheduled(context)
         }
 
         private fun phoneDevice(context: Context): Device {
@@ -136,14 +133,14 @@ open class BatteryWidget : AppWidgetProvider() {
         @SuppressLint("MissingPermission")
         private fun connectedBluetoothAddresses(context: Context): Set<String> = runCatching {
             val manager = context.getSystemService(BluetoothManager::class.java)
-            listOf(
-                BluetoothProfile.A2DP,
-                BluetoothProfile.HEADSET,
-                BluetoothProfile.GATT,
-                if (Build.VERSION.SDK_INT >= 29) BluetoothProfile.HEARING_AID else null,
-                if (Build.VERSION.SDK_INT >= 33) BluetoothProfile.LE_AUDIO else null
-            ).filterNotNull().flatMap { profile -> manager.getConnectedDevices(profile) }
-                .mapTo(mutableSetOf()) { it.address }
+            val connected = listOf(BluetoothProfile.GATT, BluetoothProfile.GATT_SERVER).flatMap { profile ->
+                runCatching { manager.getConnectedDevices(profile) }.getOrDefault(emptyList())
+            }.mapTo(mutableSetOf()) { it.address }
+            manager.adapter?.bondedDevices.orEmpty().forEach { device ->
+                val active = runCatching { device.javaClass.getMethod("isConnected").invoke(device) as? Boolean }.getOrNull()
+                if (active == true) connected += device.address
+            }
+            connected
         }.getOrDefault(emptySet())
 
         private fun bluetoothBatteryLevel(device: android.bluetooth.BluetoothDevice): Int? = runCatching {

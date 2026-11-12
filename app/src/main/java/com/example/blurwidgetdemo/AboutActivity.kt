@@ -8,14 +8,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import dev.revilodev.onewidget.ui.PaletteActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.appbar.AppBarLayout
-import kotlin.math.abs
 
-class AboutActivity : AppCompatActivity() {
+class AboutActivity : PaletteActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
@@ -25,7 +23,10 @@ class AboutActivity : AppCompatActivity() {
             findViewById(R.id.about_root), findViewById(R.id.about_app_bar), findViewById(R.id.about_toolbar)
         )
         setupVersion()
-        setupCollapsingContent()
+        findViewById<View>(R.id.about_developer).setOnClickListener { openUrl(getString(R.string.link_developer_github)) }
+        findViewById<View>(R.id.about_github).setOnClickListener { openUrl(getString(R.string.link_developer_github)) }
+        findViewById<View>(R.id.about_x).setOnClickListener { openUrl(getString(R.string.link_developer_x)) }
+        findViewById<View>(R.id.about_original_repo).setOnClickListener { openUrl(getString(R.string.link_original_repo)) }
 
         findViewById<View>(R.id.about_tjg_credit).setOnClickListener {
             openUrl(getString(R.string.link_tjg))
@@ -97,22 +98,7 @@ class AboutActivity : AppCompatActivity() {
         return packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0"
     }
 
-    private fun setupCollapsingContent() {
-        val content = findViewById<View>(R.id.about_content)
-        val hint = findViewById<View>(R.id.about_swipe_hint)
-        content.alpha = 0f
-        findViewById<AppBarLayout>(R.id.about_app_bar).addOnOffsetChangedListener(
-            AppBarLayout.OnOffsetChangedListener { appBar, verticalOffset ->
-                val range = appBar.totalScrollRange.coerceAtLeast(1)
-                val progress = abs(verticalOffset).toFloat() / range
-                content.alpha = ((progress - 0.25f) / 0.55f).coerceIn(0f, 1f)
-                hint.alpha = (1f - progress * 2f).coerceIn(0f, 1f)
-                hint.visibility = if (hint.alpha == 0f) View.INVISIBLE else View.VISIBLE
-            }
-        )
-    }
-
     private fun openUrl(url: String) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
     }
 }

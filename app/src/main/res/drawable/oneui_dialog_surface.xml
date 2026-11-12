@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dev.revilodev.onewidget.ui.HighlightedSurfaceDrawable
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:radius="28dp">
+    <solid android:color="@color/oneui_card_bg" />
+</dev.revilodev.onewidget.ui.HighlightedSurfaceDrawable>

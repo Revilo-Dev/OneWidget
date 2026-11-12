@@ -31,6 +31,7 @@
     </queries>
 
     <application
+        android:name=".OneWidgetApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -45,7 +46,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -364,5 +366,200 @@
                 android:resource="@xml/lockscreen_message_2x1_widget_info_oneui" />
         </receiver>
 
+        <receiver android:name=".widgets.variants.Glass2x3Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_2x3" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass2x4Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_2x4" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass2x5Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_2x5" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass2x6Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_2x6" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass2x7Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_2x7" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass3x1Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_3x1" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass3x2Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_3x2" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass3x3Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_3x3" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass3x4Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_3x4" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass3x5Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_3x5" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass3x6Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_3x6" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass3x7Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_3x7" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass4x1Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_4x1" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass4x3Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_4x3" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass4x6Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_4x6" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass4x7Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_4x7" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass5x1Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_5x1" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass5x2Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_5x2" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass5x3Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_5x3" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass5x4Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_5x4" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass5x5Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_5x5" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass5x6Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_5x6" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass5x7Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_5x7" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass6x1Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_6x1" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass6x2Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_6x2" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass6x3Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_6x3" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass6x4Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_6x4" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass6x5Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_6x5" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass6x6Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_6x6" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass6x7Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_6x7" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass7x1Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_7x1" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass7x2Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_7x2" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass7x3Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_7x3" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass7x4Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_7x4" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass7x5Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_7x5" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass7x6Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_7x6" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.variants.Glass7x7Widget" android:exported="true" android:label="@string/widget_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_provider_glass_7x7" />
+            <meta-data android:name="com.sec.android.appwidget.widgetinfo" android:resource="@xml/widget_supported_cell_size_glass_info" />
+        </receiver>
+        <receiver android:name=".widgets.WidgetUpdateReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

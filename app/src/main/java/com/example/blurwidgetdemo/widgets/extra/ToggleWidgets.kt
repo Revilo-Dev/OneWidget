@@ -34,8 +34,11 @@ enum class ToggleKind(val label: String, val icon: Int) {
 open class ToggleWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { render(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = render(context, manager, id)
-    override fun onDeleted(context: Context, ids: IntArray) =
+    override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
+
         UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.TOGGLE, ids)
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -47,19 +50,17 @@ open class ToggleWidget : AppWidgetProvider() {
 
     private fun render(context: Context, manager: AppWidgetManager, id: Int) {
         val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
-        val options = manager.getAppWidgetOptions(id)
+        val options = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id)
         val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 40)
         val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 40)
-        // One UI can report its physical 1x1 cell as wider than 100dp on dense home grids.
-        // The exact provider identity is authoritative when deciding circle versus pill.
-        val exactOneByOne = manager.getAppWidgetInfo(id)?.provider?.className
-            ?.endsWith(".widgets.variants.Toggle1x1Widget") == true
-        val singleCell = exactOneByOne || (width <= 100 && height <= 100)
+        val singleCell = width <= height * 1.5f
         val kind = ToggleKind.from(prefs.getString("toggle_kind_$id", options.getString(OPTION_TOGGLE_KIND)))
         val layout = if (singleCell) R.layout.widget_toggle_square else R.layout.widget_toggle
         val enabled = isEnabled(context, id, kind)
         val displayIcon = if (kind == ToggleKind.BLUETOOTH && !enabled) R.drawable.bluetooth_off else kind.icon
-        val accent = prefs.getInt("toggle_accent_$id", 0xFF387AFF.toInt())
+        val savedAccent = prefs.getInt("toggle_accent_$id", 0xFF387AFF.toInt())
+        val accent = if (dev.revilodev.onewidget.widgets.WidgetAppearance.backgroundUri(prefs, id) == null) savedAccent
+            else (savedAccent and 0x00ffffff) or (96 shl 24)
         val overlay = if (singleCell) {
             ToggleOverlayRenderer.renderCircle(width, height, if (enabled) accent else 0x667F8798)
         } else {
@@ -103,7 +104,7 @@ open class ToggleWidget : AppWidgetProvider() {
             setImageViewResource(R.id.toggle_icon, displayIcon)
             setOnClickPendingIntent(android.R.id.background, rootAction)
         }
-        manager.updateAppWidget(id, views)
+        dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, views)
     }
 
     private fun isEnabled(context: Context, id: Int, kind: ToggleKind): Boolean = when (kind) {

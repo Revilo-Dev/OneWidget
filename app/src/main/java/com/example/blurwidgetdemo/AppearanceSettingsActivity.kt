@@ -1,8 +1,5 @@
 package dev.revilodev.onewidget
 
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -13,7 +10,7 @@ import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.View
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
+import dev.revilodev.onewidget.ui.PaletteActivity
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SeslSeekBar
 import androidx.picker3.app.SeslColorPickerDialog
@@ -23,31 +20,11 @@ import dev.revilodev.onewidget.studio.developer.DeveloperModeCoordinator
 import dev.revilodev.onewidget.studio.developer.DeveloperModeRepository
 import dev.revilodev.onewidget.studio.developer.DeveloperWidgetComponentController
 import dev.revilodev.onewidget.studio.developer.DeveloperWidgetUpdateReason
-import dev.revilodev.onewidget.widgets.battery.BatteryWidget
-import dev.revilodev.onewidget.widgets.calendar.CalendarDisplayWidget
-import dev.revilodev.onewidget.widgets.calendar.CalendarWidget
-import dev.revilodev.onewidget.widgets.clock.DigitalClockWidget
 import dev.revilodev.onewidget.widgets.developer.DeveloperWidgetProvider
-import dev.revilodev.onewidget.widgets.extra.AlarmWidget
-import dev.revilodev.onewidget.widgets.extra.CounterWidget
-import dev.revilodev.onewidget.widgets.extra.GoogleSearchWidget
-import dev.revilodev.onewidget.widgets.extra.MediaPlayerWidget
-import dev.revilodev.onewidget.widgets.extra.OpenAppWidget
-import dev.revilodev.onewidget.widgets.extra.SamsungBrowserSearchWidget
-import dev.revilodev.onewidget.widgets.extra.StepCounterWidget
-import dev.revilodev.onewidget.widgets.extra.TextWidget
-import dev.revilodev.onewidget.widgets.extra.ToggleWidget
-import dev.revilodev.onewidget.widgets.extra.ToggleWidgetV2
-import dev.revilodev.onewidget.widgets.extra.ToggleWidgetV3
-import dev.revilodev.onewidget.widgets.extra.YouTubeSearchWidget
-import dev.revilodev.onewidget.widgets.hydration.HydrationWidget
-import dev.revilodev.onewidget.widgets.storage.StorageWidget
-import dev.revilodev.onewidget.widgets.weather.WeatherWidget
-import dev.revilodev.onewidget.widgets.variants.ExactWidgetVariants
 import dev.oneuiproject.oneui.widget.CardItemView
 import dev.oneuiproject.oneui.widget.SwitchItemView
 
-class AppearanceSettingsActivity : AppCompatActivity() {
+class AppearanceSettingsActivity : PaletteActivity() {
     private lateinit var prefs: android.content.SharedPreferences
     private lateinit var developerModeRepository: DeveloperModeRepository
     private lateinit var developerModeCoordinator: DeveloperModeCoordinator
@@ -64,6 +41,13 @@ class AppearanceSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_appearance_settings)
+        findViewById<SwitchItemView>(R.id.use_system_palette).apply {
+            isChecked = dev.revilodev.onewidget.ui.SystemPalette.isEnabled(this@AppearanceSettingsActivity)
+            onCheckedChangedListener = { _, checked ->
+                dev.revilodev.onewidget.ui.SystemPalette.setEnabled(this@AppearanceSettingsActivity, checked)
+                recreate()
+            }
+        }
         prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
         developerModeRepository = DeveloperModeRepository(this)
         developerModeCoordinator = DeveloperModeCoordinator(
@@ -73,12 +57,18 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         setupDefaultAppearance()
         findViewById<SwitchItemView>(R.id.global_borders).apply {
             isChecked = prefs.getBoolean("global_widget_borders", true)
-            onCheckedChangedListener = { _, checked -> prefs.edit().putBoolean("global_widget_borders", checked).apply(); refreshWidgets() }
+            onCheckedChangedListener = { _, checked ->
+                prefs.edit().putBoolean("global_widget_borders", checked).apply()
+                setupBorderStyle()
+                refreshWidgets()
+            }
         }
         findViewById<SwitchItemView>(R.id.global_gradients).apply {
             isChecked = prefs.getBoolean("global_widget_gradients", true)
             onCheckedChangedListener = { _, checked -> prefs.edit().putBoolean("global_widget_gradients", checked).apply(); refreshWidgets() }
         }
+        setupBorderStyle()
+        setupPresets()
         setupDeveloperMode()
     }
 
@@ -230,25 +220,72 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         refreshSummaries()
     }
 
+    private val refreshHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val refreshAction = Runnable { dev.revilodev.onewidget.widgets.WidgetUpdates.requestAll(this) }
+
     private fun refreshWidgets() {
-        val manager = AppWidgetManager.getInstance(this)
-        widgetProviders.forEach { provider ->
-            val ids = manager.getAppWidgetIds(ComponentName(this, provider))
-            if (ids.isNotEmpty()) {
-                sendBroadcast(android.content.Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-                    .setComponent(ComponentName(this, provider))
-                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids))
-            }
+        refreshHandler.removeCallbacks(refreshAction)
+        refreshHandler.postDelayed(refreshAction, 250)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        refreshHandler.removeCallbacks(refreshAction)
+        dev.revilodev.onewidget.widgets.WidgetUpdates.requestAll(this)
+    }
+
+    private fun setupBorderStyle() {
+        val item = findViewById<CardItemView>(R.id.global_border_style)
+        val style = dev.revilodev.onewidget.widgets.WidgetAppearance.defaultBorder(prefs)
+        item.summary = dev.revilodev.onewidget.widgets.WidgetAppearanceDialogs.borderSummary(style)
+        item.setOnClickListener {
+            dev.revilodev.onewidget.widgets.WidgetAppearanceDialogs.border(this,
+                dev.revilodev.onewidget.widgets.WidgetAppearance.defaultBorder(prefs), { border ->
+                    prefs.edit().putBoolean("global_widget_borders", border.enabled)
+                        .putInt("global_border_thickness_px", border.thicknessPx)
+                        .putInt("global_border_opacity", border.opacityPercent).apply()
+                    findViewById<SwitchItemView>(R.id.global_borders).isChecked = border.enabled
+                    setupBorderStyle()
+                    refreshWidgets()
+                })
         }
+    }
+
+    private fun setupPresets() {
+        val container = findViewById<android.widget.LinearLayout>(R.id.appearance_presets)
+        container.removeAllViews()
+        val presets = dev.revilodev.onewidget.widgets.WidgetPresets.load(prefs)
+        presets.forEach { preset ->
+            container.addView(CardItemView(this).apply {
+                title = preset.name
+                summary = (preset.alpha * 100 / 254).toString() + "% opacity · " +
+                    dev.revilodev.onewidget.widgets.WidgetAppearanceDialogs.borderSummary(preset.border)
+                setOnClickListener {
+                    dev.revilodev.onewidget.widgets.WidgetAppearanceDialogs.preset(this@AppearanceSettingsActivity, preset,
+                        { edited ->
+                            dev.revilodev.onewidget.widgets.WidgetPresets.save(prefs, presets.map { if (it.id == edited.id) edited else it })
+                            setupPresets()
+                            refreshWidgets()
+                        }, {
+                            dev.revilodev.onewidget.widgets.WidgetPresets.save(prefs, presets.filterNot { it.id == preset.id })
+                            setupPresets()
+                            refreshWidgets()
+                        })
+                }
+            })
+        }
+        if (presets.size < 24) container.addView(CardItemView(this).apply {
+            title = "Add preset"
+            setOnClickListener {
+                dev.revilodev.onewidget.widgets.WidgetAppearanceDialogs.preset(this@AppearanceSettingsActivity,
+                    dev.revilodev.onewidget.widgets.WidgetPresets.newPreset(), { preset ->
+                        dev.revilodev.onewidget.widgets.WidgetPresets.save(prefs, presets + preset)
+                        setupPresets()
+                    })
+            }
+        })
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
-    private companion object {
-        val widgetProviders: List<Class<out AppWidgetProvider>> =
-            (ExactWidgetVariants.allProviderClasses + listOf(
-                ToggleWidgetV2::class.java,
-                ToggleWidgetV3::class.java
-            )).distinct()
-    }
 }

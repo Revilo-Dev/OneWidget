@@ -128,7 +128,7 @@
     <string name="studio_snapshot_export_chooser">Export widget snapshot</string>
     <string name="studio_snapshot_export_unavailable">No snapshot is available to export.</string>
     <string name="studio_use_device_size">USE DEVICE SIZE</string>
-    <string name="app_name">One Widget</string>
+    <string name="app_name">OneWidget</string>
     <string name="widget_description">Blank widget with adjustable tint and opacity</string>
     <string name="widget_label">Glass</string>
     <string name="digital_clock_widget_label">Digital Clock</string>
@@ -215,7 +215,7 @@
     <string name="add_widget_requested">Choose a spot on your home screen to place it.</string>
     <string name="add_widget_not_supported">This launcher does not support adding widgets from the app.</string>
     <string name="about">About</string>
-    <string name="about_summary">A demo for experimenting with Samsung One UI Home widget blur, tint, and opacity before implementing the pattern in your own apps.</string>
+    <string name="about_summary">OneWidget brings configurable glass widgets to your home screen with live information, shared appearance presets, custom images and Samsung One UI wallpaper blur. Made by Revilo Dev.</string>
     <string name="about_credits_section">Credits</string>
     <string name="about_tjg_title">That Josh Guy</string>
     <string name="about_oneui_summary">One UI interface components, icons, and picker libraries</string>
@@ -230,7 +230,7 @@
     <string name="oneui_project">One UI Project</string>
     <string name="link_tjg">https://tjg.gg</string>
     <string name="link_oneui_project">https://github.com/OneUIProject</string>
-    <string name="link_app_repo">https://github.com/SadLinusGuy0/blur-widget-demo</string>
+    <string name="link_app_repo">https://github.com/Revilo-Dev/OneWidget</string>
     <string name="widget_preview_section">Preview</string>
     <string name="tint_section">Tint</string>
     <string name="tint_colour">Tint colour</string>
@@ -294,4 +294,16 @@
     <string name="calendar_permission_denied_config">Without Calendar access, the widget will show a permission-needed state.</string>
     <string name="weather_permission_denied_config">Without location access, the widget will show a permission-needed state.</string>
     <string name="steps_permission_denied">Without activity access, the widget will show a permission-needed state.</string>
+    <string name="about_developer">Made by Revilo Dev</string>
+    <string name="about_github">Revilo Dev on GitHub</string>
+    <string name="about_x">X · @revilodev</string>
+    <string name="about_original_repo">Original blur widget repository</string>
+    <string name="link_developer_github">https://github.com/Revilo-Dev</string>
+    <string name="link_developer_x">https://x.com/revilodev</string>
+    <string name="link_original_repo">https://github.com/thatjoshguy67/blur-widget-demo</string>
+    <string name="search_widgets">Search widgets</string>
+    <string name="close_widget_search">Close widget search</string>
+    <string name="no_widgets_found">No matching widgets</string>
+    <string name="app_appearance">App appearance</string>
+    <string name="use_system_palette">Use system color palette</string>
 </resources>

@@ -4,7 +4,40 @@
     <style name="CalendarDayTop"><item name="android:layout_width">24dp</item><item name="android:layout_height">24dp</item><item name="android:layout_gravity">center_horizontal|bottom</item><item name="android:gravity">center</item><item name="android:textColor">#FFFFFFFF</item><item name="android:textSize">11sp</item><item name="android:includeFontPadding">false</item></style>
     <style name="CalendarWeekday"><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:layout_gravity">top</item><item name="android:gravity">center</item><item name="android:textColor">#B3FFFFFF</item><item name="android:textSize">9sp</item><item name="android:includeFontPadding">false</item></style>
     <style name="Theme.BlurWidgetDemo" parent="OneUITheme">
+        <item name="alertDialogTheme">@style/OneWidgetAlertDialog</item>
+        <item name="popupMenuStyle">@style/OneWidgetPopupMenu</item>
+        <item name="android:popupMenuStyle">@style/OneWidgetPopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/OneWidgetOverflowMenu</item>
+        <item name="listPopupWindowStyle">@style/OneWidgetListPopupWindow</item>
+        <item name="spinnerStyle">@style/OneWidgetSpinner</item>
+    </style>
+
+    <style name="OneWidgetFixedPalette" parent="">
         <item name="colorPrimary">@color/oneui_accent</item>
+        <item name="colorAccent">@color/oneui_accent</item>
+        <item name="android:colorAccent">@color/oneui_accent</item>
+        <item name="colorControlActivated">@color/oneui_accent</item>
+        <item name="android:colorControlActivated">@color/oneui_accent</item>
+    </style>
+
+    <style name="OneWidgetAlertDialog" parent="OneUI.ThemeOverlay.AlertDialog.Light">
+        <item name="android:windowBackground">@drawable/oneui_dialog_surface</item>
+    </style>
+
+    <style name="OneWidgetPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/oneui_popup_surface</item>
+    </style>
+
+    <style name="OneWidgetOverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/oneui_popup_surface</item>
+    </style>
+
+    <style name="OneWidgetListPopupWindow" parent="Widget.AppCompat.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/oneui_popup_surface</item>
+    </style>
+
+    <style name="OneWidgetSpinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupBackground">@drawable/oneui_popup_surface</item>
     </style>
 
     <style name="ButtonStyle" parent="">

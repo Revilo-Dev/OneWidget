@@ -1,29 +1,43 @@
 package dev.revilodev.onewidget
 
-import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
+import android.util.Size
+import dev.revilodev.onewidget.widgets.WidgetBackgroundArtwork
+import dev.revilodev.onewidget.widgets.WidgetAppearance
+import dev.revilodev.onewidget.ui.HighlightedSurfaceDrawable
 
-/** A neutral, theme-aware stage behind transparent RemoteViews previews. */
 object WidgetPreviewEnvironment {
-    /**
-     * Kept as a real one-argument overload so code loaded from an earlier
-     * widget process can continue to call it while an app update is applied.
-     */
     fun apply(view: View) = apply(view, fullyRounded = false)
+    fun apply(view: View, fullyRounded: Boolean) = apply(view, fullyRounded, columns = 0, rows = 0)
 
-    fun apply(view: View, fullyRounded: Boolean) = apply(view, fullyRounded, columns = 0)
-
-    fun apply(view: View, fullyRounded: Boolean, columns: Int) {
-        view.background = GradientDrawable().apply {
-            setColor(0x66000000)
-            setStroke((view.context.resources.displayMetrics.density * .25f).toInt().coerceAtLeast(1), 0x40FFFFFF.toInt())
-            cornerRadius = if (columns == 3) view.resources.getDimension(R.dimen.widget_three_column_corner_radius)
-                else dp(view.context, if (fullyRounded) 1_000 else 28).toFloat()
+    fun apply(view: View, fullyRounded: Boolean, columns: Int, rows: Int) {
+        val prefs = view.context.getSharedPreferences(BlurWidget.WIDGET_PREFS, android.content.Context.MODE_PRIVATE)
+        val tint = BlurWidget.defaultTint(prefs)
+        val border = WidgetAppearance.defaultBorder(prefs)
+        val span = if (columns > 0 && rows > 0) Size(columns, rows) else null
+        val width = 84f * columns.coerceAtLeast(2)
+        val height = 84f * rows.coerceAtLeast(2)
+        val artwork = span?.let { WidgetBackgroundArtwork.drawable(it, width, height) }
+        val radius = if (fullyRounded) 1000f else WidgetBackgroundArtwork.radius(width, height, span, artwork)
+        val color = BlurWidget.tintColor(tint.hue, tint.saturation, tint.value, tint.alpha)
+        view.background = artwork?.let { view.context.getDrawable(it)?.mutate()?.apply { setTint(color) } }
+            ?: GradientDrawable().apply {
+                setColor(color)
+                cornerRadius = radius * view.resources.displayMetrics.density
+            }
+        if (artwork != null) {
+            view.outlineProvider = object : android.view.ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: android.graphics.Outline) {
+                    val corner = minOf(radius * view.resources.displayMetrics.density, minOf(view.width, view.height) / 2f)
+                    outline.setRoundRect(0, 0, view.width, view.height, corner)
+                }
+            }
         }
+        view.foreground = if (border.enabled) HighlightedSurfaceDrawable(
+            Color.TRANSPARENT, radius * view.resources.displayMetrics.density,
+            border.thicknessPx.toFloat(), border.opacityPercent
+        ) else null
     }
-
-    private fun dp(context: Context, value: Int) = (value * context.resources.displayMetrics.density).toInt()
 }

@@ -32,14 +32,13 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import dev.revilodev.onewidget.ui.PaletteActivity
 import androidx.picker3.app.SeslColorPickerDialog
 import dev.oneuiproject.oneui.widget.CardItemView
 import dev.oneuiproject.oneui.widget.SwitchItemView
 import kotlin.math.min
 import kotlin.math.roundToInt
 import dev.revilodev.onewidget.widgets.clock.DigitalClockWidget
-import dev.revilodev.onewidget.widgets.clock.ClockWidgetVariants
 import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
 import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
 import dev.revilodev.onewidget.studio.storage.StorageStudioDescriptor
@@ -69,6 +68,10 @@ import dev.revilodev.onewidget.widgets.battery.BatteryWidgetConfigurationReposit
 import dev.revilodev.onewidget.widgets.battery.BatteryWidget
 import dev.revilodev.onewidget.studio.preview.RemoteViewsPreviewHost
 import dev.revilodev.onewidget.widgets.weather.WeatherWidget
+import dev.revilodev.onewidget.widgets.WidgetBorderStyle
+import dev.revilodev.onewidget.widgets.WidgetPresets
+import dev.revilodev.onewidget.widgets.WidgetSurface
+import dev.revilodev.onewidget.widgets.WidgetAppearanceDialogs
 import dev.revilodev.onewidget.widgets.WidgetAppearance
 import dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec
 import dev.revilodev.onewidget.widgets.calendar.CalendarWidget
@@ -108,28 +111,45 @@ import java.util.Locale
 private fun Drawable.copyForPreview(): Drawable =
     constantState?.newDrawable()?.mutate() ?: mutate()
 
-class WidgetConfigActivity : AppCompatActivity() {
+class WidgetConfigActivity : PaletteActivity() {
 
-    private enum class ImageTarget { OPEN_APP_BACKGROUND, OPEN_APP_ICON, TEXT_BACKGROUND }
+    private enum class ImageTarget { OPEN_APP_ICON, WIDGET_BACKGROUND }
 
     private var pendingImageTarget: ImageTarget? = null
     private val imagePicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
-            runCatching {
-                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val target = pendingImageTarget
+        pendingImageTarget = null
+        if (uri != null && target == ImageTarget.WIDGET_BACKGROUND) {
+            findViewById<View>(R.id.btn_save).isEnabled = false
+            findViewById<View>(R.id.widget_background_image).isEnabled = false
+            Toast.makeText(this, "Preparing image", Toast.LENGTH_SHORT).show()
+            dev.revilodev.onewidget.widgets.WidgetBackgroundStore.import(this, uri) { imported ->
+                if (!isFinishing && !isDestroyed) {
+                    findViewById<View>(R.id.btn_save).isEnabled = true
+                    findViewById<View>(R.id.widget_background_image).isEnabled = true
+                }
+                if (isFinishing || isDestroyed) {
+                    dev.revilodev.onewidget.widgets.WidgetBackgroundStore.removeIfUnused(this, imported)
+                } else if (imported == null) Toast.makeText(this, "Unable to open this image", Toast.LENGTH_SHORT).show()
+                else {
+                    dev.revilodev.onewidget.widgets.WidgetBackgroundStore.removeIfUnused(this, widgetBackgroundUri)
+                    widgetBackgroundUri = imported
+                    refreshSharedAppearance()
+                    updatePreview()
+                }
             }
-            when (pendingImageTarget) {
-                ImageTarget.OPEN_APP_BACKGROUND -> openAppBackgroundUri = uri.toString()
-                ImageTarget.OPEN_APP_ICON -> openAppIconUri = uri.toString()
-                ImageTarget.TEXT_BACKGROUND -> textBackgroundUri = uri.toString()
-                null -> Unit
-            }
+        } else if (uri != null && target == ImageTarget.OPEN_APP_ICON) {
+            runCatching { contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+            openAppIconUri = uri.toString()
             refreshAssetOptionSummaries()
             updatePreview()
         }
-        pendingImageTarget = null
     }
 
+    private var currentPresetId: String? = null
+    private var currentBorderOverride: WidgetBorderStyle? = null
+    private var widgetBackgroundUri: String? = null
+    private var originalBackgroundUri: String? = null
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private var currentHue = BlurWidget.DEFAULT_TINT_HUE
     private var currentSaturation = BlurWidget.DEFAULT_TINT_SATURATION
@@ -169,12 +189,10 @@ class WidgetConfigActivity : AppCompatActivity() {
     private var openAppClass: String? = null
     private var openAppName = ""
     private var openAppCustomLabel = ""
-    private var openAppBackgroundUri: String? = null
     private var openAppIconUri: String? = null
     private var textWidgetContent = "Text"
     private var textWidgetEmoji = ""
     private var textWidgetIconEnabled = true
-    private var textBackgroundUri: String? = null
     private var alarmHour = -1
     private var alarmMinute = 0
     private var hydrationHour = 0
@@ -206,6 +224,8 @@ class WidgetConfigActivity : AppCompatActivity() {
         fontDebug("configuration id=$appWidgetId provider=${providerClassName()}")
 
         loadSettings()
+        restoreAppearance(savedInstanceState)
+        setupSharedAppearance()
         setupClockOptions()
         setupUniversalTextOptions()
         setupStorageOptions()
@@ -230,12 +250,18 @@ class WidgetConfigActivity : AppCompatActivity() {
     override fun onDestroy() {
         colorPickerDialog?.dismiss()
         colorPickerDialog = null
+        previewHandler.removeCallbacks(previewUpdate)
+        if (!isChangingConfigurations) dev.revilodev.onewidget.widgets.WidgetBackgroundStore.removeIfUnused(this, widgetBackgroundUri)
         super.onDestroy()
     }
 
     private fun loadSettings() {
         val prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
         val defaults = BlurWidget.defaultTint(prefs)
+        currentPresetId = WidgetPresets.selected(prefs, appWidgetId)?.id
+        currentBorderOverride = if (prefs.contains("border_enabled_$appWidgetId")) WidgetAppearance.border(prefs, appWidgetId) else null
+        widgetBackgroundUri = WidgetAppearance.backgroundUri(prefs, appWidgetId)
+        originalBackgroundUri = widgetBackgroundUri
         currentHue = prefs.getFloat("tint_hue_$appWidgetId", defaults.hue)
         currentSaturation = prefs.getFloat("tint_saturation_$appWidgetId", defaults.saturation)
         currentValue = prefs.getFloat("tint_value_$appWidgetId", defaults.value)
@@ -245,6 +271,12 @@ class WidgetConfigActivity : AppCompatActivity() {
             val oldLevel = prefs.getInt("level_$appWidgetId", 1).coerceIn(0, BlurWidget.PRESET_ALPHAS.lastIndex)
             BlurWidget.PRESET_ALPHAS[oldLevel]
         } else defaults.alpha.coerceIn(MIN_BLUR_ALPHA, MAX_BLUR_ALPHA)
+        WidgetPresets.selected(prefs, appWidgetId)?.let { preset ->
+            currentHue = preset.hue
+            currentSaturation = preset.saturation
+            currentValue = preset.value
+            currentAlpha = preset.alpha
+        }
         useDarkTint = currentSaturation < NEUTRAL_SATURATION_THRESHOLD && currentValue < DARK_VALUE_THRESHOLD
         recentColors = listOf(currentTintColor(), BlurWidget.tintColor(
             BlurWidget.DEFAULT_TINT_HUE,
@@ -255,14 +287,11 @@ class WidgetConfigActivity : AppCompatActivity() {
         if (isClockWidget()) clockSettings = ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId)
         currentTextScale = if (isClockWidget()) clockSettings!!.textScalePercent else WidgetAppearance.textScale(prefs, appWidgetId)
         currentTextColor = if (isClockWidget()) clockSettings!!.textColor else WidgetAppearance.textColor(prefs, appWidgetId)
-        currentTextAlignment = if (isWeatherWidget() && !prefs.contains("text_alignment_$appWidgetId")) WidgetAppearance.Alignment.START else if (isClockWidget()) when (clockSettings!!.alignment) {
+        currentTextAlignment = if (isClockWidget()) when (clockSettings!!.alignment) {
             ClockTextAlignment.START -> WidgetAppearance.Alignment.START
             ClockTextAlignment.CENTER -> WidgetAppearance.Alignment.CENTRE
             ClockTextAlignment.END -> WidgetAppearance.Alignment.END
         } else WidgetAppearance.alignment(prefs, appWidgetId)
-        if (isSearchWidget() && currentTextAlignment == WidgetAppearance.Alignment.END) {
-            currentTextAlignment = WidgetAppearance.Alignment.CENTRE
-        }
         storageCompactMetric = StorageWidget.CompactMetric.from(prefs.getString("storage_compact_metric_$appWidgetId", null))
         storageHideData = prefs.getBoolean("storage_hide_data_$appWidgetId", false)
         storageShowTitles = prefs.getBoolean("storage_show_titles_$appWidgetId", true)
@@ -281,12 +310,10 @@ class WidgetConfigActivity : AppCompatActivity() {
         openAppClass = prefs.getString("open_app_class_$appWidgetId", null)
         openAppName = prefs.getString("open_app_label_$appWidgetId", "").orEmpty()
         openAppCustomLabel = prefs.getString("open_app_custom_label_$appWidgetId", "").orEmpty()
-        openAppBackgroundUri = prefs.getString("open_app_background_uri_$appWidgetId", null)
         openAppIconUri = prefs.getString("open_app_icon_uri_$appWidgetId", null)
         textWidgetContent = prefs.getString("text_widget_$appWidgetId", "Text") ?: "Text"
         textWidgetEmoji = prefs.getString("text_emoji_$appWidgetId", "").orEmpty()
         textWidgetIconEnabled = prefs.getBoolean("text_icon_enabled_$appWidgetId", true)
-        textBackgroundUri = prefs.getString("text_background_uri_$appWidgetId", null)
         alarmHour = prefs.getInt("alarm_hour_$appWidgetId", -1)
         alarmMinute = prefs.getInt("alarm_minute_$appWidgetId", 0)
         hydrationHour = prefs.getInt("hydration_hour_$appWidgetId", 0)
@@ -334,7 +361,120 @@ class WidgetConfigActivity : AppCompatActivity() {
         )
     } == true
 
+    private fun detachPreset() {
+        if (currentPresetId != null) currentBorderOverride = effectiveBorder()
+        currentPresetId = null
+    }
+
+    private fun effectiveBorder(): WidgetBorderStyle {
+        val prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
+        return currentPresetId?.let { selected -> WidgetPresets.load(prefs).firstOrNull { it.id == selected }?.border }
+            ?: currentBorderOverride ?: WidgetAppearance.defaultBorder(prefs)
+    }
+
+    private fun selectPreset(preset: dev.revilodev.onewidget.widgets.WidgetPreset) {
+        currentPresetId = preset.id
+        currentBorderOverride = null
+        currentHue = preset.hue
+        currentSaturation = preset.saturation
+        currentValue = preset.value
+        currentAlpha = preset.alpha
+        useDarkTint = currentSaturation < NEUTRAL_SATURATION_THRESHOLD && currentValue < DARK_VALUE_THRESHOLD
+        updateTintModeSwitch()
+        updateColourUi()
+        refreshSharedAppearance()
+        updatePreview()
+    }
+
+    private fun setupSharedAppearance() {
+        findViewById<View>(R.id.open_app_background_image).visibility = View.GONE
+        findViewById<View>(R.id.text_widget_background_image).visibility = View.GONE
+        findViewById<CardItemView>(R.id.widget_preset).setOnClickListener {
+            val presets = WidgetPresets.load(getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE))
+            AlertDialog.Builder(this).setTitle("Appearance preset")
+                .setItems((listOf("App defaults") + presets.map { it.name }).toTypedArray()) { _, index ->
+                    if (index == 0) resetToDefault() else selectPreset(presets[index - 1])
+                }.show()
+        }
+        findViewById<CardItemView>(R.id.widget_border_style).setOnClickListener {
+            WidgetAppearanceDialogs.border(this, effectiveBorder(), { border ->
+                currentPresetId = null
+                currentBorderOverride = border
+                refreshSharedAppearance()
+                updatePreview()
+            }, {
+                currentPresetId = null
+                currentBorderOverride = null
+                refreshSharedAppearance()
+                updatePreview()
+            })
+        }
+        findViewById<CardItemView>(R.id.widget_background_image).setOnClickListener {
+            AlertDialog.Builder(this).setTitle("Background image")
+                .setItems(arrayOf("Choose image", "Remove image")) { _, index ->
+                    if (index == 0) {
+                        pendingImageTarget = ImageTarget.WIDGET_BACKGROUND
+                        imagePicker.launch(arrayOf("image/*"))
+                    } else {
+                        dev.revilodev.onewidget.widgets.WidgetBackgroundStore.removeIfUnused(this, widgetBackgroundUri)
+                        widgetBackgroundUri = null
+
+
+                        refreshSharedAppearance()
+                        updatePreview()
+                    }
+                }.show()
+        }
+        findViewById<SeslSeekBar>(R.id.widget_opacity_slider).setOnSeekBarChangeListener(object : SeslSeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeslSeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                detachPreset()
+                currentAlpha = progress + 1
+                updateColourUi()
+                refreshSharedAppearance()
+                updatePreview()
+            }
+            override fun onStartTrackingTouch(seekBar: SeslSeekBar) = Unit
+            override fun onStopTrackingTouch(seekBar: SeslSeekBar) = Unit
+        })
+        refreshSharedAppearance()
+    }
+
+    private fun refreshSharedAppearance() {
+        findViewById<CardItemView>(R.id.widget_opacity).summary = opacityPercent(currentAlpha).toString() + "%"
+        findViewById<SeslSeekBar>(R.id.widget_opacity_slider).progress = currentAlpha - 1
+        val presets = WidgetPresets.load(getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE))
+        findViewById<CardItemView>(R.id.widget_preset).summary = presets.firstOrNull { it.id == currentPresetId }?.name ?: "Custom"
+        findViewById<CardItemView>(R.id.widget_border_style).summary = WidgetAppearanceDialogs.borderSummary(effectiveBorder())
+        findViewById<CardItemView>(R.id.widget_background_image).summary = if (widgetBackgroundUri == null) "None" else "Custom image"
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("appearance_preset", currentPresetId)
+        outState.putFloatArray("appearance_tint", floatArrayOf(currentHue, currentSaturation, currentValue, currentAlpha.toFloat()))
+        outState.putString("appearance_image", widgetBackgroundUri)
+        outState.putString("appearance_image_target", pendingImageTarget?.name)
+        currentBorderOverride?.let { border -> outState.putIntArray("appearance_border", intArrayOf(if (border.enabled) 1 else 0, border.thicknessPx, border.opacityPercent)) }
+    }
+
+    private fun restoreAppearance(state: Bundle?) {
+        if (state == null) return
+        currentPresetId = state.getString("appearance_preset")
+        state.getFloatArray("appearance_tint")?.takeIf { it.size == 4 }?.let {
+            currentHue = it[0]; currentSaturation = it[1]; currentValue = it[2]; currentAlpha = it[3].toInt()
+        }
+        widgetBackgroundUri = state.getString("appearance_image")
+        pendingImageTarget = ImageTarget.entries.firstOrNull { it.name == state.getString("appearance_image_target") }
+        currentBorderOverride = state.getIntArray("appearance_border")?.takeIf { it.size == 3 }?.let {
+            WidgetBorderStyle(it[0] == 1, it[1], it[2])
+        }
+        useDarkTint = currentSaturation < NEUTRAL_SATURATION_THRESHOLD && currentValue < DARK_VALUE_THRESHOLD
+    }
+
     private fun setupUniversalTextOptions() {
+        findViewById<View>(R.id.universal_text_options_section).visibility =
+            if (baseProviderClassName() == BlurWidget::class.java.name || isToggleWidget()) View.GONE else View.VISIBLE
         findViewById<CardItemView>(R.id.universal_text_scale).summary = "${currentTextScale}%"
         findViewById<SeslSeekBar>(R.id.universal_text_scale_slider).progress = currentTextScale - 50
         findViewById<CardItemView>(R.id.universal_text_colour).summary = "#${currentTextColor.toUInt().toString(16).uppercase().padStart(8, '0')}"
@@ -358,11 +498,8 @@ class WidgetConfigActivity : AppCompatActivity() {
             }, currentTextColor, intArrayOf(currentTextColor), true).show()
         }
         findViewById<CardItemView>(R.id.universal_text_alignment).setOnClickListener {
-            val alignmentOptions = if (isSearchWidget() || isWeatherWidget()) {
-                listOf(WidgetAppearance.Alignment.CENTRE, WidgetAppearance.Alignment.START)
-            } else {
-                WidgetAppearance.Alignment.entries.toList()
-            }
+            val alignmentOptions = WidgetAppearance.Alignment.entries
+
             AlertDialog.Builder(this).setItems(alignmentOptions.map { it.label }.toTypedArray()) { _, which ->
                 currentTextAlignment = alignmentOptions[which]
                 if (isClockWidget()) clockSettings = clockSettings?.copy(alignment = when (currentTextAlignment) {
@@ -518,7 +655,6 @@ class WidgetConfigActivity : AppCompatActivity() {
             }
         }
         findViewById<CardItemView>(R.id.open_app_background_image).setOnClickListener {
-            chooseOrRemoveImage(ImageTarget.OPEN_APP_BACKGROUND, openAppBackgroundUri)
         }
         findViewById<CardItemView>(R.id.open_app_icon_image).setOnClickListener {
             chooseOrRemoveImage(ImageTarget.OPEN_APP_ICON, openAppIconUri)
@@ -563,7 +699,6 @@ class WidgetConfigActivity : AppCompatActivity() {
                 .show()
         }
         findViewById<CardItemView>(R.id.text_widget_background_image).setOnClickListener {
-            chooseOrRemoveImage(ImageTarget.TEXT_BACKGROUND, textBackgroundUri)
         }
     }
 
@@ -713,9 +848,8 @@ class WidgetConfigActivity : AppCompatActivity() {
                     imagePicker.launch(arrayOf("image/*"))
                 } else {
                     when (target) {
-                        ImageTarget.OPEN_APP_BACKGROUND -> openAppBackgroundUri = null
+                        ImageTarget.WIDGET_BACKGROUND -> widgetBackgroundUri = null
                         ImageTarget.OPEN_APP_ICON -> openAppIconUri = null
-                        ImageTarget.TEXT_BACKGROUND -> textBackgroundUri = null
                     }
                     refreshAssetOptionSummaries()
                     updatePreview()
@@ -728,7 +862,6 @@ class WidgetConfigActivity : AppCompatActivity() {
         if (isOpenAppWidget()) {
             findViewById<CardItemView>(R.id.open_app_choose_app).summary = openAppName.ifBlank { "Choose an app" }
             findViewById<CardItemView>(R.id.open_app_label).summary = openAppCustomLabel.ifBlank { "Use app name" }
-            findViewById<CardItemView>(R.id.open_app_background_image).summary = if (openAppBackgroundUri == null) "None" else "Custom image"
             findViewById<CardItemView>(R.id.open_app_icon_image).summary = if (openAppIconUri == null) "Use app icon" else "Custom image"
         }
         if (isTextWidget()) {
@@ -738,7 +871,6 @@ class WidgetConfigActivity : AppCompatActivity() {
                 textWidgetEmoji.isNotBlank() -> textWidgetEmoji
                 else -> "Default icon"
             }
-            findViewById<CardItemView>(R.id.text_widget_background_image).summary = if (textBackgroundUri == null) "None" else "Custom image"
         }
     }
 
@@ -841,16 +973,10 @@ class WidgetConfigActivity : AppCompatActivity() {
 
     private fun setupClockOptions() {
         if (!isClockWidget()) return
-        // The RemoteViews preview uses some of the same view IDs as these controls. Scope
-        // lookups to the settings section so a preview TextClock can never be cast to a
-        // settings SwitchItemView when the selected font refreshes the preview.
+        // scope controls because previews reuse widget ids
         val clockOptions = findViewById<View>(R.id.clock_options_section)
         clockOptions.visibility = View.VISIBLE
         fun <T : View> control(id: Int): T = clockOptions.findViewById(id)
-        // Text controls are shared with every widget in the universal Text section.
-        control<View>(R.id.clock_text_scale).visibility = View.GONE
-        control<View>(R.id.clock_text_scale_slider).visibility = View.GONE
-        control<View>(R.id.clock_text_colour).visibility = View.GONE
         var settings = clockSettings ?: return
         fun bind() {
             control<SwitchItemView>(R.id.clock_show_date).isChecked = settings.showDate
@@ -864,46 +990,23 @@ class WidgetConfigActivity : AppCompatActivity() {
             }
             control<SwitchItemView>(R.id.clock_show_seconds).isChecked = settings.showSeconds
             control<CardItemView>(R.id.clock_time_format).summary = settings.timeFormat.label()
-            control<CardItemView>(R.id.clock_alignment).summary = settings.alignment.label()
             control<CardItemView>(R.id.clock_tap_action).summary = "Open ${settings.tapAction.label()}"
             control<CardItemView>(R.id.clock_font).summary = settings.font.label()
-            control<CardItemView>(R.id.clock_text_scale).summary = "${settings.textScalePercent}%"
-            control<SeslSeekBar>(R.id.clock_text_scale_slider).progress = settings.textScalePercent - 50
-            control<CardItemView>(R.id.clock_text_colour).summary = "#${settings.textColor.toUInt().toString(16).uppercase().padStart(8, '0')}"
         }
         bind()
-        control<SwitchItemView>(R.id.clock_show_date).onCheckedChangedListener = { _, checked -> settings = settings.copy(showDate = checked); clockSettings = settings; updatePreview() }
-        control<SwitchItemView>(R.id.clock_show_day).onCheckedChangedListener = { _, checked -> settings = settings.copy(showDayOfWeek = checked); clockSettings = settings; updatePreview() }
-        control<SwitchItemView>(R.id.clock_date_above).onCheckedChangedListener = { _, checked -> settings = settings.copy(dateAboveTime = checked); clockSettings = settings; updatePreview() }
-        control<SwitchItemView>(R.id.clock_show_phone_battery).onCheckedChangedListener = { _, checked -> settings = settings.copy(showPhoneBattery = checked); clockSettings = settings; updatePreview() }
-        control<SwitchItemView>(R.id.clock_background).onCheckedChangedListener = { _, checked -> settings = settings.copy(backgroundEnabled = checked); clockSettings = settings; updatePreview() }
-        control<SwitchItemView>(R.id.clock_show_am_pm).onCheckedChangedListener = { _, checked -> settings = settings.copy(showAmPm = checked); clockSettings = settings; updatePreview() }
-        control<SwitchItemView>(R.id.clock_show_seconds).onCheckedChangedListener = { _, checked -> settings = settings.copy(showSeconds = checked); clockSettings = settings; updatePreview() }
-        control<SeslSeekBar>(R.id.clock_text_scale_slider).setOnSeekBarChangeListener(object : SeslSeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeslSeekBar, progress: Int, fromUser: Boolean) {
-                settings = settings.copy(textScalePercent = progress + 50)
-                clockSettings = settings
-                control<CardItemView>(R.id.clock_text_scale).summary = "${progress + 50}%"
-                updatePreview()
-            }
-            override fun onStartTrackingTouch(seekBar: SeslSeekBar) = Unit
-            override fun onStopTrackingTouch(seekBar: SeslSeekBar) = Unit
-        })
+        control<SwitchItemView>(R.id.clock_show_date).onCheckedChangedListener = { _, checked -> settings = (clockSettings ?: settings).copy(showDate = checked); clockSettings = settings; updatePreview() }
+        control<SwitchItemView>(R.id.clock_show_day).onCheckedChangedListener = { _, checked -> settings = (clockSettings ?: settings).copy(showDayOfWeek = checked); clockSettings = settings; updatePreview() }
+        control<SwitchItemView>(R.id.clock_date_above).onCheckedChangedListener = { _, checked -> settings = (clockSettings ?: settings).copy(dateAboveTime = checked); clockSettings = settings; updatePreview() }
+        control<SwitchItemView>(R.id.clock_show_phone_battery).onCheckedChangedListener = { _, checked -> settings = (clockSettings ?: settings).copy(showPhoneBattery = checked); clockSettings = settings; updatePreview() }
+        control<SwitchItemView>(R.id.clock_background).onCheckedChangedListener = { _, checked -> settings = (clockSettings ?: settings).copy(backgroundEnabled = checked); clockSettings = settings; updatePreview() }
+        control<SwitchItemView>(R.id.clock_show_am_pm).onCheckedChangedListener = { _, checked -> settings = (clockSettings ?: settings).copy(showAmPm = checked); clockSettings = settings; updatePreview() }
+        control<SwitchItemView>(R.id.clock_show_seconds).onCheckedChangedListener = { _, checked -> settings = (clockSettings ?: settings).copy(showSeconds = checked); clockSettings = settings; updatePreview() }
         fun <T> choose(view: CardItemView, values: Array<T>, label: (T) -> String, update: (T) -> Unit) { view.setOnClickListener { AlertDialog.Builder(this).setItems(values.map(label).toTypedArray()) { _, which -> update(values[which]); bind() }.show() } }
-        choose(control(R.id.clock_time_format), ClockTimeFormat.entries.toTypedArray(), { it.label() }) { settings = settings.copy(timeFormat = it); clockSettings = settings; updatePreview() }
-        choose(control(R.id.clock_alignment), ClockTextAlignment.entries.toTypedArray(), { it.label() }) { settings = settings.copy(alignment = it); clockSettings = settings; updatePreview() }
-        choose(control(R.id.clock_tap_action), ClockTapAction.entries.toTypedArray(), { it.label() }) { settings = settings.copy(tapAction = it); clockSettings = settings }
+        choose(control(R.id.clock_time_format), ClockTimeFormat.entries.toTypedArray(), { it.label() }) { settings = (clockSettings ?: settings).copy(timeFormat = it); clockSettings = settings; updatePreview() }
+        choose(control(R.id.clock_tap_action), ClockTapAction.entries.toTypedArray(), { it.label() }) { settings = (clockSettings ?: settings).copy(tapAction = it); clockSettings = settings }
         choose(control(R.id.clock_font), ClockFont.entries.toTypedArray(), { it.label() }) {
             fontDebug("font selected id=$appWidgetId value=${it.preferenceValue}")
-            settings = settings.copy(font = it); clockSettings = settings; updatePreview()
-        }
-        control<CardItemView>(R.id.clock_text_colour).setOnClickListener {
-            SeslColorPickerDialog(this, { color ->
-                settings = settings.copy(textColor = Color.rgb(Color.red(color), Color.green(color), Color.blue(color)))
-                clockSettings = settings
-                bind()
-                updatePreview()
-            }, settings.textColor, intArrayOf(), false).show()
+            settings = (clockSettings ?: settings).copy(font = it); clockSettings = settings; updatePreview()
         }
         clockSettings = settings
     }
@@ -941,6 +1044,7 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun onColorPicked(color: Int) {
+        detachPreset()
         val hsv = FloatArray(3)
         Color.colorToHSV(color, hsv)
         currentHue = hsv[0]
@@ -951,6 +1055,7 @@ class WidgetConfigActivity : AppCompatActivity() {
         recentColors = (listOf(currentTintColor()) + recentColors).distinct().take(MAX_RECENT_COLORS)
         updateTintModeSwitch()
         updateColourUi()
+        refreshSharedAppearance()
         updatePreview()
     }
 
@@ -972,9 +1077,13 @@ class WidgetConfigActivity : AppCompatActivity() {
             }
         }
 
-        OPACITY_PRESETS.forEach { preset ->
-            findViewById<TextView>(preset.viewId).setOnClickListener {
-                applyNeutralTint(preset.alpha)
+        val presets = WidgetPresets.load(getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE))
+        listOf(R.id.preset_glass, R.id.preset_light, R.id.preset_medium, R.id.preset_solid).forEachIndexed { index, id ->
+            findViewById<TextView>(id).apply {
+                val preset = presets.getOrNull(index)
+                visibility = if (preset == null) View.GONE else View.VISIBLE
+                text = preset?.name
+                setOnClickListener { if (preset != null) selectPreset(preset) }
             }
         }
         findViewById<TextView>(R.id.preset_default).setOnClickListener {
@@ -983,6 +1092,7 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun applyNeutralTint(alpha: Int) {
+        detachPreset()
         currentAlpha = alpha.coerceIn(MIN_BLUR_ALPHA, MAX_BLUR_ALPHA)
         currentHue = BlurWidget.DEFAULT_TINT_HUE
         currentSaturation = BlurWidget.DEFAULT_TINT_SATURATION
@@ -994,13 +1104,17 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun resetToDefault() {
-        useDarkTint = false
-        currentHue = BlurWidget.DEFAULT_TINT_HUE
-        currentSaturation = BlurWidget.DEFAULT_TINT_SATURATION
-        currentValue = BlurWidget.DEFAULT_TINT_VALUE
-        currentAlpha = BlurWidget.DEFAULT_TINT_ALPHA
+        val defaults = BlurWidget.defaultTint(getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE))
+        currentPresetId = null
+        currentBorderOverride = null
+        currentHue = defaults.hue
+        currentSaturation = defaults.saturation
+        currentValue = defaults.value
+        currentAlpha = defaults.alpha
+        useDarkTint = currentSaturation < NEUTRAL_SATURATION_THRESHOLD && currentValue < DARK_VALUE_THRESHOLD
         updateTintModeSwitch()
         updateColourUi()
+        refreshSharedAppearance()
         updatePreview()
     }
 
@@ -1034,10 +1148,17 @@ class WidgetConfigActivity : AppCompatActivity() {
         }
     }
 
-    private data class PreviewSpec(val minWidthDp: Int, val minHeightDp: Int, val layoutMode: Int)
-    private data class OpacityPreset(val viewId: Int, val alpha: Int)
+    private data class PreviewSpec(val minWidthDp: Int, val minHeightDp: Int, val layoutMode: Int, val gridSpan: android.util.Size? = null)
+
+    private val previewHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val previewUpdate = Runnable { renderPreviewNow() }
 
     private fun updatePreview() {
+        previewHandler.removeCallbacks(previewUpdate)
+        previewHandler.postDelayed(previewUpdate, 32)
+    }
+
+    private fun renderPreviewNow() {
         val previewWidget = findViewById<FrameLayout>(R.id.preview_widget)
         runCatching {
             val spec = currentPreviewSpec()
@@ -1052,13 +1173,15 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun currentPreviewSpec(): PreviewSpec {
+        val manager = AppWidgetManager.getInstance(this)
         val (minWidth, minHeight) = WidgetInitialSizeSpec.resolvedBounds(
-            AppWidgetManager.getInstance(this),
+            manager,
             appWidgetId,
             fallbackWidthDp = 180,
             fallbackHeightDp = 80
         )
-        return PreviewSpec(minWidth, minHeight, BlurWidget.layoutMode(minWidth, minHeight))
+        return PreviewSpec(minWidth, minHeight, BlurWidget.layoutMode(minWidth, minHeight),
+            WidgetInitialSizeSpec.launcherGridSpan(manager.getAppWidgetOptions(appWidgetId)))
     }
 
     private fun sizePreviewWidget(previewWidget: FrameLayout, spec: PreviewSpec) {
@@ -1081,11 +1204,12 @@ class WidgetConfigActivity : AppCompatActivity() {
     }
 
     private fun renderPreviewWidget(previewWidget: FrameLayout, spec: PreviewSpec) {
-        if (previewWidget is RemoteViewsPreviewHost && !isOpenAppWidget() && !isTextWidget() &&
-            (isClockWidget() || isBatteryWidget() || isStorageWidget() || isCalendarWidget() ||
+        if (previewWidget is RemoteViewsPreviewHost &&
+            (isClockWidget() || isBatteryWidget() || isStorageWidget() || isCalendarWidget() || isOpenAppWidget() || isTextWidget() || isTodoWidget() ||
                 UniversalWidgetStudioCatalog.definitionForProvider(providerClassName()) != null)
         ) {
             previewWidget.background = null
+            previewWidget.foreground = null
             previewWidget.clipToOutline = false
             val remoteViews = if (isClockWidget()) {
                 val settings = ClockConfigPreviewMapper.map(
@@ -1168,6 +1292,10 @@ class WidgetConfigActivity : AppCompatActivity() {
                     design = null,
                     mode = CalendarRenderMode.CONFIG_PREVIEW
                 ).remoteViews
+            } else if (isTodoWidget()) {
+                RemoteViews(packageName, R.layout.widget_todo).apply {
+                    setTextViewText(R.id.todo_empty, if (todoItems.isEmpty()) "No items" else todoItems.joinToString("\n") { it.text })
+                }
             } else if (isOpenAppWidget() || isTextWidget()) {
                 buildActionPreview(spec)
             } else {
@@ -1187,8 +1315,10 @@ class WidgetConfigActivity : AppCompatActivity() {
                     )
                 )
             }
-            dev.revilodev.onewidget.widgets.WidgetCorners.apply(this, providerClassName(), remoteViews)
-            val applyResult = previewWidget.show(remoteViews)
+            val surface = WidgetSurface.wrap(this, appWidgetId, remoteViews, spec.minWidthDp.toFloat(), spec.minHeightDp.toFloat(),
+                color = if (clockSettings?.backgroundEnabled == false) Color.TRANSPARENT else currentTintColor(),
+                border = effectiveBorder(), backgroundUri = widgetBackgroundUri, useStoredImage = false, gridSpan = spec.gridSpan)
+            val applyResult = previewWidget.show(surface)
             val status = findViewById<TextView>(R.id.config_preview_status)
             if (applyResult.successful) {
                 status.text = getString(R.string.config_preview_local_note)
@@ -1219,7 +1349,6 @@ class WidgetConfigActivity : AppCompatActivity() {
             val iconBitmap: Bitmap?
             val iconResource: Int
             val iconVisible: Boolean
-            val backgroundUri: String?
             if (isOpenAppWidget()) {
                 label = openAppCustomLabel.ifBlank { openAppName.ifBlank { "Open app" } }
                 iconBitmap = WidgetAssetBitmaps.fromUri(this@WidgetConfigActivity, openAppIconUri)
@@ -1230,21 +1359,17 @@ class WidgetConfigActivity : AppCompatActivity() {
                     }
                 iconResource = R.drawable.phone
                 iconVisible = true
-                backgroundUri = openAppBackgroundUri
             } else {
                 label = textWidgetContent.ifBlank { "Text" }
                 iconBitmap = textWidgetEmoji.takeIf { textWidgetIconEnabled && it.isNotBlank() }
                     ?.let(WidgetAssetBitmaps::emoji)
                 iconResource = R.drawable.text_check_on
                 iconVisible = textWidgetIconEnabled
-                backgroundUri = textBackgroundUri
             }
             if (iconBitmap == null) setImageViewResource(R.id.action_icon, iconResource)
             else setImageViewBitmap(R.id.action_icon, iconBitmap)
             setViewVisibility(R.id.action_icon, if (iconVisible) View.VISIBLE else View.GONE)
-            val background = WidgetAssetBitmaps.fromUri(this@WidgetConfigActivity, backgroundUri)
-            setViewVisibility(R.id.action_background, if (background == null) View.GONE else View.VISIBLE)
-            background?.let { setImageViewBitmap(R.id.action_background, it) }
+            setViewVisibility(R.id.action_background, View.GONE)
             setTextViewText(R.id.action_label, label)
         }
     }
@@ -1255,6 +1380,11 @@ class WidgetConfigActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.config_preview_status).text = getString(R.string.config_preview_local_note)
         previewWidget.background = roundedDrawable(Color.TRANSPARENT, previewRadiusFor(spec))
         previewWidget.clipToOutline = true
+        val border = effectiveBorder()
+        previewWidget.foreground = if (border.enabled) dev.revilodev.onewidget.ui.HighlightedSurfaceDrawable(
+            Color.TRANSPARENT, previewRadiusFor(spec) * resources.displayMetrics.density,
+            border.thicknessPx.toFloat(), border.opacityPercent
+        ) else null
 
         val wallpaperLayer = ImageView(this).apply {
             setImageDrawable(previewWallpaper?.copyForPreview() ?: wallpaperPreviewDrawable().also { previewWallpaper = it }.copyForPreview())
@@ -1265,6 +1395,10 @@ class WidgetConfigActivity : AppCompatActivity() {
             }
         }
         previewWidget.addView(wallpaperLayer, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        widgetBackgroundUri?.let { WidgetSurface.loadImage(this, it) }?.let { image ->
+            previewWidget.addView(ImageView(this).apply { setImageBitmap(image); scaleType = ImageView.ScaleType.CENTER_CROP },
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        }
         val clockSettings = if (isClockWidget()) clockSettings ?: ClockWidgetPreferences.load(ClockWidgetPreferences.preferences(this), appWidgetId) else null
         previewWidget.addView(
             View(this).apply { background = roundedDrawable(if (clockSettings?.backgroundEnabled == false) Color.TRANSPARENT else currentTintColor(), previewRadiusFor(spec)) },
@@ -1272,13 +1406,6 @@ class WidgetConfigActivity : AppCompatActivity() {
             FrameLayout.LayoutParams.MATCH_PARENT
         )
         if (isOpenAppWidget() || isTextWidget()) {
-            val backgroundUri = if (isOpenAppWidget()) openAppBackgroundUri else textBackgroundUri
-            WidgetAssetBitmaps.fromUri(this, backgroundUri)?.let { background ->
-                previewWidget.addView(ImageView(this).apply {
-                    setImageBitmap(background)
-                    scaleType = ImageView.ScaleType.CENTER_CROP
-                }, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
-            }
             val row = LinearLayout(this).apply {
                 gravity = Gravity.CENTER
                 orientation = LinearLayout.HORIZONTAL
@@ -1434,9 +1561,10 @@ class WidgetConfigActivity : AppCompatActivity() {
             setStroke(dp(1), Color.argb(70, 0, 0, 0))
         }
 
-    private fun previewRadiusFor(spec: PreviewSpec): Float = when (spec.layoutMode) {
-        BlurWidget.LAYOUT_MODE_COMPACT_STRIP -> 38f
-        else -> 24f
+    private fun previewRadiusFor(spec: PreviewSpec): Float = dev.revilodev.onewidget.widgets.WidgetBackgroundArtwork.run {
+        val width = spec.minWidthDp.toFloat()
+        val height = spec.minHeightDp.toFloat()
+        radius(width, height, spec.gridSpan, drawable(spec.gridSpan, width, height))
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
@@ -1448,6 +1576,10 @@ class WidgetConfigActivity : AppCompatActivity() {
             .putFloat("tint_saturation_$appWidgetId", currentSaturation)
             .putFloat("tint_value_$appWidgetId", currentValue)
             .putInt("tint_alpha_$appWidgetId", currentAlpha)
+            .putString("appearance_preset_$appWidgetId", currentPresetId)
+            .putString("background_image_$appWidgetId", widgetBackgroundUri)
+            .remove("open_app_background_uri_$appWidgetId")
+            .remove("text_background_uri_$appWidgetId")
             .putInt("text_scale_$appWidgetId", currentTextScale)
             .putInt("text_color_$appWidgetId", currentTextColor)
             .putString("text_alignment_$appWidgetId", currentTextAlignment.name)
@@ -1469,14 +1601,12 @@ class WidgetConfigActivity : AppCompatActivity() {
                     if (openAppClass == null) remove("open_app_class_$appWidgetId") else putString("open_app_class_$appWidgetId", openAppClass)
                     putString("open_app_label_$appWidgetId", openAppName)
                     putString("open_app_custom_label_$appWidgetId", openAppCustomLabel)
-                    if (openAppBackgroundUri == null) remove("open_app_background_uri_$appWidgetId") else putString("open_app_background_uri_$appWidgetId", openAppBackgroundUri)
                     if (openAppIconUri == null) remove("open_app_icon_uri_$appWidgetId") else putString("open_app_icon_uri_$appWidgetId", openAppIconUri)
                 }
                 if (isTextWidget()) {
                     putString("text_widget_$appWidgetId", textWidgetContent.ifBlank { "Text" })
                     putBoolean("text_icon_enabled_$appWidgetId", textWidgetIconEnabled)
                     if (textWidgetEmoji.isBlank()) remove("text_emoji_$appWidgetId") else putString("text_emoji_$appWidgetId", textWidgetEmoji)
-                    if (textBackgroundUri == null) remove("text_background_uri_$appWidgetId") else putString("text_background_uri_$appWidgetId", textBackgroundUri)
                 }
                 if (isAlarmWidget() && alarmHour >= 0) {
                     putInt("alarm_hour_$appWidgetId", alarmHour)
@@ -1502,6 +1632,9 @@ class WidgetConfigActivity : AppCompatActivity() {
             }
             .apply()
 
+        WidgetAppearance.saveBorder(preferences, appWidgetId, if (currentPresetId == null) currentBorderOverride else null)
+        preferences.edit().remove("open_app_background_uri_$appWidgetId").remove("text_background_uri_$appWidgetId").apply()
+        dev.revilodev.onewidget.widgets.WidgetBackgroundStore.removeIfUnused(this, originalBackgroundUri)
         if (isTodoWidget()) TodoWidget.save(this, appWidgetId, todoItems)
 
         if (isClockWidget()) {
@@ -1684,11 +1817,5 @@ class WidgetConfigActivity : AppCompatActivity() {
         private const val SAMSUNG_MAIN_HOME = 5
         private const val SAMSUNG_SUB_HOME = 17
         private const val SAMSUNG_SYSTEM_HOME = 1
-        private val OPACITY_PRESETS = listOf(
-            OpacityPreset(R.id.preset_glass, 38),
-            OpacityPreset(R.id.preset_light, 102),
-            OpacityPreset(R.id.preset_medium, 178),
-            OpacityPreset(R.id.preset_solid, 240)
-        )
     }
 }

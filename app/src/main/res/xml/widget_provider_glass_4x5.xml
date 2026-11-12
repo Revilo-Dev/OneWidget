@@ -8,8 +8,8 @@
     android:minHeight="320dp"
     android:minResizeWidth="110dp"
     android:minResizeHeight="40dp"
-    android:maxResizeWidth="250dp"
-    android:maxResizeHeight="320dp"
+    android:maxResizeWidth="1000dp"
+    android:maxResizeHeight="1000dp"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="4"
     android:targetCellHeight="5"
@@ -17,5 +17,5 @@
     android:description="@string/widget_description"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable" app:previewLayoutExtraLargeLong="@layout/widget_preview_large" app:previewSize="extraLargeLong" app:widgetStyle="colorful" app:widgetSize="small|medium|large|extraLarge|extraLargeLong" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutExtraLargeLong="@layout/widget_preview_large" app:previewSize="extraLargeLong" app:allowMultipleSizes="true" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large|extraLarge|extraLargeLong" />
 

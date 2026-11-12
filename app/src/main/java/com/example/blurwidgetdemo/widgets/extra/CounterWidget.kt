@@ -2,7 +2,6 @@ package dev.revilodev.onewidget.widgets.extra
 
 import android.app.PendingIntent
 import android.app.AlarmManager
-import android.app.TimePickerDialog
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
@@ -10,7 +9,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import dev.revilodev.onewidget.BlurWidget
 import dev.revilodev.onewidget.R
@@ -22,7 +20,6 @@ import dev.revilodev.onewidget.studio.universal.UniversalWidgetContent
 import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 /** A plain plus/minus counter that clears at a user-selected local time each day. */
@@ -30,8 +27,11 @@ open class CounterWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
 
-    override fun onDeleted(context: Context, ids: IntArray) =
+    override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
+
         UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.COUNTER, ids)
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -60,7 +60,7 @@ open class CounterWidget : AppWidgetProvider() {
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
             val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
             val value = currentValue(prefs, id)
-            val options = manager.getAppWidgetOptions(id)
+            val options = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id)
             val compact = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
             val singleCell = compact && options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180) <= 100
             val reset = "Clears ${formatReset(prefs.getInt("counter_hour_$id", 0), prefs.getInt("counter_minute_$id", 0))}"
@@ -112,7 +112,7 @@ open class CounterWidget : AppWidgetProvider() {
                 setOnClickPendingIntent(R.id.counter_plus, plusAction)
                 setOnClickPendingIntent(android.R.id.background, rootAction)
             }
-            manager.updateAppWidget(id, views)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, views)
             scheduleReset(context, id)
         }
 
@@ -167,56 +167,11 @@ open class CounterWidget : AppWidgetProvider() {
     }
 }
 
+
 class CounterConfigActivity : AppCompatActivity() {
-    private var id = AppWidgetManager.INVALID_APPWIDGET_ID
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setResult(RESULT_CANCELED)
-        id = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-        if (id == AppWidgetManager.INVALID_APPWIDGET_ID) { finish(); return }
-        showSettings()
-    }
-
-    private fun showSettings() {
-        val prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
-        val hour = prefs.getInt("counter_hour_$id", 0)
-        val minute = prefs.getInt("counter_minute_$id", 0)
-        val showClearText = prefs.getBoolean("counter_show_clear_$id", true)
-        AlertDialog.Builder(this)
-            .setTitle("Counter settings")
-            .setItems(arrayOf(
-                "Daily clear time · ${formatTime(hour, minute)}",
-                "Show clear-at text · ${if (showClearText) "On" else "Off"}",
-                "Done"
-            )) { _, which ->
-                when (which) {
-                    0 -> TimePickerDialog(this, { _, selectedHour, selectedMinute ->
-                        CounterWidget.saveResetTime(this, id, selectedHour, selectedMinute)
-                        updateWidget(); showSettings()
-                    }, hour, minute, false).show()
-                    1 -> {
-                        prefs.edit().putBoolean("counter_show_clear_$id", !showClearText).apply()
-                        updateWidget(); showSettings()
-                    }
-                    else -> finishConfiguration()
-                }
-            }
-            .setOnCancelListener { finish() }
-            .show()
-    }
-
-    private fun updateWidget() = CounterWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
-
-    private fun finishConfiguration() {
-        dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
-            .initializeConfiguredWidget(this, dev.revilodev.onewidget.studio.universal.UniversalWidgetIds.COUNTER, id)
-        updateWidget()
-        setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
+        startActivity(Intent(this, WidgetConfigActivity::class.java).putExtras(intent).addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT))
         finish()
-    }
-
-    private fun formatTime(hour: Int, minute: Int) = Calendar.getInstance().run {
-        set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute)
-        SimpleDateFormat("h:mm a", Locale.getDefault()).format(time)
     }
 }

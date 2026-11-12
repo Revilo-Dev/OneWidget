@@ -453,6 +453,6 @@ class WidgetStudioCanvasView @JvmOverloads constructor(
         private const val FIT_PADDING_PX = 32f
         private const val MINIMUM_VISIBLE_DP = 16f
         private const val GUIDE_TOLERANCE_DP = 4f
-        private const val WIDGET_CORNER_RADIUS_DP = 28f
+        private const val WIDGET_CORNER_RADIUS_DP = 24f
     }
 }

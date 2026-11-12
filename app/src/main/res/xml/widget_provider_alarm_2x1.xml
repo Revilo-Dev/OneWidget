@@ -8,12 +8,12 @@
     android:minHeight="40dp"
     android:minResizeWidth="110dp"
     android:minResizeHeight="40dp"
-    android:maxResizeWidth="250dp"
-    android:maxResizeHeight="110dp"
+    android:maxResizeWidth="1000dp"
+    android:maxResizeHeight="1000dp"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="2"
     android:targetCellHeight="1"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable" app:previewLayoutSmall="@layout/widget_alarm_compact" app:previewSize="small" app:widgetStyle="colorful" app:widgetSize="small|medium|large" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutSmall="@layout/widget_alarm_compact" app:previewSize="small" app:allowMultipleSizes="true" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large|extraLarge|extraLargeLong" />
 

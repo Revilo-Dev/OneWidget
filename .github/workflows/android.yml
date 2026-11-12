@@ -26,13 +26,12 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build debug APK and run lint
+      - name: Build debug APK and run tests and lint
         env:
-          # The oneui-design dependency lives on GitHub Packages, which requires
-          # auth. Add these as repository secrets (Settings → Secrets → Actions).
+          # github packages credentials are supplied through repository secrets
           GH_PACKAGES_USER: ${{ secrets.GH_PACKAGES_USER }}
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-        run: ./gradlew assembleDebug lintDebug --no-daemon --stacktrace
+        run: ./gradlew assembleDebug testDebugUnitTest lintDebug --no-daemon --stacktrace
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4

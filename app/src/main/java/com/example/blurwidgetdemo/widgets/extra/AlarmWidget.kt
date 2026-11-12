@@ -1,7 +1,6 @@
 package dev.revilodev.onewidget.widgets.extra
 
 import android.app.PendingIntent
-import android.app.TimePickerDialog
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
@@ -12,6 +11,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import dev.revilodev.onewidget.BlurWidget
+import dev.revilodev.onewidget.WidgetConfigActivity
 import dev.revilodev.onewidget.R
 import dev.revilodev.onewidget.studio.universal.UniversalElementContent
 import dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
@@ -27,8 +27,11 @@ open class AlarmWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
 
-    override fun onDeleted(context: Context, ids: IntArray) =
+    override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
+
         UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.ALARM, ids)
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -61,7 +64,7 @@ open class AlarmWidget : AppWidgetProvider() {
 
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
             val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
-            val options = manager.getAppWidgetOptions(id)
+            val options = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id)
             val large = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) > 100
             val singleCell = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 80) <= 100 &&
                 options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
@@ -125,8 +128,7 @@ open class AlarmWidget : AppWidgetProvider() {
                 }
                 setOnClickPendingIntent(android.R.id.background, rootAction)
             }
-            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, views)
-            manager.updateAppWidget(id, views)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, views)
         }
 
         private fun broadcast(context: Context, id: Int, action: String, offset: Int) = PendingIntent.getBroadcast(
@@ -154,26 +156,11 @@ open class AlarmWidget : AppWidgetProvider() {
 }
 
 /** Shown both during widget placement and when a user taps the alarm card to change its time. */
-class AlarmWidgetConfigActivity : AppCompatActivity() {
-    private var id = AppWidgetManager.INVALID_APPWIDGET_ID
 
+class AlarmWidgetConfigActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setResult(RESULT_CANCELED)
-        id = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-        if (id == AppWidgetManager.INVALID_APPWIDGET_ID) { finish(); return }
-        val now = Calendar.getInstance()
-        TimePickerDialog(this, { _, hour, minute ->
-            AlarmWidget.saveSelection(this, id, hour, minute)
-            dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
-                .initializeConfiguredWidget(this, dev.revilodev.onewidget.studio.universal.UniversalWidgetIds.ALARM, id)
-            AlarmWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
-            setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
-            finish()
-        }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false).apply {
-            setTitle("Choose daily alarm")
-            setOnCancelListener { finish() }
-            show()
-        }
+        startActivity(Intent(this, WidgetConfigActivity::class.java).putExtras(intent).addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT))
+        finish()
     }
 }

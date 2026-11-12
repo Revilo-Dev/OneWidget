@@ -7,7 +7,12 @@ import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Typeface
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
+import android.transition.ChangeBounds
+import android.transition.Fade
+import android.transition.TransitionSet
+import android.transition.TransitionManager
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -17,9 +22,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import dev.revilodev.onewidget.ui.PaletteActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import dev.revilodev.onewidget.widgets.battery.BatteryWidget
 import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
 import dev.revilodev.onewidget.studio.battery.BatteryStudioDescriptor
@@ -60,9 +68,12 @@ import dev.revilodev.onewidget.widgets.weather.WeatherWidget
 import dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec
 import dev.revilodev.onewidget.widgets.variants.ExactWidgetVariants
 import dev.oneuiproject.oneui.widget.RoundedLinearLayout
+import dev.revilodev.onewidget.ui.FlowToolbarLayout
+import dev.revilodev.onewidget.ui.WidgetSearchBar
+import dev.revilodev.onewidget.ui.applyCardHighlight
 
 /** A launcher-like list that previews the same layouts supplied to the widget host. */
-class MainActivity : AppCompatActivity() {
+class MainActivity : PaletteActivity() {
     private val snapshotRepository by lazy { WidgetSnapshotRepository(this) }
     private val designRepository by lazy { WidgetDesignRepository(this) }
     private val developerModeRepository by lazy { DeveloperModeRepository(this) }
@@ -77,14 +88,94 @@ class MainActivity : AppCompatActivity() {
     private val studioRevisions = mutableMapOf<String, Long?>()
     private val productionRevisions = mutableMapOf<String, Long?>()
 
+    private val categories by lazy { pickerCategories() }
+    private val expandedCategories = mutableSetOf<String>()
+    private val expandedWidgets = mutableSetOf<String>()
+    private lateinit var searchBar: WidgetSearchBar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val toolbarLayout = findViewById<FlowToolbarLayout>(R.id.main_toolbar_layout)
+        bindSearch(toolbarLayout, savedInstanceState)
+        toolbarLayout.post {
+            supportActionBar?.setDisplayShowTitleEnabled(false)
+            toolbarLayout.hideCollapsedTitle()
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        studioRevisions.clear()
+        productionRevisions.clear()
         addWidgetPicker()
+    }
+
+    private fun bindSearch(toolbarLayout: FlowToolbarLayout, savedInstanceState: Bundle?) {
+        searchBar = findViewById(R.id.widget_search)
+        positionSearchAboveSystemBars()
+        val searchBack = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() = searchBar.setOpen(false)
+        }
+        onBackPressedDispatcher.addCallback(this, searchBack)
+        val appBar = toolbarLayout.appBarLayout
+        var restoreExpandedHeader = false
+        searchBar.onOpenChanged = { open ->
+            searchBack.isEnabled = open
+            if (open) {
+                restoreExpandedHeader = appBar.top == 0
+                appBar.setExpanded(false, true)
+            } else if (restoreExpandedHeader) {
+                appBar.setExpanded(true, true)
+            }
+        }
+        searchBar.onQueryChanged = {
+            addWidgetPicker()
+            findViewById<View>(R.id.widget_picker_scroll).scrollTo(0, 0)
+        }
+        savedInstanceState?.getStringArrayList("expanded_categories")?.let(expandedCategories::addAll)
+        savedInstanceState?.getStringArrayList("expanded_widgets")?.let(expandedWidgets::addAll)
+        savedInstanceState?.getString("widget_search_query")?.let(searchBar::restoreQuery)
+    }
+
+    private fun positionSearchAboveSystemBars() {
+        val container = searchBar.parent as View
+        val scroll = findViewById<View>(R.id.widget_picker_scroll)
+        val galleryPadding = scroll.paddingBottom
+        val location = IntArray(2)
+        fun update(insets: WindowInsetsCompat) {
+            val inset = insets.getInsets(WindowInsetsCompat.Type.navigationBars() or WindowInsetsCompat.Type.ime()).bottom
+            val overlap = if (Build.VERSION.SDK_INT >= 30) {
+                container.getLocationInWindow(location)
+                val windowHeight = windowManager.currentWindowMetrics.bounds.height()
+                (inset - (windowHeight - location[1] - container.height)).coerceAtLeast(0)
+            } else 0
+            val params = searchBar.layoutParams as FrameLayout.LayoutParams
+            val bottom = dp(16) + overlap
+            if (params.bottomMargin != bottom) {
+                params.bottomMargin = bottom
+                searchBar.layoutParams = params
+            }
+            val padding = galleryPadding + overlap
+            if (scroll.paddingBottom != padding) {
+                scroll.setPadding(scroll.paddingLeft, scroll.paddingTop, scroll.paddingRight, padding)
+            }
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(container) { _, insets ->
+            update(insets)
+            insets
+        }
+        container.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            ViewCompat.getRootWindowInsets(container)?.let(::update)
+        }
+        ViewCompat.requestApplyInsets(container)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (searchBar.isOpen) outState.putString("widget_search_query", searchBar.query)
+        outState.putStringArrayList("expanded_categories", ArrayList(expandedCategories))
+        outState.putStringArrayList("expanded_widgets", ArrayList(expandedWidgets))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -107,10 +198,22 @@ class MainActivity : AppCompatActivity() {
     private fun addWidgetPicker() {
         val container = findViewById<LinearLayout>(R.id.widget_picker_list)
         container.removeAllViews()
-        studioRevisions.clear()
-        productionRevisions.clear()
-        pickerCategories().forEachIndexed { index, category ->
-            container.addView(categoryCard(category), LinearLayout.LayoutParams(
+        val query = searchBar.query.trim()
+        val results = if (query.isEmpty()) categories else categories.mapNotNull { category ->
+            val matches = if (category.title.contains(query, ignoreCase = true)) category.widgets
+                else category.widgets.filter { it.title.contains(query, ignoreCase = true) }
+            if (matches.isEmpty()) null else category.copy(widgets = matches)
+        }
+        if (results.isEmpty()) {
+            container.addView(TextView(this).apply {
+                setText(R.string.no_widgets_found)
+                gravity = Gravity.CENTER
+                setTextColor(themeColor(android.R.attr.textColorSecondary))
+                setPadding(0, dp(24), 0, dp(24))
+            })
+        }
+        results.forEachIndexed { index, category ->
+            container.addView(categoryCard(category, query.isNotEmpty()), LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { if (index > 0) topMargin = dp(10) })
@@ -128,10 +231,10 @@ class MainActivity : AppCompatActivity() {
         PickerCategory("Clock", R.drawable.category_clock, listOf(
             widget(
             "Digital clock", R.drawable.time, DigitalClockWidget::class.java,
-            sizes("2 × 1" to R.layout.widget_digital_clock_compact_clock_stamp,
-                "3 × 2" to R.layout.widget_digital_clock_medium_clock_stamp,
-                "4 × 2" to R.layout.widget_digital_clock_large_clock_stamp,
-                "4 × 4" to R.layout.widget_digital_clock_large_clock_stamp),
+            sizes("2 × 1" to R.layout.widget_digital_clock_compact,
+                "3 × 2" to R.layout.widget_digital_clock_medium,
+                "4 × 2" to R.layout.widget_digital_clock_large,
+                "4 × 4" to R.layout.widget_digital_clock_large),
             studioWidgetId = ClockStudioDescriptor.WIDGET_ID
             ),
             widget("Alarm", R.drawable.category_clock, AlarmWidget::class.java,
@@ -260,39 +363,56 @@ class MainActivity : AppCompatActivity() {
         studioWidgetId: String? = null
     ) = PickerWidget(title, icon, provider, sizes, toggleKind, studioWidgetId)
 
-    private fun categoryCard(category: PickerCategory): View {
+    private fun categoryCard(category: PickerCategory, searching: Boolean): View {
         val card = RoundedLinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(themeColor(android.R.attr.colorBackground))
+            applyCardHighlight()
         }
-        val content = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            visibility = View.GONE
-        }
+        val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val row = pickerRow(category.title, category.icon, category.widgetCountText())
-        row.setOnClickListener { toggle(content, row) }
-        card.addView(row)
-        category.widgets.forEachIndexed { index, item ->
-            if (category.widgets.size == 1) content.addView(previewSection(item, false))
-            else content.addView(widgetRow(item, index != 0))
+        fun populate() {
+            if (content.childCount > 0) return
+            category.widgets.forEachIndexed { index, item ->
+                if (category.widgets.size == 1) content.addView(previewSection(item, false))
+                else content.addView(widgetRow(item, index != 0, searching))
+            }
         }
+        bindDropdown(row, content, searching || category.title in expandedCategories) { expanded ->
+            if (!searching) updateExpansion(expandedCategories, category.title, expanded)
+            if (expanded) populate()
+        }
+        if (content.visibility == View.VISIBLE) populate()
+        card.addView(row)
         card.addView(content)
         return card
     }
 
-    private fun widgetRow(item: PickerWidget, showDivider: Boolean): View = LinearLayout(this).apply {
+    private fun widgetRow(item: PickerWidget, showDivider: Boolean, searching: Boolean): View = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         if (showDivider) addView(divider())
-        val previews = previewSection(item, true).apply { visibility = View.GONE }
+        val previews = LinearLayout(this@MainActivity).apply { orientation = LinearLayout.VERTICAL }
         val row = pickerRow(item.title, item.icon, item.sizeCountText())
-        row.setOnClickListener { toggle(previews, row) }
+        bindDropdown(row, previews, !searching && item.title in expandedWidgets) { expanded ->
+            if (!searching) updateExpansion(expandedWidgets, item.title, expanded)
+            if (expanded && previews.childCount == 0) previews.addView(previewSection(item, true))
+        }
+        if (previews.visibility == View.VISIBLE) previews.addView(previewSection(item, true))
         addView(row)
         addView(previews)
+    }
+
+    private fun updateExpansion(expanded: MutableSet<String>, title: String, open: Boolean) {
+        if (open) expanded.add(title) else expanded.remove(title)
     }
 
     private fun previewSection(item: PickerWidget, inset: Boolean): View = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         setPadding(if (inset) dp(24) else dp(16), 0, if (inset) dp(24) else dp(16), dp(16))
+        if (item.provider == BlurWidget::class.java) {
+            addView(pickerRow("Custom size", R.drawable.category_blur, "2 × 1 to 7 × 7").apply {
+                setOnClickListener { showGlassSizePicker(item) }
+            })
+        }
         var index = 0
         while (index < item.sizes.size) {
             val current = item.sizes[index]
@@ -306,6 +426,26 @@ class MainActivity : AppCompatActivity() {
                 index++
             }
         }
+    }
+
+    private fun showGlassSizePicker(item: PickerWidget) {
+        val columns = android.widget.NumberPicker(this).apply { minValue = 2; maxValue = 7; value = 2; wrapSelectorWheel = false }
+        val rows = android.widget.NumberPicker(this).apply { minValue = 1; maxValue = 7; value = 1; wrapSelectorWheel = false }
+        columns.contentDescription = "Columns"
+        rows.contentDescription = "Rows"
+        val content = LinearLayout(this).apply {
+            gravity = Gravity.CENTER
+            addView(columns)
+            addView(TextView(this@MainActivity).apply { text = " × "; textSize = 22f })
+            addView(rows)
+        }
+        AlertDialog.Builder(this).setTitle("Glass size").setView(content)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton("Continue") { _, _ ->
+                val c = columns.value
+                val r = rows.value
+                showPlacementPrompt(item, WidgetSize("${c} × ${r}", R.layout.widget_preview_large, c, r))
+            }.show()
     }
 
     private fun inlinePreviewRow(item: PickerWidget, square: WidgetSize, wide: WidgetSize): View = LinearLayout(this).apply {
@@ -466,12 +606,26 @@ class MainActivity : AppCompatActivity() {
         }, LinearLayout.LayoutParams(dp(24), dp(24)))
     }
 
-    private fun toggle(content: View, row: LinearLayout) {
-        val expanded = content.visibility != View.VISIBLE
-        content.visibility = if (expanded) View.VISIBLE else View.GONE
-        (row.getChildAt(row.childCount - 1) as? ImageView)?.apply {
-            animate().rotation(if (expanded) 180f else 0f).setDuration(160).start()
-            contentDescription = getString(if (expanded) R.string.collapse_widget_category else R.string.expand_widget_category)
+    private fun bindDropdown(row: LinearLayout, content: View, open: Boolean, onChanged: (Boolean) -> Unit) {
+        val chevron = row.getChildAt(row.childCount - 1) as ImageView
+        fun update(expanded: Boolean, animate: Boolean) {
+            content.visibility = if (expanded) View.VISIBLE else View.GONE
+            if (animate) chevron.animate().rotation(if (expanded) 180f else 0f).setDuration(180).start()
+            else chevron.rotation = if (expanded) 180f else 0f
+            chevron.contentDescription = getString(
+                if (expanded) R.string.collapse_widget_category else R.string.expand_widget_category
+            )
+        }
+        update(open, false)
+        row.setOnClickListener {
+            val expanded = content.visibility != View.VISIBLE
+            val list = findViewById<LinearLayout>(R.id.widget_picker_list)
+            TransitionManager.beginDelayedTransition(list, TransitionSet()
+                .addTransition(ChangeBounds())
+                .addTransition(Fade().addTarget(content))
+                .setDuration(180))
+            onChanged(expanded)
+            update(expanded, true)
         }
     }
 

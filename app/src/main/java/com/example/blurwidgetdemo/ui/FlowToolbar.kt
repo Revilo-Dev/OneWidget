@@ -1,11 +1,13 @@
 package dev.revilodev.onewidget.ui
 
+import android.animation.ValueAnimator
 import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
+import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +34,7 @@ object FlowToolbar {
         }
         toolbar.seslSetUserTopPadding(0)
         sizeToolbar()
-        // SESL replaces toolbar height and top padding in its own onAttachedToWindow.
+        // sesl resets toolbar dimensions when it attaches
         toolbar.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(view: View) = sizeToolbar()
             override fun onViewDetachedFromWindow(view: View) = Unit
@@ -54,7 +56,7 @@ object FlowToolbar {
                 override fun canDrag(appBarLayout: AppBarLayout) = !scroll.canScrollVertically(-1)
             })
         }
-        // The library may wrap content; attach scrolling behavior to that direct child.
+        // the coordinator only applies scrolling behavior to its direct children
         var content: View = scroll
         while (content.parent !== coordinator && content.parent is View) content = content.parent as View
         if (content.parent === coordinator) {
@@ -89,7 +91,6 @@ object FlowToolbar {
         if (root.isAttachedToWindow) root.viewTreeObserver.addOnPreDrawListener(update)
     }
 
-    /** Background drawing leaves the existing button bounds, ripple and semantics intact. */
     private class ControlSurfaces(private val toolbar: Toolbar) : Drawable() {
         private val density = toolbar.resources.displayMetrics.density
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -97,23 +98,51 @@ object FlowToolbar {
             color = if (dark) (flowThemeColor(toolbar.context, android.R.attr.colorBackground) and 0x00ffffff) or (224 shl 24)
                 else Color.WHITE
         }
+        private val fillAlpha = paint.alpha
+        private val highlight = SurfaceHighlight(SurfaceHighlight.chromeWidth(density), SurfaceHighlight.CHROME_OPACITY)
+        private val rect = RectF()
+        private var surfaceAlpha = 0f
+        private var fade: ValueAnimator? = null
         var active = false
-            set(value) { if (field != value) { field = value; invalidateSelf() } }
+            set(value) {
+                if (field == value) return
+                field = value
+                fade?.cancel()
+                fade = ValueAnimator.ofFloat(surfaceAlpha, if (value) 1f else 0f).apply {
+                    duration = 180
+                    addUpdateListener {
+                        surfaceAlpha = it.animatedValue as Float
+                        invalidateSelf()
+                    }
+                    start()
+                }
+            }
 
         override fun draw(canvas: Canvas) {
-            if (!active) return
+            if (surfaceAlpha == 0f) return
+            paint.alpha = (fillAlpha * surfaceAlpha).toInt()
             for (index in 0 until toolbar.childCount) {
                 val child = toolbar.getChildAt(index)
                 if (child.visibility != View.VISIBLE) continue
                 if (child is ActionMenuView && child.childCount > 0) {
-                    canvas.drawRoundRect(child.left.toFloat(), child.top.toFloat(),
-                        child.right.toFloat(), child.bottom.toFloat(), 28 * density, 28 * density, paint)
+                    rect.set(child.left.toFloat(), child.top.toFloat(), child.right.toFloat(), child.bottom.toFloat())
+                    rect.offset(if (child.layoutDirection == View.LAYOUT_DIRECTION_RTL) 6 * density else -6 * density, 0f)
+                    drawSurface(canvas, 26 * density)
                 } else if (child is ImageButton && child.drawable === toolbar.navigationIcon) {
-                    canvas.drawCircle((child.left + child.right) / 2f, (child.top + child.bottom) / 2f,
-                        minOf(child.width, child.height) / 2f - 4 * density, paint)
+                    val centerX = (child.left + child.right + child.paddingLeft - child.paddingRight) / 2f +
+                        (if (child.layoutDirection == View.LAYOUT_DIRECTION_RTL) -4f else 4f) * density
+                    val centerY = (child.top + child.bottom) / 2f
+                    val radius = minOf(child.width, child.height) / 2f - 4 * density
+                    rect.set(centerX - radius, centerY - radius, centerX + radius, centerY + radius)
+                    drawSurface(canvas, radius)
                 }
             }
         }
+        private fun drawSurface(canvas: Canvas, radius: Float) {
+            canvas.drawRoundRect(rect, radius, radius, paint)
+            highlight.draw(canvas, rect.left, rect.top, rect.right, rect.bottom, radius, (255 * surfaceAlpha).toInt())
+        }
+
         override fun setAlpha(alpha: Int) { paint.alpha = alpha; invalidateSelf() }
         override fun setColorFilter(colorFilter: ColorFilter?) { paint.colorFilter = colorFilter; invalidateSelf() }
         @Deprecated("Deprecated in Android")

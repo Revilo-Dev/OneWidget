@@ -49,12 +49,15 @@ abstract class NamedActionWidget : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { render(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = render(context, manager, id)
-    override fun onDeleted(context: Context, ids: IntArray) =
+    override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
+
         UniversalProductionWidgetRenderer.deleteModes(context, studioWidgetId, ids)
+    }
 
     private fun render(context: Context, manager: AppWidgetManager, id: Int) {
         val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
-        val options = manager.getAppWidgetOptions(id)
+        val options = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id)
         val iconOnly = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 80) <= 100 && options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
         val oneRow = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
         val action = PendingIntent.getActivity(
@@ -86,7 +89,6 @@ abstract class NamedActionWidget : AppWidgetProvider() {
             setViewPadding(R.id.action_label, padding, 0, 0, 0)
             setOnClickPendingIntent(android.R.id.background, action)
         }
-        dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, views)
-        manager.updateAppWidget(id, views)
+        dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, views)
     }
 }

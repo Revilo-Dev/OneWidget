@@ -29,6 +29,7 @@ open class BlurWidget : AppWidgetProvider() {
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, appWidgetIds)
         val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         val editor = prefs.edit()
         for (id in appWidgetIds) {
@@ -89,7 +90,7 @@ open class BlurWidget : AppWidgetProvider() {
                 applySurfaceTint(this, prefs, appWidgetId)
             }
 
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, appWidgetManager, appWidgetId, views)
         }
 
         data class TintDefaults(val hue: Float, val saturation: Float, val value: Float, val alpha: Int)
@@ -111,6 +112,7 @@ open class BlurWidget : AppWidgetProvider() {
         }
 
         fun tintColor(prefs: SharedPreferences, appWidgetId: Int): Int {
+            dev.revilodev.onewidget.widgets.WidgetPresets.selected(prefs, appWidgetId)?.let { return it.color() }
             val defaults = defaultTint(prefs)
             val alpha = if (prefs.contains("tint_alpha_$appWidgetId")) {
                 prefs.getInt("tint_alpha_$appWidgetId", DEFAULT_TINT_ALPHA)

@@ -26,5 +26,5 @@
     <ImageView android:id="@+id/media_previous" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
     <ImageView android:id="@+id/media_next" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
     <ImageView android:id="@+id/media_progress" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-    <TextView android:id="@+id/media_time" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    <Chronometer android:id="@+id/media_time" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
 </FrameLayout>

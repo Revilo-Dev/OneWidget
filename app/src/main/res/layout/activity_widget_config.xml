@@ -5,7 +5,7 @@
     android:id="@+id/toolbar_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:expandable="false"
+    app:expandable="true"
     app:expanded="false"
     app:showNavButtonAsBack="true"
     app:title="Widget settings">
@@ -92,6 +92,41 @@
                 app:summaryOn="@string/dark_tint_summary"
                 app:title="@string/dark_tint" />
 
+        </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+
+        <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="?android:colorBackground"
+            android:orientation="vertical">
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/widget_opacity"
+                app:showTopDivider="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:title="Background opacity" />
+            <androidx.appcompat.widget.SeslSeekBar
+                android:id="@+id/widget_opacity_slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="18dp"
+                android:max="253" />
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/widget_preset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:title="Appearance preset" />
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/widget_border_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:title="Border style" />
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/widget_background_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:title="Background image" />
         </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
 
         <LinearLayout
@@ -244,12 +279,12 @@
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_time_format" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Time format" app:summary="Use system setting" />
                 <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_am_pm" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" app:title="Show AM/PM" />
                 <dev.oneuiproject.oneui.widget.SwitchItemView android:id="@+id/clock_show_seconds" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Show seconds" />
-                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_alignment" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text alignment" app:summary="Centre" />
+
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_tap_action" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Tap action" app:summary="Open Clock" />
                 <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_font" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Clock font" app:summary="System default" />
-                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_text_scale" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text size" app:summary="100%" />
-                <androidx.appcompat.widget.SeslSeekBar android:id="@+id/clock_text_scale_slider" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="18dp" android:max="100" android:progress="50" />
-                <dev.oneuiproject.oneui.widget.CardItemView android:id="@+id/clock_text_colour" android:layout_width="match_parent" android:layout_height="wrap_content" app:title="Text colour" app:summary="#FFFFFFFF" />
+
+
+
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
         </LinearLayout>
 
@@ -348,6 +383,7 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="16dp"
         android:background="@drawable/config_button_bar_bg"
+        android:clipToOutline="true"
         android:elevation="6dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">

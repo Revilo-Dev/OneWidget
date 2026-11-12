@@ -8,8 +8,8 @@
     android:minHeight="110dp"
     android:minResizeWidth="110dp"
     android:minResizeHeight="40dp"
-    android:maxResizeWidth="250dp"
-    android:maxResizeHeight="110dp"
+    android:maxResizeWidth="1000dp"
+    android:maxResizeHeight="1000dp"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="2"
     android:targetCellHeight="2"
@@ -17,5 +17,5 @@
     android:description="@string/battery_widget_description"
     android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity"
-    android:widgetFeatures="reconfigurable" app:previewLayoutMedium="@layout/widget_battery_large" app:previewSize="medium" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large" />
+    android:widgetFeatures="reconfigurable" app:previewLayoutMedium="@layout/widget_battery_large" app:previewSize="medium" app:allowMultipleSizes="true" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large|extraLarge|extraLargeLong" />
 

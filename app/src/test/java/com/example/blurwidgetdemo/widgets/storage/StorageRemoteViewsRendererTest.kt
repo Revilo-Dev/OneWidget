@@ -12,6 +12,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class StorageRemoteViewsRendererTest {
+    @Test fun unknownDataAllowanceDoesNotInventAPercentage() {
+        val value = StorageMetricValue(0, 1_073_741_824L, 0)
+        val detail = StorageContentFormatter.detail("Data", value, true, StorageWidget.DetailMode.PERCENT)
+        assertTrue(detail.contains("since restart"))
+        assertFalse(detail.contains("%"))
+    }
+
     @Test fun `design null preserves production compact and large layout selection`() {
         val compact = StorageRemoteViewsRenderer.plan(StorageRenderSize(400f, 100f), design = null)
         val large = StorageRemoteViewsRenderer.plan(StorageRenderSize(180f, 101f), design = null)

@@ -23,7 +23,7 @@ class ClockWidgetLogicTest {
         val settings = ClockWidgetSettings()
         assertEquals(ClockTimeFormat.SYSTEM, settings.timeFormat)
         assertEquals(ClockTextAlignment.CENTER, settings.alignment)
-        assertEquals(ClockFont.CLOCK_STAMP, settings.font)
+        assertEquals(ClockFont.SYSTEM, settings.font)
         assertEquals(true, settings.showAmPm)
         assertEquals(false, settings.showSeconds)
         assertEquals(100, settings.textScalePercent)

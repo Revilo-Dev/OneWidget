@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.provider.CalendarContract
 import android.widget.RemoteViews
 import dev.revilodev.onewidget.BlurWidget
 import dev.revilodev.onewidget.R
@@ -24,8 +23,11 @@ import java.util.Calendar
 open class CalendarDisplayWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: android.os.Bundle) = updateWidget(context, manager, id)
-    override fun onDeleted(context: Context, ids: IntArray) =
+    override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
+
         UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.CALENDAR_DISPLAY, ids)
+    }
 
     companion object {
         private val labels = intArrayOf(R.id.day_0, R.id.day_1, R.id.day_2, R.id.day_3, R.id.day_4, R.id.day_5, R.id.day_6, R.id.day_7, R.id.day_8, R.id.day_9, R.id.day_10, R.id.day_11, R.id.day_12, R.id.day_13, R.id.day_14, R.id.day_15, R.id.day_16, R.id.day_17, R.id.day_18, R.id.day_19, R.id.day_20)
@@ -84,7 +86,7 @@ open class CalendarDisplayWidget : AppWidgetProvider() {
                 }
                 setFloat(R.id.month_title, "setTextSize", 18f * WidgetAppearance.textScale(prefs, id) / 100f)
             }
-            manager.updateAppWidget(id, views)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, views)
         }
 
         private fun gridText(start: Calendar, today: Calendar): String {

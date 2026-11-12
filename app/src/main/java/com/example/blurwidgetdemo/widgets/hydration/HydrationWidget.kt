@@ -2,17 +2,13 @@ package dev.revilodev.onewidget.widgets.hydration
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.app.TimePickerDialog
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.view.View
-import android.widget.EditText
 import android.widget.RemoteViews
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import dev.revilodev.onewidget.BlurWidget
 import dev.revilodev.onewidget.R
@@ -31,8 +27,11 @@ open class HydrationWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
 
-    override fun onDeleted(context: Context, ids: IntArray) =
+    override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
+
         UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.HYDRATION, ids)
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -76,7 +75,7 @@ open class HydrationWidget : AppWidgetProvider() {
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
             val prefs = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
             val count = currentCount(prefs, id)
-            val compact = manager.getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
+            val compact = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80) <= 100
             val goal = goal(prefs, id)
             val showGoal = prefs.getBoolean("hydration_show_goal_$id", true)
             val goalText = "of $goal glasses"
@@ -118,8 +117,7 @@ open class HydrationWidget : AppWidgetProvider() {
                 setOnClickPendingIntent(R.id.hydration_plus, plusAction)
                 setOnClickPendingIntent(android.R.id.background, rootAction)
             }
-            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, views)
-            manager.updateAppWidget(id, views)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, views)
             scheduleReset(context, id)
         }
 
@@ -172,76 +170,11 @@ open class HydrationWidget : AppWidgetProvider() {
 }
 
 /** The Hydration reconfigure screen: choose the daily clear time, midnight by default. */
+
 class HydrationConfigActivity : AppCompatActivity() {
-    private var id = AppWidgetManager.INVALID_APPWIDGET_ID
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setResult(RESULT_CANCELED)
-        id = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-        if (id == AppWidgetManager.INVALID_APPWIDGET_ID) { finish(); return }
-        showSettings()
-    }
-
-    private fun showSettings() {
-        val prefs = getSharedPreferences(BlurWidget.WIDGET_PREFS, MODE_PRIVATE)
-        val hour = prefs.getInt("hydration_hour_$id", 0)
-        val minute = prefs.getInt("hydration_minute_$id", 0)
-        val goal = prefs.getInt("hydration_goal_$id", 8).coerceAtLeast(1)
-        val showGoal = prefs.getBoolean("hydration_show_goal_$id", true)
-        AlertDialog.Builder(this)
-            .setTitle("Hydration settings")
-            .setItems(arrayOf(
-                "Daily clear time · ${formatTime(hour, minute)}",
-                "Daily goal · $goal glasses",
-                "Show daily goal · ${if (showGoal) "On" else "Off"}",
-                "Done"
-            )) { _, which ->
-                when (which) {
-                    0 -> TimePickerDialog(this, { _, selectedHour, selectedMinute ->
-                        HydrationWidget.saveResetTime(this, id, selectedHour, selectedMinute)
-                        updateWidget(); showSettings()
-                    }, hour, minute, false).show()
-                    1 -> editGoal(goal)
-                    2 -> {
-                        prefs.edit().putBoolean("hydration_show_goal_$id", !showGoal).apply()
-                        updateWidget(); showSettings()
-                    }
-                    else -> finishConfiguration()
-                }
-            }
-            .setOnCancelListener { finish() }
-            .show()
-    }
-
-    private fun editGoal(currentGoal: Int) {
-        val input = EditText(this).apply {
-            inputType = InputType.TYPE_CLASS_NUMBER
-            setText(currentGoal.toString())
-            selectAll()
-        }
-        AlertDialog.Builder(this)
-            .setTitle("Daily goal")
-            .setView(input)
-            .setNegativeButton(android.R.string.cancel) { _, _ -> showSettings() }
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                HydrationWidget.saveGoal(this, id, input.text.toString().toIntOrNull() ?: currentGoal)
-                updateWidget(); showSettings()
-            }
-            .show()
-    }
-
-    private fun updateWidget() = HydrationWidget.updateWidget(this, AppWidgetManager.getInstance(this), id)
-
-    private fun finishConfiguration() {
-        dev.revilodev.onewidget.studio.universal.UniversalProductionWidgetRenderer
-            .initializeConfiguredWidget(this, dev.revilodev.onewidget.studio.universal.UniversalWidgetIds.HYDRATION, id)
-        updateWidget()
-        setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
+        startActivity(Intent(this, WidgetConfigActivity::class.java).putExtras(intent).addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT))
         finish()
-    }
-
-    private fun formatTime(hour: Int, minute: Int) = Calendar.getInstance().run {
-        set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute)
-        SimpleDateFormat("h:mm a", Locale.getDefault()).format(time)
     }
 }

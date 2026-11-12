@@ -4,6 +4,6 @@
     android:previewLayout="@layout/widget_digital_clock_medium_clock_stamp"
     android:minWidth="180dp" android:minHeight="110dp"
     android:minResizeWidth="110dp" android:minResizeHeight="40dp"
-    android:maxResizeWidth="250dp" android:maxResizeHeight="250dp" android:resizeMode="horizontal|vertical" android:targetCellWidth="3" android:targetCellHeight="2"
+    android:maxResizeWidth="1000dp" android:maxResizeHeight="1000dp" android:resizeMode="horizontal|vertical" android:targetCellWidth="3" android:targetCellHeight="2"
     android:description="@string/digital_clock_widget_description" android:widgetCategory="home_screen"
-    android:configure="dev.revilodev.onewidget.WidgetConfigActivity" android:widgetFeatures="reconfigurable" app:previewLayoutLarge="@layout/widget_digital_clock_medium_clock_stamp" app:previewSize="large" app:widgetStyle="colorful" app:widgetSize="small|medium|large|extraLarge|extraLargeLong" />
+    android:configure="dev.revilodev.onewidget.WidgetConfigActivity" android:widgetFeatures="reconfigurable" app:previewLayoutLarge="@layout/widget_digital_clock_medium_clock_stamp" app:previewSize="large" app:allowMultipleSizes="true" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large|extraLarge|extraLargeLong" />

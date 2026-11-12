@@ -2,6 +2,11 @@
 <resources>
     <attr name="allowMultipleSizes" format="boolean" />
 
+    <declare-styleable name="HighlightedSurfaceDrawable">
+        <attr name="android:padding" />
+        <attr name="android:radius" />
+    </declare-styleable>
+
     <!-- Samsung OneUI widget style flags — required for launcher blur -->
     <attr name="widgetStyle" format="integer">
         <flag name="colorful" value="0x1" />

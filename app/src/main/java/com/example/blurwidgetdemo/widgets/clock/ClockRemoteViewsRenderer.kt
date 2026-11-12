@@ -147,7 +147,6 @@ object ClockRemoteViewsRenderer {
             ?: plan.timePatterns.format24Hour
         setCharSequence(R.id.clock_time, "setFormat12Hour", time12)
         setCharSequence(R.id.clock_time, "setFormat24Hour", time24)
-        applyTypefaceSafeClockFace(context, views, configuration, plan, snapshot?.time)
         snapshot?.let { sample ->
             val datePattern = ClockSnapshotSamples.literalPattern(sample.date)
             val dayPattern = ClockSnapshotSamples.literalPattern(sample.day)
@@ -204,53 +203,6 @@ object ClockRemoteViewsRenderer {
             14f * scale
         )
         setViewVisibility(R.id.clock_debug_marker, View.GONE)
-    }
-
-    private fun applyTypefaceSafeClockFace(
-        context: Context,
-        views: RemoteViews,
-        configuration: ClockWidgetConfiguration,
-        plan: ClockRenderPlan,
-        sampleTime: String?
-    ) {
-        if (plan.appliedLayoutResId !in BITMAP_CLOCK_LAYOUTS) return
-        if (configuration.font == ClockFont.SYSTEM) {
-            views.setViewVisibility(R.id.clock_time_font_bitmap, View.GONE)
-            views.setViewVisibility(R.id.clock_time, View.VISIBLE)
-            return
-        }
-        val timePattern = when (configuration.timeFormat) {
-            ClockTimeFormat.TWENTY_FOUR_HOUR -> if (configuration.showSeconds) "HH:mm:ss" else "HH:mm"
-            ClockTimeFormat.TWELVE_HOUR -> if (configuration.showSeconds) {
-                if (configuration.showAmPm) "h:mm:ss a" else "h:mm:ss"
-            } else if (configuration.showAmPm) "h:mm a" else "h:mm"
-            ClockTimeFormat.SYSTEM -> when {
-                configuration.showSeconds && configuration.showAmPm -> "h:mm:ss a"
-                configuration.showSeconds -> "h:mm:ss"
-                configuration.showAmPm -> "h:mm a"
-                else -> "h:mm"
-            }
-        }
-        val rowHeight = when (plan.category) {
-            ClockWidgetLayout.Category.COMPACT -> 42f
-            ClockWidgetLayout.Category.MEDIUM -> 60f
-            ClockWidgetLayout.Category.LARGE -> 76f
-        }
-        views.setImageViewBitmap(
-            R.id.clock_time_font_bitmap,
-            ClockFontBitmapRenderer.render(
-                context = context,
-                font = configuration.font,
-                pattern = timePattern,
-                widthDp = plan.size.widthDp,
-                heightDp = rowHeight,
-                textScalePercent = configuration.textScalePercent,
-                textColor = configuration.textColor,
-                sample = sampleTime
-            )
-        )
-        views.setViewVisibility(R.id.clock_time, View.GONE)
-        views.setViewVisibility(R.id.clock_time_font_bitmap, View.VISIBLE)
     }
 
     private fun applyProductionLayout(
@@ -411,9 +363,4 @@ object ClockRemoteViewsRenderer {
         R.id.clock_date
     )
 
-    private val BITMAP_CLOCK_LAYOUTS = setOf(
-        R.layout.widget_digital_clock_compact,
-        R.layout.widget_digital_clock_medium,
-        R.layout.widget_digital_clock_large
-    )
 }

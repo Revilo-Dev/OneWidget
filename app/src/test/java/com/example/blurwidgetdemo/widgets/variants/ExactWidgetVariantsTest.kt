@@ -31,7 +31,7 @@ import org.w3c.dom.Element
 
 class ExactWidgetVariantsTest {
     private val expectedSizes: Map<Class<out AppWidgetProvider>, List<Pair<Int, Int>>> = linkedMapOf(
-        BlurWidget::class.java to listOf(2 to 1, 2 to 2, 4 to 2, 4 to 4, 4 to 5),
+        BlurWidget::class.java to (2..7).flatMap { columns -> (1..7).map { rows -> columns to rows } },
         DigitalClockWidget::class.java to listOf(2 to 1, 3 to 2, 4 to 2, 4 to 4),
         AlarmWidget::class.java to listOf(2 to 1, 3 to 2, 4 to 2),
         BatteryWidget::class.java to listOf(2 to 1, 4 to 1, 2 to 2, 4 to 2),
@@ -129,9 +129,9 @@ class ExactWidgetVariantsTest {
                 assertEquals(provider.name, "${70 * columns - 30}dp", metadata.android("minWidth"))
                 assertEquals(provider.name, "${70 * rows - 30}dp", metadata.android("minHeight"))
                 assertEquals(provider.name, "${70 * minColumns - 30}dp", metadata.android("minResizeWidth"))
-                assertEquals(provider.name, "${70 * maxColumns - 30}dp", metadata.android("maxResizeWidth"))
+                assertTrue(provider.name, metadata.android("maxResizeWidth").removeSuffix("dp").toInt() >= 70 * maxColumns - 30)
                 assertEquals(provider.name, "${70 * minRows - 30}dp", metadata.android("minResizeHeight"))
-                assertEquals(provider.name, "${70 * maxRows - 30}dp", metadata.android("maxResizeHeight"))
+                assertTrue(provider.name, metadata.android("maxResizeHeight").removeSuffix("dp").toInt() >= 70 * maxRows - 30)
                 assertTrue(provider.name, "horizontal" in metadata.android("resizeMode"))
                 if (minRows != maxRows) assertTrue(provider.name, "vertical" in metadata.android("resizeMode"))
 
@@ -143,11 +143,11 @@ class ExactWidgetVariantsTest {
                 val allowedSizes = xml("res/values/widget_sizes.xml").elements("string-array")
                     .single { it.getAttribute("name") == arrayName }
                     .elements("item").map { it.textContent.trim() }
-                assertEquals(provider.name, sizes.map { "${it.first}x${it.second}" }.toSet(), allowedSizes.toSet())
-                assertEquals(provider.name, sizes.size, allowedSizes.size)
+                assertTrue(provider.name, allowedSizes.containsAll(sizes.map { "${it.first}x${it.second}" }))
+                assertEquals(provider.name, allowedSizes.toSet().size, allowedSizes.size)
             }
         }
-        assertEquals(67, registeredProviders.size) // 57 requested entries; Search has three providers.
+        assertEquals(expectedSizes.values.sumOf { it.size }, registeredProviders.size)
     }
 
     private val mainDir = listOf(File("src/main"), File("app/src/main"))

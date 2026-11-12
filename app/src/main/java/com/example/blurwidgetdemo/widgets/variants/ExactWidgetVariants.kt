@@ -34,6 +34,44 @@ class Glass4x2Widget : BlurWidget()
 class Glass4x4Widget : BlurWidget()
 class Glass4x5Widget : BlurWidget()
 
+class Glass2x3Widget : BlurWidget()
+class Glass2x4Widget : BlurWidget()
+class Glass2x5Widget : BlurWidget()
+class Glass2x6Widget : BlurWidget()
+class Glass2x7Widget : BlurWidget()
+class Glass3x1Widget : BlurWidget()
+class Glass3x2Widget : BlurWidget()
+class Glass3x3Widget : BlurWidget()
+class Glass3x4Widget : BlurWidget()
+class Glass3x5Widget : BlurWidget()
+class Glass3x6Widget : BlurWidget()
+class Glass3x7Widget : BlurWidget()
+class Glass4x1Widget : BlurWidget()
+class Glass4x3Widget : BlurWidget()
+class Glass4x6Widget : BlurWidget()
+class Glass4x7Widget : BlurWidget()
+class Glass5x1Widget : BlurWidget()
+class Glass5x2Widget : BlurWidget()
+class Glass5x3Widget : BlurWidget()
+class Glass5x4Widget : BlurWidget()
+class Glass5x5Widget : BlurWidget()
+class Glass5x6Widget : BlurWidget()
+class Glass5x7Widget : BlurWidget()
+class Glass6x1Widget : BlurWidget()
+class Glass6x2Widget : BlurWidget()
+class Glass6x3Widget : BlurWidget()
+class Glass6x4Widget : BlurWidget()
+class Glass6x5Widget : BlurWidget()
+class Glass6x6Widget : BlurWidget()
+class Glass6x7Widget : BlurWidget()
+class Glass7x1Widget : BlurWidget()
+class Glass7x2Widget : BlurWidget()
+class Glass7x3Widget : BlurWidget()
+class Glass7x4Widget : BlurWidget()
+class Glass7x5Widget : BlurWidget()
+class Glass7x6Widget : BlurWidget()
+class Glass7x7Widget : BlurWidget()
+
 class Alarm2x1Widget : AlarmWidget()
 class Alarm3x2Widget : AlarmWidget()
 class Alarm4x2Widget : AlarmWidget()
@@ -112,9 +150,46 @@ object ExactWidgetVariants {
         BlurWidget::class.java to mapOf(
             (2 to 1) to Glass2x1Widget::class.java,
             (2 to 2) to Glass2x2Widget::class.java,
+            (2 to 3) to Glass2x3Widget::class.java,
+            (2 to 4) to Glass2x4Widget::class.java,
+            (2 to 5) to Glass2x5Widget::class.java,
+            (2 to 6) to Glass2x6Widget::class.java,
+            (2 to 7) to Glass2x7Widget::class.java,
+            (3 to 1) to Glass3x1Widget::class.java,
+            (3 to 2) to Glass3x2Widget::class.java,
+            (3 to 3) to Glass3x3Widget::class.java,
+            (3 to 4) to Glass3x4Widget::class.java,
+            (3 to 5) to Glass3x5Widget::class.java,
+            (3 to 6) to Glass3x6Widget::class.java,
+            (3 to 7) to Glass3x7Widget::class.java,
+            (4 to 1) to Glass4x1Widget::class.java,
             (4 to 2) to Glass4x2Widget::class.java,
+            (4 to 3) to Glass4x3Widget::class.java,
             (4 to 4) to Glass4x4Widget::class.java,
-            (4 to 5) to Glass4x5Widget::class.java
+            (4 to 5) to Glass4x5Widget::class.java,
+            (4 to 6) to Glass4x6Widget::class.java,
+            (4 to 7) to Glass4x7Widget::class.java,
+            (5 to 1) to Glass5x1Widget::class.java,
+            (5 to 2) to Glass5x2Widget::class.java,
+            (5 to 3) to Glass5x3Widget::class.java,
+            (5 to 4) to Glass5x4Widget::class.java,
+            (5 to 5) to Glass5x5Widget::class.java,
+            (5 to 6) to Glass5x6Widget::class.java,
+            (5 to 7) to Glass5x7Widget::class.java,
+            (6 to 1) to Glass6x1Widget::class.java,
+            (6 to 2) to Glass6x2Widget::class.java,
+            (6 to 3) to Glass6x3Widget::class.java,
+            (6 to 4) to Glass6x4Widget::class.java,
+            (6 to 5) to Glass6x5Widget::class.java,
+            (6 to 6) to Glass6x6Widget::class.java,
+            (6 to 7) to Glass6x7Widget::class.java,
+            (7 to 1) to Glass7x1Widget::class.java,
+            (7 to 2) to Glass7x2Widget::class.java,
+            (7 to 3) to Glass7x3Widget::class.java,
+            (7 to 4) to Glass7x4Widget::class.java,
+            (7 to 5) to Glass7x5Widget::class.java,
+            (7 to 6) to Glass7x6Widget::class.java,
+            (7 to 7) to Glass7x7Widget::class.java
         ),
         DigitalClockWidget::class.java to mapOf(
             (2 to 1) to DigitalClock2x1Widget::class.java,

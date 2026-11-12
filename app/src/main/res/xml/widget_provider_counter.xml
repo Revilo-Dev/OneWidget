@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:initialLayout="@layout/widget_counter_compact" android:previewLayout="@layout/widget_counter_compact"
-    android:minWidth="40dp" android:minHeight="40dp" android:minResizeWidth="40dp" android:minResizeHeight="40dp" android:maxResizeWidth="500dp" android:maxResizeHeight="500dp"
+    android:minWidth="40dp" android:minHeight="40dp" android:minResizeWidth="110dp" android:minResizeHeight="40dp" android:maxResizeWidth="1000dp" android:maxResizeHeight="1000dp"
     android:resizeMode="horizontal|vertical" android:targetCellWidth="1" android:targetCellHeight="1" android:widgetCategory="home_screen" android:configure="dev.revilodev.onewidget.WidgetConfigActivity" android:widgetFeatures="reconfigurable|hide_from_picker"
-    app:previewLayoutSmall="@layout/widget_counter_square" app:previewLayoutWideSmall="@layout/widget_counter_compact" app:previewLayoutMedium="@layout/widget_counter_large" app:previewLayoutLarge="@layout/widget_counter_large" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large" />
+    app:previewLayoutSmall="@layout/widget_counter_square" app:previewLayoutWideSmall="@layout/widget_counter_compact" app:previewLayoutMedium="@layout/widget_counter_large" app:previewLayoutLarge="@layout/widget_counter_large" app:allowMultipleSizes="true" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large|extraLarge|extraLargeLong" />

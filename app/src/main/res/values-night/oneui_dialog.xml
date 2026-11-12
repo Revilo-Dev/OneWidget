@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="OneWidgetAlertDialog" parent="OneUI.ThemeOverlay.AlertDialog">
+        <item name="android:windowBackground">@drawable/oneui_dialog_surface</item>
+    </style>
+</resources>

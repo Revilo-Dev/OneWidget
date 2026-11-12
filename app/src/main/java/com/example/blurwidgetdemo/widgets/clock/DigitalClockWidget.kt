@@ -2,13 +2,10 @@ package dev.revilodev.onewidget.widgets.clock
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
-import android.os.Build
 import android.util.Log
 import dev.revilodev.onewidget.R
 import dev.revilodev.onewidget.studio.clock.ClockStudioDescriptor
@@ -20,7 +17,7 @@ import dev.revilodev.onewidget.studio.production.WidgetProductionDesignModeRepos
 open class DigitalClockWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         ids.forEach { updateWidget(context, manager, it, "PROVIDER_UPDATE") }
-        scheduleTypefaceRefresh(context)
+        scheduleRefresh(context)
     }
 
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) {
@@ -37,12 +34,13 @@ open class DigitalClockWidget : AppWidgetProvider() {
                     manager.getAppWidgetIds(ComponentName(context, provider)).asList()
                 }.toIntArray()
                 ids.forEach { updateWidget(context, manager, it, intent.action ?: "BROADCAST") }
-                scheduleTypefaceRefresh(context)
+                scheduleRefresh(context)
             }
         }
     }
 
     override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
         val preferences = ClockWidgetPreferences.preferences(context)
         val designModes = WidgetProductionDesignModeRepository(context)
         ids.forEach {
@@ -54,7 +52,7 @@ open class DigitalClockWidget : AppWidgetProvider() {
     companion object {
         private const val ACTION_TYPEFACE_REFRESH = "dev.revilodev.onewidget.action.CLOCK_TYPEFACE_REFRESH"
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int, reason: String = "UPDATE") {
-            val options = manager.getAppWidgetOptions(id)
+            val options = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id)
             val renderSize = ClockWidgetSizeResolver.fromOptions(options)
             val settings = ClockWidgetConfigurationRepository.load(context, id)
             val mode = WidgetProductionDesignModeRepository(context).mode(
@@ -95,36 +93,12 @@ open class DigitalClockWidget : AppWidgetProvider() {
                         "path=ClockRemoteViewsRenderer"
                 )
             }
-            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, result.remoteViews)
-            manager.updateAppWidget(id, result.remoteViews)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, result.remoteViews)
             if (debug) Log.d("ClockFontDebug", "updateAppWidget dispatched id=$id layout=$layoutName visibleTime=${R.id.clock_time}")
         }
 
-        /** Bitmap font faces require a provider refresh; seconds request the next exact second. */
-        private fun scheduleTypefaceRefresh(context: Context) {
-            val manager = AppWidgetManager.getInstance(context)
-            val ids = ClockWidgetVariants.providerClasses.flatMap { provider ->
-                manager.getAppWidgetIds(ComponentName(context, provider)).asList()
-            }
-            val everySecond = ids.any { ClockWidgetConfigurationRepository.load(context, it).showSeconds }
-            val interval = if (everySecond) 1_000L else 60_000L
-            val nextRefresh = (System.currentTimeMillis() / interval + 1L) * interval
-            val intent = Intent(context, DigitalClockWidget::class.java).setAction(ACTION_TYPEFACE_REFRESH)
-            val pending = PendingIntent.getBroadcast(
-                context, 9472, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            val alarmManager = context.getSystemService(AlarmManager::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
-                // Exact alarms are special app access on Android 12+. Never let a denied grant
-                // crash the widget receiver; minute updates continue on the inexact alarm path.
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextRefresh + 40L, pending)
-                return
-            }
-            runCatching {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextRefresh + 40L, pending)
-            }.onFailure {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextRefresh + 40L, pending)
-            }
+        private fun scheduleRefresh(context: Context) {
+            dev.revilodev.onewidget.widgets.WidgetUpdates.ensureScheduled(context)
         }
     }
 }

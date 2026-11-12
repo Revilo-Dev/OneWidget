@@ -6,8 +6,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.view.View
-import android.widget.RemoteViews
 import dev.revilodev.onewidget.BlurWidget
 import dev.revilodev.onewidget.R
 import dev.revilodev.onewidget.studio.universal.UniversalWidgetIds
@@ -38,13 +36,7 @@ open class OpenAppWidget : NamedActionWidget() {
         return runCatching { drawableBitmap(context.packageManager.getApplicationIcon(packageName)) }.getOrNull()
     }
 
-    override fun applyContent(views: RemoteViews, context: Context, id: Int) {
-        super.applyContent(views, context, id)
-        val background = WidgetAssetBitmaps.fromUri(context, context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE)
-            .getString("open_app_background_uri_$id", null))
-        views.setViewVisibility(R.id.action_background, if (background == null) View.GONE else View.VISIBLE)
-        background?.let { views.setImageViewBitmap(R.id.action_background, it) }
-    }
+
 }
 
 private fun drawableBitmap(drawable: Drawable): Bitmap {

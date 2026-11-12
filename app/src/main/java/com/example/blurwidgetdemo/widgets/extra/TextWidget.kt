@@ -37,12 +37,7 @@ open class TextWidget : NamedActionWidget() {
             R.id.action_icon,
             if (prefs.getBoolean("text_icon_enabled_$id", true)) View.VISIBLE else View.GONE
         )
-        val background = WidgetAssetBitmaps.fromUri(
-            context,
-            prefs.getString("text_background_uri_$id", null)
-        )
-        views.setViewVisibility(R.id.action_background, if (background == null) View.GONE else View.VISIBLE)
-        background?.let { views.setImageViewBitmap(R.id.action_background, it) }
+        views.setViewVisibility(R.id.action_background, View.GONE)
     }
 
     override fun studioContent(context: Context, id: Int): UniversalWidgetContent {

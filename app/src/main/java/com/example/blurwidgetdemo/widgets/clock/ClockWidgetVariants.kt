@@ -22,7 +22,7 @@ object ClockWidgetVariants {
 
     private val providerNames = providerClasses.map { it.name }.toSet()
 
-    fun isClockProvider(className: String?): Boolean = className in providerNames
+    fun isClockProvider(className: String?): Boolean = className != null && className in providerNames
 
     fun providerFor(columns: Int, rows: Int): Class<out AppWidgetProvider> = when (columns to rows) {
         2 to 1 -> DigitalClock2x1Widget::class.java

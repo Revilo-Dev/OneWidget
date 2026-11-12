@@ -57,8 +57,7 @@ data class ClockWidgetSettings(
     val showSeconds: Boolean = false,
     val alignment: ClockTextAlignment = ClockTextAlignment.CENTER,
     val tapAction: ClockTapAction = ClockTapAction.CLOCK,
-    // Clock Stamp is deliberately the default while validating One UI Home's font inflation.
-    val font: ClockFont = ClockFont.CLOCK_STAMP,
+    val font: ClockFont = ClockFont.SYSTEM,
     val textColor: Int = Color.WHITE,
     /** Percentage applied to every clock label. */
     val textScalePercent: Int = 100,

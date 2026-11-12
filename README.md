@@ -1,148 +1,77 @@
-# Blur Widget Demo
+# OneWidget
 
-[![Android CI](https://github.com/SadLinusGuy0/blur-widget-demo/actions/workflows/android.yml/badge.svg)](https://github.com/SadLinusGuy0/blur-widget-demo/actions/workflows/android.yml)
-[![Latest release](https://img.shields.io/github/v/release/SadLinusGuy0/blur-widget-demo)](https://github.com/SadLinusGuy0/blur-widget-demo/releases/latest)
+Configurable home screen widgets by [Revilo Dev](https://github.com/Revilo-Dev), version **1.0.0**.
+
+[![Android CI](https://github.com/Revilo-Dev/OneWidget/actions/workflows/android.yml/badge.svg)](https://github.com/Revilo-Dev/OneWidget/actions/workflows/android.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A working proof-of-concept showing that **third-party Android widgets can use One UI Home's native wallpaper blur** — the frosted-glass effect behind
-Samsung's own Weather, Clock, and Calendar widgets. Samsung doesn't document
-this, but it works on any One UI 7.0+ device.
+OneWidget combines Samsung One UI wallpaper blur with clocks, battery, storage, weather, calendar, media, search, app shortcuts, text, toggles, steps, hydration, counters and to-do widgets. Android 8.0 or newer is required. Native wallpaper blur depends on a compatible Samsung One UI Home version; other launchers display the configured background without Samsung blur.
 
-The app ships a single resizable widget whose **tint and opacity you can tune
-live** through a configuration screen, so you can see exactly how the blur
-responds before porting the pattern into your own app.
+## Appearance
 
-> **Just want the technique?** See the wiki guides for
-> [One UI blur integration](https://github.com/thatjoshguy67/blur-widget-demo/wiki/One-UI-Blur-Integration)
-> and [lock-screen widgets](https://github.com/thatjoshguy67/blur-widget-demo/wiki/Lock-Screen-Widgets).
+Every home screen widget uses the same configuration screen, with its own complication controls alongside shared tint, background opacity, presets, borders and background images.
 
-## Download
+- The supplied 2×1, 2×2, 3×2, 4×2, 4×4 and 4×5 artwork defines the widget silhouettes for those sizes. Tint, opacity and border settings control their finish. Samsung Home’s reported cell spans take priority over size estimates.
+- The app follows the device palette by default. Turn off **Use system color palette** in Widget appearance to use OneWidget’s fixed accent.
+- Borders default to white at **20% opacity and 4 physical pixels**. The inset stroke fades from white at the top to transparent at the bottom and updates when appearance settings change.
+- The widget gallery has animated category and widget dropdowns. The bottom-right search button expands into a field that filters by category or widget name.
+- Settings provides default tint, opacity, border thickness and border opacity. Individual widgets can override border settings or return to the app defaults.
+- Appearance presets can be added, renamed, edited and deleted in Settings. A preset stores its colour, opacity and border style. Widgets linked to an edited preset update with it; changing their appearance manually detaches the preset.
+- Custom background images are available for every home screen widget. Images are copied into private app storage after bounded decoding and cropped to the widget shape. Tint and opacity control the colour wash above the image. Replacing an image does not depend on the original photo remaining available.
+- Clock, weather, battery, storage, calendar, text and other complication settings remain separate from the shared surface style.
 
-Grab a signed APK from the [latest release](https://github.com/SadLinusGuy0/blur-widget-demo/releases/latest)
-and sideload it on a Samsung One UI 7.0+ device. Releases are cut automatically
-when a `v*` tag is pushed (see [Releases](#releases) below).
+## Resizing
 
-## How the blur works (in one paragraph)
+Glass supports all **42 combinations from 2 × 1 through 7 × 7**. Expand Glass in the gallery and choose **Custom size**, or resize a placed widget with the launcher handles.
 
-The widget never renders a blur itself. It declares a couple of Samsung-specific
-attributes and paints a **semi-transparent background** on a view tagged
-`@android:id/background`. The launcher detects that, captures the wallpaper behind
-the widget, blurs it, and draws it underneath — your background colour tints the
-result. Three things must be true (root `@android:id/background` view, an alpha
-between 1–254, and `app:widgetStyle="colorful"` + a real `app:widgetSize`). The
-[One UI blur integration wiki guide](https://github.com/thatjoshguy67/blur-widget-demo/wiki/One-UI-Blur-Integration)
-covers each one.
+Providers in each family share resize bounds and Samsung supported cell sizes, including intermediate dimensions. Widgets read current host dimensions instead of treating their original gallery selection as a fixed size. Android 12 and newer can receive separate surface renderings for reported host sizes so border shapes remain correct across orientations.
 
-## Development setup
+The launcher controls placement, the available home screen grid and resize snapping. A 7 × 7 widget requires a grid with that much space. Samsung preset labels and custom grids may differ from the app gallery. See [One UI widget sizing](ONE_UI_WIDGET_SIZING.md) for the native blur requirements and hardware verification procedure.
 
-This is a standard Gradle/Android Studio project (AGP 8.9, Kotlin 2.2, JDK 17,
-`minSdk` 26).
+## Live information and resource use
 
-### One-time setup: GitHub Packages auth
+Media elapsed time uses a native Chronometer during normal speed playback.
 
-The UI is built with [`tribalfs/oneui-design`](https://github.com/tribalfs/oneui-design),
-which is published to **GitHub Packages**. GitHub Packages requires
-authentication even for public packages, so you need a token before the build can
-resolve dependencies:
+Clocks use Android TextClock with packaged font layouts, including seconds when enabled. They advance without per-second provider alarms or bitmap clock redraws.
 
-1. Create a [Personal Access Token](https://github.com/settings/tokens) with the
-   single scope **`read:packages`**.
-2. Copy the template and fill in your details:
-   ```bash
-   cp github.properties.example github.properties
-   ```
-   ```properties
-   ghUsername=your-github-username
-   ghAccessToken=ghp_your_read_packages_token
-   ```
+Storage data usage shows measured traffic since restart rather than assuming a mobile plan allowance.
 
-`github.properties` is gitignored — your token never gets committed.
+Active information widgets share a non-waking, inexact five minute refresh schedule. Battery and calendar events and screen activation also request updates while the app process is alive. Boot, package updates, date, time zone and locale changes restore or refresh widget state. Background scheduling can be delayed by Android power management; the app does not request exact alarm access to refresh widgets.
 
-### Build and install on a Samsung device
+Weather requests are shared across widget instances, cached for thirty minutes and bounded by connection, read and location timeouts. Failed requests are throttled, cached conditions remain visible, and old forecasts are marked outdated. Calendar permission, location access, Bluetooth access and activity recognition are requested only for the complications that need them.
 
-```bash
-./gradlew assembleDebug                 # build the debug APK
-./gradlew installDebug                  # build + install on a connected device
-```
+Images and surface bitmaps use bounded decoding, memory budgets and caches. The to-do widget uses modern collection updates on Android 12 and newer, with a legacy adapter for older Android versions. Daily clearing begins at the next configured reset boundary rather than clearing a list immediately when enabled.
 
-Android Studio should use JDK 17 (Gradle's JDK setting), or use a JDK 17 shell.
-Enable Developer options and USB debugging on the phone, connect it, accept the
-RSA prompt, then run `./gradlew installDebug`. Open the app, tap **Add widget**,
-place it on a Samsung One UI 7.0+ home screen, and use the configuration screen
-to adjust tint and opacity.
+## Build and verify
 
-To verify native blur, choose a detailed wallpaper, set opacity to Glass or
-Default, and compare the widget surface as you move it over different wallpaper
-areas: One UI Home should blur the wallpaper beneath it. On a non-Samsung device,
-or an unsupported Samsung launcher/version, the widget remains safe and usable as
-a normal semi-transparent tint; it does not render or depend on a software blur.
+Open the project in Android Studio with SDK 36 and the bundled JDK. The project uses Android Gradle Plugin 9.3.1, Kotlin 2.2.20 and Java 17 source compatibility.
 
-See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for the compatibility checklist and
-the staged plan for adding future widgets.
+The One UI library is published through GitHub Packages. Copy [github.properties.example](github.properties.example) to a gitignored github.properties file and provide a GitHub username and token with read:packages access. CI uses GH_PACKAGES_USER and GH_PACKAGES_TOKEN. Never commit credentials.
 
-## Continuous integration
+Run these Gradle tasks from the repository root:
 
-[`.github/workflows/android.yml`](.github/workflows/android.yml) builds the debug
-APK and runs lint on every push and pull request to `main`. Because CI also needs
-to resolve the GitHub Packages dependency, add two repository secrets
-(**Settings → Secrets and variables → Actions**):
+~~~text
+./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+./gradlew :app:connectedDebugAndroidTest
+~~~
 
-| Secret              | Value                                            |
-|---------------------|--------------------------------------------------|
-| `GH_PACKAGES_USER`  | A GitHub username                                |
-| `GH_PACKAGES_TOKEN` | A token with `read:packages` scope               |
+On Windows use gradlew.bat. Connected tests require a running emulator or Android device. The debug APK is written to app/build/outputs/apk/debug/app-debug.apk. Install it with the installDebug Gradle task.
 
-`settings.gradle.kts` reads credentials from `github.properties` locally and falls
-back to these environment variables on CI.
+Tests cover provider registration, resize metadata, renderer plans, geometry, appearance storage and Android RemoteViews rendering. Verify native Samsung blur, launcher masks and placement on a physical Samsung device before releasing; a Pixel emulator cannot establish those behaviors.
 
-## Releases
+For release signing, use the existing gitignored keystore.properties configuration or RELEASE_* CI secrets. An unsigned release build is not a published release. The repository workflows provide CI and release packaging.
 
-[`.github/workflows/release.yml`](.github/workflows/release.yml) builds a **signed
-release APK** and attaches it to a GitHub Release whenever a `v*` tag is pushed:
+## Contributing
 
-```bash
-git tag v1.1.0
-git push origin v1.1.0
-```
+Follow [AGENTS.md](AGENTS.md) for widget architecture, validation and commenting rules. Comments are single line, lowercase, without punctuation or emojis, and explain useful intent without repeating the code. Studio geometry and sample preview data are isolated from production complication state; see [Widget Studio architecture](WIDGET_STUDIO_ARCHITECTURE.md).
 
-Release notes are pulled from the matching section in [`CHANGELOG.md`](CHANGELOG.md).
+## Credits and links
 
-You can also trigger it manually from the **Actions → Release** tab (provide the
-tag to publish). Signing uses a dedicated keystore stored in repository secrets:
+- [OneWidget repository](https://github.com/Revilo-Dev/OneWidget)
+- [Revilo Dev on GitHub](https://github.com/Revilo-Dev)
+- [X · @revilodev](https://x.com/revilodev)
+- [Original blur widget project by Josh Skinner](https://github.com/thatjoshguy67/blur-widget-demo) and [thatjoshguy](https://tjg.gg)
+- [oneui-design](https://github.com/tribalfs/oneui-design) and [One UI Project](https://github.com/OneUIProject) for interface components and icons
+- [Open-Meteo](https://open-meteo.com/) for weather data
 
-| Secret                    | Value                                              |
-|---------------------------|----------------------------------------------------|
-| `RELEASE_KEYSTORE_BASE64` | The release keystore, base64-encoded               |
-| `RELEASE_STORE_PASSWORD`  | Keystore password                                  |
-| `RELEASE_KEY_PASSWORD`    | Key password (same as store password for PKCS12)   |
-| `RELEASE_KEY_ALIAS`       | Key alias                                           |
-
-To build a signed release locally, copy your keystore details into a gitignored
-`keystore.properties` (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`)
-and run `./gradlew assembleRelease`. Without it, release builds are left unsigned.
-
-## Project structure
-
-```
-app/src/main/
-├── java/com/example/blurwidgetdemo/
-│   ├── BlurWidget.kt              # AppWidgetProvider — picks layout, applies tint
-│   ├── WidgetConfigActivity.kt    # One UI tint/opacity config + live preview
-│   ├── MainActivity.kt            # Onboarding + "Add widget" entry point
-│   └── AboutActivity.kt           # About / credits screen
-├── res/
-│   ├── layout/widget_blur.xml     # Widget layout with @android:id/background
-│   ├── xml/widget_provider_blur.xml  # Provider: widgetStyle + widgetSize + previews
-│   └── values/attrs.xml           # Samsung custom widget attribute definitions
-└── AndroidManifest.xml
-```
-
-## Credits
-
-- [oneui-design / oneui-core](https://github.com/tribalfs/oneui-design) and the
-  [One UI Project](https://github.com/OneUIProject) — One UI components, icons,
-  and the colour picker. (MIT)
-
-## License
-
-[MIT](LICENSE) © Josh Skinner ([thatjoshguy](https://tjg.gg))
+[MIT](LICENSE). Original copyright and dependency credits are preserved.

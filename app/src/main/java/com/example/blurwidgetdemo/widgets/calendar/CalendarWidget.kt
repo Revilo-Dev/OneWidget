@@ -21,13 +21,14 @@ open class CalendarWidget : AppWidgetProvider() {
     ) = updateWidget(context, manager, id)
 
     override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
         val designModes = WidgetProductionDesignModeRepository(context)
         ids.forEach { designModes.delete(CalendarStudioDescriptor.WIDGET_ID, it) }
     }
 
     companion object {
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
-            val renderSize = CalendarWidgetSizeResolver.fromOptions(manager.getAppWidgetOptions(id))
+            val renderSize = CalendarWidgetSizeResolver.fromOptions(dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id))
             val mode = WidgetProductionDesignModeRepository(context).mode(
                 CalendarStudioDescriptor.WIDGET_ID,
                 id
@@ -54,8 +55,7 @@ open class CalendarWidget : AppWidgetProvider() {
                 design = productionDesign,
                 mode = CalendarRenderMode.PRODUCTION
             )
-            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, rendered.remoteViews)
-            manager.updateAppWidget(id, rendered.remoteViews)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, rendered.remoteViews)
         }
 
         fun runtimeContent(context: Context): CalendarRuntimeContent =

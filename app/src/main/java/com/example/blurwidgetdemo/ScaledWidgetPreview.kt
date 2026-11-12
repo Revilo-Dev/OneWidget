@@ -31,11 +31,7 @@ class ScaledWidgetPreview(
     private val preview = LayoutInflater.from(context).inflate(layout, surface, false).also { view ->
         // Preserve the widget's own transparent/blur-compatible background on a neutral stage.
         view.foreground = null
-        if (rows == 1 || columns == 3) {
-            // One-row widgets are pills. The stage supplies that full-radius mask;
-            // a second XML surface would leave its old radius visible behind it.
-            view.findViewById<View>(android.R.id.background)?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-        }
+        view.findViewById<View>(android.R.id.background)?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         bindBaseContent(view, title, icon)
         surface.addView(view, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
     }
@@ -46,7 +42,7 @@ class ScaledWidgetPreview(
         preview.isClickable = false
         preview.isFocusable = false
         preview.findViewById<View>(android.R.id.background)?.isClickable = false
-        WidgetPreviewEnvironment.apply(surface, fullyRounded = rows == 1, columns = columns)
+        WidgetPreviewEnvironment.apply(surface, fullyRounded = rows == 1, columns = columns, rows = rows)
         surface.clipToOutline = true
         addView(surface)
         setPadding(0, dp(4), 0, dp(4))

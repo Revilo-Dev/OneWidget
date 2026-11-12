@@ -1,8 +1,6 @@
 package dev.revilodev.onewidget.widgets.storage
 
 import android.app.ActivityManager
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -47,10 +45,10 @@ open class StorageWidget : AppWidgetProvider() {
 
     override fun onEnabled(context: Context) = scheduleRefresh(context)
 
-    override fun onDisabled(context: Context) =
-        context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context))
+    override fun onDisabled(context: Context) = dev.revilodev.onewidget.widgets.WidgetUpdates.ensureScheduled(context, force = true)
 
     override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
         val designModes = WidgetProductionDesignModeRepository(context)
         ids.forEach { designModes.delete(StorageStudioDescriptor.WIDGET_ID, it) }
     }
@@ -79,7 +77,6 @@ open class StorageWidget : AppWidgetProvider() {
         private const val DEFAULT_STORAGE_COLOR = 0xFF08B0CE.toInt()
         private const val DEFAULT_MEMORY_COLOR = 0xFF1D79ED.toInt()
         private const val DEFAULT_DATA_COLOR = 0xFF5BD686.toInt()
-        private const val GB = 1_073_741_824L
 
         fun barColor(context: Context, id: Int, metric: CompactMetric): Int =
             context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).getInt(
@@ -97,7 +94,7 @@ open class StorageWidget : AppWidgetProvider() {
         )
 
         fun updateWidget(context: Context, manager: AppWidgetManager, id: Int) {
-            val renderSize = StorageWidgetSizeResolver.fromOptions(manager.getAppWidgetOptions(id))
+            val renderSize = StorageWidgetSizeResolver.fromOptions(dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id))
             val mode = WidgetProductionDesignModeRepository(context).mode(
                 StorageStudioDescriptor.WIDGET_ID,
                 id
@@ -124,23 +121,23 @@ open class StorageWidget : AppWidgetProvider() {
                 design = productionDesign,
                 mode = StorageRenderMode.PRODUCTION
             )
-            manager.updateAppWidget(id, rendered.remoteViews)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, rendered.remoteViews)
         }
 
         fun runtimeData(context: Context): StorageRuntimeData {
             val disk = StatFs(context.filesDir.absolutePath)
             val diskTotal = disk.totalBytes
             val diskUsed = diskTotal - disk.availableBytes
-            val dataBytes = (TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes())
-                .coerceAtLeast(0)
-            val dataPlan = 10L * GB
+            val received = TrafficStats.getTotalRxBytes()
+            val sent = TrafficStats.getTotalTxBytes()
+            val dataBytes = if (received < 0 || sent < 0) -1L else received + sent
             val memory = ActivityManager.MemoryInfo().also {
                 context.getSystemService(ActivityManager::class.java).getMemoryInfo(it)
             }
             val memoryUsed = memory.totalMem - memory.availMem
             return StorageRuntimeData(
                 storage = metric(diskUsed, diskTotal),
-                data = metric(dataBytes, dataPlan),
+                data = StorageMetricValue(percent = 0, usedBytes = dataBytes, totalBytes = 0),
                 memory = metric(memoryUsed, memory.totalMem)
             )
         }
@@ -151,19 +148,9 @@ open class StorageWidget : AppWidgetProvider() {
             totalBytes = total
         )
 
-        private fun refreshIntent(context: Context) = PendingIntent.getBroadcast(
-            context,
-            7002,
-            Intent(context, StorageWidget::class.java).setAction(ACTION_REFRESH),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
         private fun scheduleRefresh(context: Context) {
-            context.getSystemService(AlarmManager::class.java).setAndAllowWhileIdle(
-                AlarmManager.RTC,
-                System.currentTimeMillis() + 15_000L,
-                refreshIntent(context)
-            )
+            dev.revilodev.onewidget.widgets.WidgetUpdates.ensureScheduled(context)
         }
+
     }
 }

@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to publish (created at the current commit if it doesn't exist), e.g. v1.1.0"
+        description: "Tag to publish (created at the current commit if it doesn't exist), e.g. v1.0.0"
         required: true
 
 permissions:
-  contents: write # required to create the GitHub Release
+  contents: write # required to create the github release
 
 jobs:
   release:
@@ -42,12 +42,12 @@ jobs:
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
+        run: ./gradlew testDebugUnitTest lintRelease assembleRelease --no-daemon --stacktrace
 
       - name: Stage APK with version in filename
         run: |
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          cp app/build/outputs/apk/release/app-release.apk "blur-widget-${TAG}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "onewidget-${TAG}.apk"
 
       - name: Extract release notes
         run: |
@@ -73,9 +73,9 @@ jobs:
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release edit "$TAG" --notes-file release-notes.md
-            gh release upload "$TAG" "blur-widget-${TAG}.apk" --clobber
+            gh release upload "$TAG" "onewidget-${TAG}.apk" --clobber
           else
-            gh release create "$TAG" "blur-widget-${TAG}.apk" \
+            gh release create "$TAG" "onewidget-${TAG}.apk" \
               --title "$TAG" \
               --notes-file release-notes.md
           fi

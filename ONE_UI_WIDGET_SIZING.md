@@ -22,6 +22,22 @@ The pin callback records the user's selection, but does not overwrite
 `appWidgetMinWidth` or `appWidgetMinHeight`. Only the launcher can report the
 actual geometry. Writing desired values into those fields does not resize it.
 
+## Current resize support
+
+Glass registers every target from 2x1 through 7x7 and advertises all 42 supported
+cell combinations. Its aliases share a 110x40 dp resize minimum and a 1000x1000
+dp resize ceiling. The gallery custom size picker selects a real provider for
+each target. The launcher still owns the grid, occupied cells and final bounds.
+
+Other adaptive widget families advertise intermediate dimensions rather than
+restricting resize snapping to the few sizes displayed in the gallery. Search
+and toggle widgets retain their intended single row resizing.
+
+All home screen widgets use WidgetSurface for the outer blur surface, private
+background image and inset border. The background colour and border are separate
+layers so tint changes do not recolour the white border. Host reported Android 12
+sizes receive separate surface geometries within one shared bitmap budget.
+
 ## Preview choices and launcher limits
 
 `app:previewSize` selects the preview class separately from the supported
@@ -50,4 +66,4 @@ nonopaque opacity. Registration/manifest checks alone do not establish this.
 
 The focused Glass 2x1 phone check recorded a 2x1 span with `semWidgetSize=2`,
 `isStandardized: true`, background opacity 102 and native background visibility
-enabled. Full-build placement and resizing checks are still pending.
+enabled. That result predates the current shared surface renderer. Placement, resizing and native blur must be checked again on Samsung hardware for this build.

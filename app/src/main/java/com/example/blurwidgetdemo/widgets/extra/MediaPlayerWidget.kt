@@ -33,6 +33,7 @@ open class MediaPlayerWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = ids.forEach { updateWidget(context, manager, it) }
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, options: Bundle) = updateWidget(context, manager, id)
     override fun onDeleted(context: Context, ids: IntArray) {
+        dev.revilodev.onewidget.widgets.WidgetAppearance.delete(context, ids)
         UniversalProductionWidgetRenderer.deleteModes(context, UniversalWidgetIds.MEDIA_PLAYER, ids)
         val editor = context.getSharedPreferences(BlurWidget.WIDGET_PREFS, Context.MODE_PRIVATE).edit()
         ids.forEach { id ->
@@ -78,13 +79,14 @@ open class MediaPlayerWidget : AppWidgetProvider() {
             val state = controller?.playbackState
             val metadata = controller?.metadata
             val isPlaying = state?.state == PlaybackState.STATE_PLAYING
-            val options = manager.getAppWidgetOptions(id)
+            val options = dev.revilodev.onewidget.widgets.WidgetInitialSizeSpec.renderOptions(manager, id)
             val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
             val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 80)
             val singleCell = width <= 100 && height <= 100
             val large = height > 100
             val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "No media"
             val artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "Nothing is playing"
+            val hasCustomBackground = dev.revilodev.onewidget.widgets.WidgetAppearance.backgroundUri(prefs, id) != null
             val art = artwork(metadata)
             val hasMedia = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) != null
             val duration = duration(metadata)
@@ -116,6 +118,7 @@ open class MediaPlayerWidget : AppWidgetProvider() {
                     mapOf(
                         "universal.art" to UniversalElementContent(
                             bitmap = art,
+                            visible = !hasCustomBackground,
                             imageResId = if (art == null) R.drawable.music_idle_bob else null
                         ),
                         "universal.title" to UniversalElementContent(text = title),
@@ -157,13 +160,17 @@ open class MediaPlayerWidget : AppWidgetProvider() {
                 setTextViewText(R.id.media_artist, artist)
                 setViewVisibility(R.id.media_artist, if (large) View.VISIBLE else View.GONE)
                 bindAnimatedBackground(this, prefs, id, metadata, art)
+                setViewVisibility(R.id.media_background, if (hasCustomBackground) View.GONE else View.VISIBLE)
                 setImageViewResource(R.id.media_idle_icon, R.drawable.music_idle_bob)
                 setViewVisibility(R.id.media_idle_icon, if (art == null) View.VISIBLE else View.GONE)
                 setImageViewResource(R.id.media_previous, R.drawable.control_previous)
                 setImageViewResource(R.id.media_play_pause, if (isPlaying) R.drawable.control_pause else R.drawable.control_play)
                 setImageViewResource(R.id.media_next, R.drawable.control_next)
                 setImageViewBitmap(R.id.media_progress, progressBitmap)
-                setTextViewText(R.id.media_time, playbackTime(state, duration))
+                val liveTime = isPlaying && state?.playbackSpeed == 1f
+                setChronometer(R.id.media_time, SystemClock.elapsedRealtime() - currentPosition(state, duration),
+                    "%s / " + formatTime(duration), liveTime)
+                if (!liveTime) setTextViewText(R.id.media_time, playbackTime(state, duration))
                 setViewVisibility(R.id.media_progress, if (large && hasMedia && duration > 0L) View.VISIBLE else View.GONE)
                 setViewVisibility(R.id.media_time, if (large && hasMedia && duration > 0L) View.VISIBLE else View.GONE)
                 setOnClickPendingIntent(R.id.media_previous, previousAction)
@@ -171,8 +178,7 @@ open class MediaPlayerWidget : AppWidgetProvider() {
                 setOnClickPendingIntent(R.id.media_next, nextAction)
                 setOnClickPendingIntent(android.R.id.background, rootAction)
             }
-            dev.revilodev.onewidget.widgets.WidgetCorners.apply(context, manager, id, views)
-            manager.updateAppWidget(id, views)
+            dev.revilodev.onewidget.widgets.WidgetSurface.update(context, manager, id, views)
         }
 
         private fun bindAnimatedBackground(

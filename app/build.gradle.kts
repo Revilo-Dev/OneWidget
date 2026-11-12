@@ -23,8 +23,9 @@ android {
         applicationId = "dev.revilodev.onewidget"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0-beta"
+        versionCode = 2
+        versionName = "1.0.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -76,4 +77,6 @@ dependencies {
     implementation("io.github.tribalfs:oneui-design:0.9.13+oneui8")
     implementation("io.github.oneuiproject:icons:1.1.0")
     testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test:runner:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }

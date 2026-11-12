@@ -22,6 +22,24 @@
             <dev.oneuiproject.oneui.widget.Separator
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/app_appearance" />
+
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <dev.oneuiproject.oneui.widget.SwitchItemView
+                    android:id="@+id/use_system_palette"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:showTopDivider="false"
+                    app:title="@string/use_system_palette" />
+            </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+
+            <dev.oneuiproject.oneui.widget.Separator
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="Default widget appearance" />
 
             <dev.oneuiproject.oneui.widget.RoundedLinearLayout
@@ -44,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:showTopDivider="true"
-                    app:title="Default blur" />
+                    app:title="Default opacity" />
 
                 <androidx.appcompat.widget.SeslSeekBar
                     android:id="@+id/default_widget_blur_slider"
@@ -75,14 +93,33 @@
                     app:summary="Thin translucent outlines around widgets"
                     app:title="Widget borders" />
 
+                <dev.oneuiproject.oneui.widget.CardItemView
+                    android:id="@+id/global_border_style"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:title="Border thickness and opacity"
+                    app:showTopDivider="true" />
+
                 <dev.oneuiproject.oneui.widget.SwitchItemView
                     android:id="@+id/global_gradients"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:showTopDivider="true"
-                    app:summary="Animate charge, storage, and memory bars"
+                    app:summary="Use colour gradients for progress bars"
                     app:title="Flowing progress gradients" />
             </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+
+            <dev.oneuiproject.oneui.widget.Separator
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Appearance presets" />
+
+            <dev.oneuiproject.oneui.widget.RoundedLinearLayout
+                android:id="@+id/appearance_presets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:colorBackground"
+                android:orientation="vertical" />
 
             <dev.oneuiproject.oneui.widget.Separator
                 android:layout_width="match_parent"
