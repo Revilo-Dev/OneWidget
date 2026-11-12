@@ -391,7 +391,7 @@ class MainActivity : PaletteActivity() {
         orientation = LinearLayout.VERTICAL
         if (showDivider) addView(divider())
         val previews = LinearLayout(this@MainActivity).apply { orientation = LinearLayout.VERTICAL }
-        val row = pickerRow(item.title, item.icon, item.sizeCountText())
+        val row = pickerRow(item.title, item.subcategoryIcon(), item.sizeCountText())
         bindDropdown(row, previews, !searching && item.title in expandedWidgets) { expanded ->
             if (!searching) updateExpansion(expandedWidgets, item.title, expanded)
             if (expanded && previews.childCount == 0) previews.addView(previewSection(item, true))
@@ -409,7 +409,7 @@ class MainActivity : PaletteActivity() {
         orientation = LinearLayout.VERTICAL
         setPadding(if (inset) dp(24) else dp(16), 0, if (inset) dp(24) else dp(16), dp(16))
         if (item.provider == BlurWidget::class.java) {
-            addView(pickerRow("Custom size", R.drawable.category_blur, "2 × 1 to 7 × 7").apply {
+            addView(pickerRow("Custom size", R.drawable.category_blur, "2 × 1 to 7 × 7", expandable = false).apply {
                 setOnClickListener { showGlassSizePicker(item) }
             })
         }
@@ -570,7 +570,7 @@ class MainActivity : PaletteActivity() {
         }
     }
 
-    private fun pickerRow(title: String, icon: Int, count: String): LinearLayout = LinearLayout(this).apply {
+    private fun pickerRow(title: String, icon: Int, count: String, expandable: Boolean = true): LinearLayout = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         minimumHeight = dp(72)
@@ -599,7 +599,7 @@ class MainActivity : PaletteActivity() {
                 setTextColor(themeColor(android.R.attr.textColorSecondary))
             }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(2) })
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(18) })
-        addView(ImageView(this@MainActivity).apply {
+        if (expandable) addView(ImageView(this@MainActivity).apply {
             setImageResource(R.drawable.ic_widget_picker_expand)
             imageTintList = android.content.res.ColorStateList.valueOf(themeColor(android.R.attr.textColorSecondary))
             contentDescription = getString(R.string.expand_widget_category)
@@ -740,6 +740,33 @@ class MainActivity : PaletteActivity() {
         val toggleKind: ToggleKind? = null,
         val studioWidgetId: String? = null
     ) {
+        fun subcategoryIcon() = when (toggleKind) {
+            ToggleKind.BLUETOOTH -> R.drawable.sub_toggle_bluetooth
+            ToggleKind.CAMERA -> R.drawable.sub_toggle_camera
+            ToggleKind.DARK_MODE -> R.drawable.sub_toggle_darkmode
+            ToggleKind.DATA -> R.drawable.sub_toggle_data
+            ToggleKind.DO_NOT_DISTURB -> R.drawable.sub_toggle_dnd
+            ToggleKind.HOTSPOT -> R.drawable.sub_toggle_hotspot
+            ToggleKind.LOCATION -> R.drawable.sub_toggle_location
+            ToggleKind.TORCH -> R.drawable.sub_toggle_torch
+            ToggleKind.WIFI -> R.drawable.sub_toggle_wifi
+            null -> when (provider) {
+                OpenAppWidget::class.java -> R.drawable.sub_category_apps
+                TodoWidget::class.java -> R.drawable.sub_category_check
+                CounterWidget::class.java -> R.drawable.sub_category_counter
+                DigitalClockWidget::class.java -> R.drawable.sub_category_digital_clock
+                GoogleSearchWidget::class.java -> R.drawable.sub_category_google
+                HydrationWidget::class.java -> R.drawable.sub_category_hydration
+                CalendarWidget::class.java -> R.drawable.sub_category_next_event
+                CalendarDisplayWidget::class.java -> R.drawable.category_calander
+                SamsungBrowserSearchWidget::class.java -> R.drawable.sub_category_samsung_browser
+                StepCounterWidget::class.java -> R.drawable.sub_category_steps
+                TextWidget::class.java -> R.drawable.sub_category_text
+                YouTubeSearchWidget::class.java -> R.drawable.sub_category_yotube
+                else -> icon
+            }
+        }
+
         fun sizeCountText() = "${sizes.size} size${if (sizes.size == 1) "" else "s"}"
     }
     private data class WidgetSize(val label: String, val layout: Int, val columns: Int, val rows: Int) {

@@ -20,7 +20,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import dev.revilodev.onewidget.ui.PaletteActivity
 import androidx.core.content.FileProvider
 import dev.revilodev.onewidget.R
 import dev.revilodev.onewidget.studio.canvas.StudioPreviewMetrics
@@ -87,7 +87,7 @@ import java.util.Locale
 import java.util.concurrent.Executors
 
 /** Developer-only Phase 2 editor. It does not participate in production widget rendering. */
-class WidgetStudioActivity : AppCompatActivity() {
+class WidgetStudioActivity : PaletteActivity() {
     private lateinit var descriptor: StudioWidgetDescriptor
     private lateinit var registry: dev.revilodev.onewidget.studio.registry.WidgetStudioRegistry
     private lateinit var repository: WidgetDesignRepository
