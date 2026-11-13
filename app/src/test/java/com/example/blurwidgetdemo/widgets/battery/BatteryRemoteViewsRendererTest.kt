@@ -13,13 +13,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BatteryRemoteViewsRendererTest {
-    @Test fun `design null preserves production compact and large layout selection`() {
-        val compact = BatteryRemoteViewsRenderer.plan(BatteryRenderSize(249f, 140f), design = null)
+    @Test fun `production selects strips and both multi-device layouts from host bounds`() {
+        val compact = BatteryRemoteViewsRenderer.plan(BatteryRenderSize(110f, 40f), design = null)
+        val square = BatteryRemoteViewsRenderer.plan(BatteryRenderSize(110f, 110f), design = null)
         val short = BatteryRemoteViewsRenderer.plan(BatteryRenderSize(400f, 100f), design = null)
         val large = BatteryRemoteViewsRenderer.plan(BatteryRenderSize(250f, 101f), design = null)
 
         assertEquals(R.layout.widget_battery_compact, compact.appliedLayoutResId)
         assertEquals(R.layout.widget_battery_compact, short.appliedLayoutResId)
+        assertEquals(R.layout.widget_battery_square, square.appliedLayoutResId)
         assertEquals(R.layout.widget_battery_large, large.appliedLayoutResId)
         assertNull(large.geometry)
     }

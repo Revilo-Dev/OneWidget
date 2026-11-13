@@ -38,7 +38,7 @@ class ExactWidgetVariantsTest {
         WeatherWidget::class.java to listOf(2 to 1, 3 to 1, 4 to 1, 4 to 2),
         CalendarWidget::class.java to listOf(2 to 1, 3 to 1, 4 to 1, 2 to 2, 4 to 2),
         CalendarDisplayWidget::class.java to listOf(2 to 2, 4 to 2),
-        StorageWidget::class.java to listOf(2 to 2, 4 to 2),
+        StorageWidget::class.java to listOf(2 to 1, 4 to 1, 2 to 2, 4 to 2),
         HydrationWidget::class.java to listOf(2 to 1, 3 to 1, 4 to 1, 4 to 2),
         StepCounterWidget::class.java to listOf(2 to 1, 3 to 1, 4 to 1),
         GoogleSearchWidget::class.java to listOf(3 to 1, 4 to 1, 5 to 1, 6 to 1, 7 to 1),

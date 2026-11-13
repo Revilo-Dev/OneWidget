@@ -95,6 +95,8 @@ class NextEvent4x2Widget : CalendarWidget()
 class CalendarDisplay2x2Widget : CalendarDisplayWidget()
 class CalendarDisplay4x2Widget : CalendarDisplayWidget()
 
+class Storage2x1Widget : StorageWidget()
+class Storage4x1Widget : StorageWidget()
 class Storage2x2Widget : StorageWidget()
 class Storage4x2Widget : StorageWidget()
 
@@ -226,6 +228,8 @@ object ExactWidgetVariants {
             (4 to 2) to CalendarDisplay4x2Widget::class.java
         ),
         StorageWidget::class.java to mapOf(
+            (2 to 1) to Storage2x1Widget::class.java,
+            (4 to 1) to Storage4x1Widget::class.java,
             (2 to 2) to Storage2x2Widget::class.java,
             (4 to 2) to Storage4x2Widget::class.java
         ),

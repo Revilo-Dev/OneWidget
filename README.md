@@ -14,11 +14,12 @@ Every home screen widget uses the same configuration screen, with its own compli
 - The supplied 2×1, 2×2, 3×2, 4×2, 4×4 and 4×5 artwork defines the widget silhouettes for those sizes. Tint, opacity and border settings control their finish. Samsung Home’s reported cell spans take priority over size estimates.
 - The app follows the device palette by default. Turn off **Use system color palette** in Widget appearance to use OneWidget’s fixed accent.
 - Borders default to white at **20% opacity and 4 physical pixels**. The inset stroke fades from white at the top to transparent at the bottom and updates when appearance settings change.
-- The widget gallery has animated category and widget dropdowns with dedicated subcategory icons, including each toggle. Calendar display uses the Calendar category icon. Glass’s Custom size row opens the size picker directly. The bottom-right search button expands into a field that filters by category or widget name.
+- The widget gallery has animated category and widget dropdowns with dedicated subcategory icons, including each toggle. Calendar display uses the Calendar category icon. Glass’s Custom size row opens the size picker directly. The bottom-right search button expands into a field that filters by category or widget name. The gallery includes size-specific artwork for Battery, Storage, Step counter, and search widgets. Dedicated Battery and Storage previews at 2 × 1 and 2 × 2 display at half scale. Glass and previews without dedicated artwork use the shared background artwork. Storage is available in 2 × 1, 4 × 1, 2 × 2, and 4 × 2 sizes.
 - Settings provides default tint, opacity, border thickness and border opacity. Individual widgets can override border settings or return to the app defaults.
 - Appearance presets can be added, renamed, edited and deleted in Settings. A preset stores its colour, opacity and border style. Widgets linked to an edited preset update with it; changing their appearance manually detaches the preset.
 - Custom background images are available for every home screen widget. Images are copied into private app storage after bounded decoding and cropped to the widget shape. Tint and opacity control the colour wash above the image. Replacing an image does not depend on the original photo remaining available.
 - Clock, weather, battery, storage, calendar, text and other complication settings remain separate from the shared surface style.
+- Battery strips show a live percentage over a full-height fill. The 2 × 2 and 4 × 2 Battery widgets show up to four device bars with charging indicators.
 
 ## Resizing
 

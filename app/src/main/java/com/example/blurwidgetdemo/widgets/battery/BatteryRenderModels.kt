@@ -16,7 +16,10 @@ enum class BatteryRenderMode {
 
 data class BatteryRenderSize(val widthDp: Float, val heightDp: Float) {
     val compact: Boolean
-        get() = heightDp <= 100f || widthDp < 250f
+        get() = heightDp <= 100f
+
+    val narrow: Boolean
+        get() = widthDp < 200f
 }
 
 data class BatteryStateColors(

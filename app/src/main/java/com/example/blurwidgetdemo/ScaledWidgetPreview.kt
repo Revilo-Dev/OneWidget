@@ -42,8 +42,23 @@ class ScaledWidgetPreview(
         preview.isClickable = false
         preview.isFocusable = false
         preview.findViewById<View>(android.R.id.background)?.isClickable = false
-        WidgetPreviewEnvironment.apply(surface, fullyRounded = rows == 1, columns = columns, rows = rows)
-        surface.clipToOutline = true
+        surface.setBackgroundResource(
+            when (columns to rows) {
+                2 to 1 -> R.drawable._2x1_widget
+                2 to 2 -> R.drawable._2x2_widget
+                3 to 2 -> R.drawable._3x2_widget
+                4 to 2 -> R.drawable._4x2_widget
+                4 to 4 -> R.drawable._4x4_widget
+                4 to 5 -> R.drawable._4x5_widget
+                else -> when {
+                    columns == 1 && rows == 1 -> R.drawable._2x2_widget
+                    rows == 1 -> R.drawable._2x1_widget
+                    columns > rows -> R.drawable._4x2_widget
+                    columns == rows -> R.drawable._4x4_widget
+                    else -> R.drawable._4x5_widget
+                }
+            }
+        )
         addView(surface)
         setPadding(0, dp(4), 0, dp(4))
     }

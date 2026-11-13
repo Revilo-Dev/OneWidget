@@ -7,5 +7,5 @@
     android:description="@string/battery_widget_description" android:widgetCategory="home_screen"
     android:configure="dev.revilodev.onewidget.WidgetConfigActivity" android:widgetFeatures="reconfigurable|hide_from_picker"
     app:previewLayoutSmall="@layout/widget_battery_compact" app:previewLayoutWideSmall="@layout/widget_battery_compact"
-    app:previewLayoutMedium="@layout/widget_battery_large" app:previewLayoutLarge="@layout/widget_battery_large"
+    app:previewLayoutMedium="@layout/widget_battery_square" app:previewLayoutLarge="@layout/widget_battery_large"
     app:allowMultipleSizes="true" app:widgetStyle="colorful" app:widgetSize="small|wideSmall|medium|large|extraLarge|extraLargeLong" />

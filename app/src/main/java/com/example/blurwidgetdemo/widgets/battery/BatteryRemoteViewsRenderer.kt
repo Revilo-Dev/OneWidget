@@ -62,10 +62,10 @@ object BatteryRemoteViewsRenderer {
         density: Float = 1f,
         apiLevel: Int = android.os.Build.VERSION.SDK_INT
     ): BatteryRenderPlan {
-        val productionLayout = if (renderSize.compact) {
-            R.layout.widget_battery_compact
-        } else {
-            R.layout.widget_battery_large
+        val productionLayout = when {
+            renderSize.compact -> R.layout.widget_battery_compact
+            renderSize.narrow -> R.layout.widget_battery_square
+            else -> R.layout.widget_battery_large
         }
         val geometry = design?.let { BatteryRemoteViewsGeometry.plan(it, renderSize, density, apiLevel) }
         val diagnostics = buildList {
@@ -96,11 +96,11 @@ object BatteryRemoteViewsRenderer {
     ): BatteryRemoteViewsRenderResult {
         val plan = plan(renderSize, design, mode, context.resources.displayMetrics.density)
         val views = RemoteViews(context.packageName, plan.appliedLayoutResId)
-        // Preserve the same @android:id/background surface used by production and One UI Home.
+        // keep the widget surface compatible with one ui home
         BlurWidget.applySurfaceColor(views, configuration.surfaceColor)
         if (design == null) {
-            if (plan.compact) applyCompact(views, configuration, runtimeData)
-            else applyLarge(views, configuration, runtimeData, hideLastRow = plan.size.widthDp >= 300f)
+            if (plan.compact) applyCompact(views, configuration, runtimeData, plan.size)
+            else applyLarge(views, configuration, runtimeData, plan.size)
         } else {
             require(design.widgetId == BatteryStudioDescriptor.WIDGET_ID) {
                 "Battery renderer received design for ${design.widgetId}"
@@ -114,37 +114,57 @@ object BatteryRemoteViewsRenderer {
     private fun applyCompact(
         views: RemoteViews,
         configuration: BatteryWidgetConfiguration,
-        runtimeData: BatteryRuntimeData
+        runtimeData: BatteryRuntimeData,
+        size: BatteryRenderSize
     ) = with(views) {
         val content = BatteryContentResolver.resolve(runtimeData, configuration.compactDeviceKey)
         val device = content.device
         setTextViewText(R.id.battery_percentage, device.percentage?.let { "$it%" } ?: "—")
         setImageViewResource(R.id.battery_icon, device.iconResId)
-        setImageViewBitmap(R.id.battery_compact_bar, progressBitmap(device, configuration, runtimeData))
+        setViewVisibility(R.id.battery_icon, if (size.narrow) View.GONE else View.VISIBLE)
+        setContentDescription(R.id.battery_percentage, "${device.label} ${content.percentageText}")
+        setImageViewBitmap(
+            R.id.battery_compact_bar,
+            progressBitmap(device, configuration, runtimeData, widthDp = size.widthDp, heightDp = size.heightDp)
+        )
         setTextColor(R.id.battery_percentage, configuration.textColor)
         setInt(R.id.battery_percentage, "setGravity", configuration.alignment.gravity)
-        setFloat(R.id.battery_percentage, "setTextSize", 30f * configuration.textScalePercent / 100f)
+        setFloat(R.id.battery_percentage, "setTextSize", 28f * configuration.textScalePercent / 100f)
     }
 
     private fun applyLarge(
         views: RemoteViews,
         configuration: BatteryWidgetConfiguration,
         runtimeData: BatteryRuntimeData,
-        hideLastRow: Boolean
+        size: BatteryRenderSize
     ) = with(views) {
         val rows = intArrayOf(R.id.battery_row_1, R.id.battery_row_2, R.id.battery_row_3, R.id.battery_row_4)
         val labels = intArrayOf(R.id.battery_label_1, R.id.battery_label_2, R.id.battery_label_3, R.id.battery_label_4)
         val bars = intArrayOf(R.id.battery_bar_1, R.id.battery_bar_2, R.id.battery_bar_3, R.id.battery_bar_4)
         val icons = intArrayOf(R.id.battery_icon_1, R.id.battery_icon_2, R.id.battery_icon_3, R.id.battery_icon_4)
+        val charging = intArrayOf(R.id.battery_charge_1, R.id.battery_charge_2, R.id.battery_charge_3, R.id.battery_charge_4)
+        if (size.narrow) setTextColor(R.id.battery_heading, configuration.textColor)
+        val barWidth = size.widthDp - if (size.narrow) 24f else 58f
+        val barHeight = (size.heightDp - if (size.narrow) 50f else 32f) / rows.size
         rows.indices.forEach { index ->
             val device = runtimeData.devices.getOrNull(index)
-            setViewVisibility(rows[index], if (device == null || (hideLastRow && index == rows.lastIndex)) View.GONE else View.VISIBLE)
+            setViewVisibility(rows[index], if (device == null) View.INVISIBLE else View.VISIBLE)
             if (device != null) {
-                setTextViewText(labels[index], "${device.label}  ${percentageText(device)}")
+                val percentage = percentageText(device)
+                setTextViewText(labels[index], device.percentage?.let { "$it%" } ?: "–")
+                setContentDescription(labels[index], "${device.label} $percentage")
                 setTextColor(labels[index], configuration.textColor)
-                setFloat(labels[index], "setTextSize", 15f * configuration.textScalePercent / 100f)
+                setInt(labels[index], "setGravity", configuration.alignment.gravity)
+                setFloat(labels[index], "setTextSize", minOf(13f * configuration.textScalePercent / 100f, barHeight.coerceAtLeast(8f) * 0.8f))
                 setImageViewResource(icons[index], device.iconResId)
-                setImageViewBitmap(bars[index], progressBitmap(device, configuration, runtimeData))
+                setViewVisibility(charging[index], if (device.charging) View.VISIBLE else View.GONE)
+                if (device.charging) {
+                    setImageViewResource(charging[index], R.drawable.charging)
+                }
+                setImageViewBitmap(
+                    bars[index],
+                    progressBitmap(device, configuration, runtimeData, widthDp = barWidth, heightDp = barHeight)
+                )
             }
         }
     }
@@ -178,7 +198,9 @@ object BatteryRemoteViewsRenderer {
         device: BatteryDeviceRuntimeData,
         configuration: BatteryWidgetConfiguration,
         runtimeData: BatteryRuntimeData,
-        radiusFraction: Float = 0.5f
+        radiusFraction: Float = 0.5f,
+        widthDp: Float = 600f,
+        heightDp: Float = 60f
     ) = if (configuration.gradientsEnabled) {
         WidgetProgressBarRenderer.render(
             device.percentage ?: 0,
@@ -188,14 +210,18 @@ object BatteryRemoteViewsRenderer {
                 BatteryVisualState.LOW -> GRADIENT_LOW
                 else -> GRADIENT_NORMAL
             },
-            radiusFraction
+            radiusFraction,
+            width = widthDp.toInt().coerceIn(1, 600),
+            height = heightDp.toInt().coerceIn(1, 100)
         )
     } else {
         WidgetProgressBarRenderer.render(
             device.percentage ?: 0,
             colourFor(stateFor(device, runtimeData), configuration.stateColors),
             animated = false,
-            cornerRadiusFraction = radiusFraction
+            cornerRadiusFraction = radiusFraction,
+            width = widthDp.toInt().coerceIn(1, 600),
+            height = heightDp.toInt().coerceIn(1, 100)
         )
     }
 
@@ -221,6 +247,6 @@ object BatteryRemoteViewsRenderer {
 
     private val GRADIENT_CHARGING = intArrayOf(0xFF9BDCA9.toInt(), 0xFF31CE8A.toInt(), 0xFF2F989F.toInt())
     private val GRADIENT_SUPER_FAST = intArrayOf(0xFF633EB9.toInt(), 0xFF6A8BFA.toInt(), 0xFF3ACD8C.toInt())
-    private val GRADIENT_NORMAL = intArrayOf(0xFF3BCE8E.toInt(), 0xFF87FA6A.toInt(), 0xFF3ACD8C.toInt())
+    private val GRADIENT_NORMAL = intArrayOf(0xFF3CFF77.toInt(), 0xFF40D18E.toInt())
     private val GRADIENT_LOW = intArrayOf(0xFFFF856D.toInt(), 0xFFFFA352.toInt(), 0xFFFF836D.toInt())
 }

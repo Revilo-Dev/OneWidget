@@ -21,21 +21,23 @@ object WidgetProgressBarRenderer {
         colour: Int,
         animated: Boolean,
         now: Long = System.currentTimeMillis(),
-        cornerRadiusFraction: Float = 0.5f
+        cornerRadiusFraction: Float = 0.5f,
+        width: Int = WIDTH,
+        height: Int = HEIGHT
     ): Bitmap {
-        val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = transparentCanvas(bitmap)
-        val radius = HEIGHT * cornerRadiusFraction.coerceIn(0f, 0.5f)
+        val radius = height * cornerRadiusFraction.coerceIn(0f, 0.5f)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.color = Color.argb(54, 255, 255, 255)
-        canvas.drawRoundRect(0f, 0f, WIDTH.toFloat(), HEIGHT.toFloat(), radius, radius, paint)
+        canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), radius, radius, paint)
 
-        val fillWidth = (WIDTH * progress.coerceIn(0, 100) / 100f).coerceAtLeast(0f)
+        val fillWidth = (width * progress.coerceIn(0, 100) / 100f).coerceAtLeast(0f)
         if (fillWidth > 0f) {
             val base = colour or 0xFF000000.toInt()
             if (!animated) {
                 paint.color = base
-                drawFill(canvas, fillWidth, radius, paint)
+                drawFill(canvas, fillWidth, radius, paint, height.toFloat())
                 return bitmap
             }
             val phase = ((now / 1_000L) % 12L).toFloat() / 12f
@@ -43,31 +45,37 @@ object WidgetProgressBarRenderer {
             val light = blend(base, Color.WHITE, 0.38f)
             // The highlight's offset is time based, so each scheduled or state refresh advances it.
             paint.shader = LinearGradient(
-                -WIDTH + (WIDTH * 2f * phase), 0f,
-                WIDTH * phase, 0f,
+                -width + (width * 2f * phase), 0f,
+                width * phase, 0f,
                 intArrayOf(dark, base, light, base, dark),
                 floatArrayOf(0f, .34f, .5f, .66f, 1f),
                 Shader.TileMode.MIRROR
             )
             paint.alpha = 255
-            drawFill(canvas, fillWidth, radius, paint)
+            drawFill(canvas, fillWidth, radius, paint, height.toFloat())
             paint.shader = null
         }
         return bitmap
     }
 
     /** A fixed left-to-right palette for widgets whose colours communicate status. */
-    fun render(progress: Int, colours: IntArray, cornerRadiusFraction: Float = 0.5f): Bitmap {
+    fun render(
+        progress: Int,
+        colours: IntArray,
+        cornerRadiusFraction: Float = 0.5f,
+        width: Int = WIDTH,
+        height: Int = HEIGHT
+    ): Bitmap {
         require(colours.size >= 2) { "A gradient needs at least two colours" }
-        val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = transparentCanvas(bitmap)
-        val radius = HEIGHT * cornerRadiusFraction.coerceIn(0f, 0.5f)
+        val radius = height * cornerRadiusFraction.coerceIn(0f, 0.5f)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.argb(54, 255, 255, 255) }
-        canvas.drawRoundRect(0f, 0f, WIDTH.toFloat(), HEIGHT.toFloat(), radius, radius, paint)
-        val fillWidth = WIDTH * progress.coerceIn(0, 100) / 100f
+        canvas.drawRoundRect(0f, 0f, width.toFloat(), height.toFloat(), radius, radius, paint)
+        val fillWidth = width * progress.coerceIn(0, 100) / 100f
         if (fillWidth > 0f) {
             paint.shader = LinearGradient(
-                0f, 0f, WIDTH.toFloat(), 0f,
+                0f, 0f, width.toFloat(), 0f,
                 colours.map { it or 0xFF000000.toInt() }.toIntArray(),
                 null,
                 Shader.TileMode.CLAMP
@@ -75,7 +83,7 @@ object WidgetProgressBarRenderer {
             // The track is intentionally translucent. Reset that alpha before drawing the fill;
             // otherwise Paint carries its 21% alpha into the shader and mutes every gradient.
             paint.alpha = 255
-            drawFill(canvas, fillWidth, radius, paint)
+            drawFill(canvas, fillWidth, radius, paint, height.toFloat())
             paint.shader = null
         }
         return bitmap

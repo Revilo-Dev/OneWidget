@@ -246,8 +246,14 @@ class MainActivity : PaletteActivity() {
             "Battery", R.drawable.battery, BatteryWidget::class.java,
             sizes("2 × 1" to R.layout.widget_battery_compact,
                 "4 × 1" to R.layout.widget_battery_compact,
-                "2 × 2" to R.layout.widget_battery_large, "4 × 2" to R.layout.widget_battery_large),
-            studioWidgetId = BatteryStudioDescriptor.WIDGET_ID
+                "2 × 2" to R.layout.widget_battery_square, "4 × 2" to R.layout.widget_battery_large),
+            studioWidgetId = BatteryStudioDescriptor.WIDGET_ID,
+            artwork = mapOf(
+                (2 to 1) to R.drawable.battery_2x1,
+                (4 to 1) to R.drawable.battery4x1,
+                (2 to 2) to R.drawable.battery_2x2,
+                (4 to 2) to R.drawable.battery_4x2
+            )
         ))),
         PickerCategory("Weather", R.drawable.category_weather, listOf(widget(
             "Weather", R.drawable.weather_sunny, WeatherWidget::class.java,
@@ -268,8 +274,15 @@ class MainActivity : PaletteActivity() {
         )),
         PickerCategory("Storage", R.drawable.category_storage, listOf(widget(
             "Storage", R.drawable.manage_storage, StorageWidget::class.java,
-            sizes("2 × 2" to R.layout.widget_storage_large, "4 × 2" to R.layout.widget_storage_large),
-            studioWidgetId = StorageStudioDescriptor.WIDGET_ID
+            sizes("2 × 1" to R.layout.widget_storage_compact, "4 × 1" to R.layout.widget_storage_compact,
+                "2 × 2" to R.layout.widget_storage_large, "4 × 2" to R.layout.widget_storage_large),
+            studioWidgetId = StorageStudioDescriptor.WIDGET_ID,
+            artwork = mapOf(
+                (2 to 1) to R.drawable.storage_2x1,
+                (4 to 1) to R.drawable.storage_4x1,
+                (2 to 2) to R.drawable.storage_2x2,
+                (4 to 2) to R.drawable.storage_4x2_1
+            )
         ))),
         PickerCategory("Health", R.drawable.category_health, listOf(
             stepCounterWidget(),
@@ -283,15 +296,18 @@ class MainActivity : PaletteActivity() {
             widget("Google Search", R.drawable.google, GoogleSearchWidget::class.java,
                 sizes("3 × 1" to R.layout.widget_google_search, "4 × 1" to R.layout.widget_google_search,
                     "5 × 1" to R.layout.widget_google_search, "6 × 1" to R.layout.widget_google_search,
-                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.GOOGLE_SEARCH),
+                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.GOOGLE_SEARCH,
+                artwork = mapOf((4 to 1) to R.drawable.google_search_4x1)),
             widget("Samsung Browser search", R.drawable.samsung_browser, SamsungBrowserSearchWidget::class.java,
                 sizes("3 × 1" to R.layout.widget_google_search, "4 × 1" to R.layout.widget_google_search,
                     "5 × 1" to R.layout.widget_google_search, "6 × 1" to R.layout.widget_google_search,
-                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH),
+                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.SAMSUNG_BROWSER_SEARCH,
+                artwork = mapOf((4 to 1) to R.drawable.samsung_search_4x1)),
             widget("YouTube search", R.drawable.youtube, YouTubeSearchWidget::class.java,
                 sizes("3 × 1" to R.layout.widget_google_search, "4 × 1" to R.layout.widget_google_search,
                     "5 × 1" to R.layout.widget_google_search, "6 × 1" to R.layout.widget_google_search,
-                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.YOUTUBE_SEARCH)
+                    "7 × 1" to R.layout.widget_google_search), studioWidgetId = UniversalWidgetIds.YOUTUBE_SEARCH,
+                artwork = mapOf((4 to 1) to R.drawable.youtube_4x1))
         )),
         PickerCategory("Media player", R.drawable.category_media, listOf(
             widget("Media player", R.drawable.music_alt, MediaPlayerWidget::class.java,
@@ -340,7 +356,8 @@ class MainActivity : PaletteActivity() {
             "3 × 1" to R.layout.widget_steps_compact,
             "4 × 1" to R.layout.widget_steps_compact
         ),
-        studioWidgetId = UniversalWidgetIds.STEP_COUNTER
+        studioWidgetId = UniversalWidgetIds.STEP_COUNTER,
+        artwork = mapOf((4 to 1) to R.drawable.steps_4x1)
     )
 
     private fun sizes(vararg definitions: Pair<String, Int>): List<WidgetSize> = definitions
@@ -360,8 +377,9 @@ class MainActivity : PaletteActivity() {
         provider: Class<out AppWidgetProvider>,
         sizes: List<WidgetSize>,
         toggleKind: ToggleKind? = null,
-        studioWidgetId: String? = null
-    ) = PickerWidget(title, icon, provider, sizes, toggleKind, studioWidgetId)
+        studioWidgetId: String? = null,
+        artwork: Map<Pair<Int, Int>, Int> = emptyMap()
+    ) = PickerWidget(title, icon, provider, sizes, toggleKind, studioWidgetId, artwork)
 
     private fun categoryCard(category: PickerCategory, searching: Boolean): View {
         val card = RoundedLinearLayout(this).apply {
@@ -510,14 +528,26 @@ class MainActivity : PaletteActivity() {
             )
         )
         if (source is GalleryPreviewSource.GeneratedSnapshot) {
-            return generatedSnapshotView(source) ?: ScaledWidgetPreview(
-                this,
-                size.layout,
-                size.columns,
-                size.rows,
-                item.title,
-                item.icon
-            )
+            generatedSnapshotView(source)?.let { return it }
+        }
+        item.artwork[size.columns to size.rows]?.let { resourceId ->
+            val compact = size.columns == 2 && size.rows in 1..2
+            return object : ImageView(this) {
+                override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+                    super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+                    if (compact) {
+                        val verticalPadding = paddingTop + paddingBottom
+                        val artworkHeight = (measuredHeight - verticalPadding).coerceAtLeast(0)
+                        setMeasuredDimension(measuredWidth, artworkHeight / 2 + verticalPadding)
+                    }
+                }
+            }.apply {
+                adjustViewBounds = true
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setPadding(0, dp(4), 0, dp(4))
+                setImageResource(resourceId)
+                contentDescription = getString(R.string.widget_preview)
+            }
         }
         return when (source) {
             is GalleryPreviewSource.PackagedPreview -> ScaledWidgetPreview(
@@ -528,6 +558,7 @@ class MainActivity : PaletteActivity() {
                 item.title,
                 item.icon
             )
+            is GalleryPreviewSource.GeneratedSnapshot,
             GalleryPreviewSource.LegacyScaledPreview -> ScaledWidgetPreview(
                 this,
                 size.layout,
@@ -542,7 +573,6 @@ class MainActivity : PaletteActivity() {
                 scaleType = ImageView.ScaleType.CENTER_INSIDE
                 contentDescription = getString(R.string.widget_preview)
             }
-            is GalleryPreviewSource.GeneratedSnapshot -> error("Generated snapshot handled above")
         }
     }
 
@@ -738,7 +768,8 @@ class MainActivity : PaletteActivity() {
         val provider: Class<out AppWidgetProvider>,
         val sizes: List<WidgetSize>,
         val toggleKind: ToggleKind? = null,
-        val studioWidgetId: String? = null
+        val studioWidgetId: String? = null,
+        val artwork: Map<Pair<Int, Int>, Int> = emptyMap()
     ) {
         fun subcategoryIcon() = when (toggleKind) {
             ToggleKind.BLUETOOTH -> R.drawable.sub_toggle_bluetooth
